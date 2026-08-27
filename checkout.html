@@ -91,7 +91,7 @@
 
 <div class="container">
     <div class="text-center mb-4">
-        <a href="/shop/" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
+        <a href="/templates/shop" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
         <h1 style="color:var(--text); margin-top:10px;">🛒 Оформление заказа</h1>
     </div>
 
@@ -103,13 +103,13 @@
         <div class="step-dot" id="step3Dot">3</div>
     </div>
 
-    <!-- Шаг 1 -->
+    <!-- Шаг 1: Данные получателя (автозаполнение из Telegram) -->
     <div class="step active" id="step1">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h4>
             <div class="mb-3">
                 <label class="form-label"><i class="fas fa-user"></i> Имя</label>
-                <input type="text" class="form-control" id="userName" readonly value="Пользователь">
+                <input type="text" class="form-control" id="userName" placeholder="Ваше имя">
             </div>
             <div class="mb-3">
                 <label class="form-label"><i class="fas fa-phone"></i> Телефон</label>
@@ -123,7 +123,7 @@
         </div>
     </div>
 
-    <!-- Шаг 2 -->
+    <!-- Шаг 2: Товары -->
     <div class="step" id="step2">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Ваш заказ</h4>
@@ -140,7 +140,7 @@
         </div>
     </div>
 
-    <!-- Шаг 3 -->
+    <!-- Шаг 3: Оплата и чек -->
     <div class="step" id="step3">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--success);"></i> Оплата</h4>
@@ -179,6 +179,7 @@
     let selectedFile = null;
     let currentStep = 1;
 
+    // ============ ПОЛУЧАЕМ ID И ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ============
     function getTelegramId() {
         const params = new URLSearchParams(window.location.search);
         telegramId = params.get('telegram_id');
@@ -191,6 +192,47 @@
         return telegramId;
     }
 
+    async function loadUserData() {
+        telegramId = getTelegramId();
+        
+        if (!telegramId) {
+            alert('❌ Ошибка: ID пользователя не найден');
+            window.location.href = '/templates/shop';
+            return;
+        }
+
+        try {
+            // Пробуем получить данные через Flask API
+            const response = await fetch(`/api/user/${telegramId}`);
+            const data = await response.json();
+            
+            if (data.success && data.user) {
+                const user = data.user;
+                document.getElementById('userName').value = user.first_name || '';
+                document.getElementById('userPhone').value = user.phone || '';
+                document.getElementById('userAddress').value = user.address || '';
+                
+                // Сохраняем в localStorage для других страниц
+                localStorage.setItem('telegram_name', user.first_name || '');
+                localStorage.setItem('telegram_phone', user.phone || '');
+            } else {
+                // Используем данные из localStorage
+                const name = localStorage.getItem('telegram_name') || '';
+                const phone = localStorage.getItem('telegram_phone') || '';
+                document.getElementById('userName').value = name;
+                document.getElementById('userPhone').value = phone;
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки пользователя:', error);
+            // Используем localStorage
+            const name = localStorage.getItem('telegram_name') || '';
+            const phone = localStorage.getItem('telegram_phone') || '';
+            document.getElementById('userName').value = name;
+            document.getElementById('userPhone').value = phone;
+        }
+    }
+
+    // ============ ЗАГРУЗКА КОРЗИНЫ ============
     function loadCart() {
         try {
             const cartData = localStorage.getItem('cart');
@@ -213,7 +255,15 @@
         cart.forEach(item => {
             const subtotal = item.price * item.quantity;
             total += subtotal;
-            html += `<div class="product-item"><div><div style="font-weight:600;">${item.name}</div><div style="color:var(--text-muted); font-size:14px;">${item.quantity} × ${formatPrice(item.price)}</div></div><div style="font-weight:600; color:var(--primary);">${formatPrice(subtotal)}</div></div>`;
+            html += `
+                <div class="product-item">
+                    <div>
+                        <div style="font-weight:600;">${item.name}</div>
+                        <div style="color:var(--text-muted); font-size:14px;">${item.quantity} × ${formatPrice(item.price)}</div>
+                    </div>
+                    <div style="font-weight:600; color:var(--primary);">${formatPrice(subtotal)}</div>
+                </div>
+            `;
         });
         container.innerHTML = html;
         document.getElementById('totalAmount').textContent = formatPrice(total) + ' сум';
@@ -223,6 +273,7 @@
         return new Intl.NumberFormat('uz-UZ').format(price);
     }
 
+    // ============ ШАГИ ============
     function goToStep(step) {
         currentStep = step;
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
@@ -259,6 +310,7 @@
         goToStep(3); 
     }
 
+    // ============ ЗАГРУЗКА ФАЙЛА ============
     function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -285,22 +337,76 @@
         document.getElementById('receiptInput').value = '';
     }
 
-    function submitOrder() {
+    // ============ ОТПРАВКА ЗАКАЗА В TELEGRAM ============
+    async function submitOrder() {
         if (!selectedFile) {
             alert('❌ Загрузите чек оплаты');
             return;
         }
-        alert('✅ Заказ оформлен! С вами свяжется оператор.');
-        localStorage.removeItem('cart');
-        window.location.href = '/shop/?telegram_id=' + telegramId;
+
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loadingIndicator');
+        
+        submitBtn.disabled = true;
+        loading.style.display = 'block';
+
+        try {
+            // Данные для отправки в Telegram
+            const orderData = {
+                telegram_id: telegramId,
+                user_name: document.getElementById('userName').value || 'Не указан',
+                phone: document.getElementById('userPhone').value || 'Не указан',
+                address: document.getElementById('userAddress').value || 'Не указан',
+                products: cart,
+                total_amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+            };
+
+            // Отправляем через Flask API
+            const response = await fetch('/api/order/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Загружаем чек
+                const formData = new FormData();
+                formData.append('receipt', selectedFile);
+                formData.append('order_id', result.order_id);
+                formData.append('telegram_id', telegramId);
+
+                await fetch('/api/upload/receipt', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                localStorage.removeItem('cart');
+                cart = [];
+                
+                alert('✅ Заказ успешно оформлен! С вами свяжется оператор.');
+                window.location.href = '/templates/shop?telegram_id=' + telegramId;
+            } else {
+                alert('❌ Ошибка оформления заказа');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('❌ Произошла ошибка. Попробуйте еще раз.');
+        } finally {
+            submitBtn.disabled = false;
+            loading.style.display = 'none';
+        }
     }
 
+    // ============ ИНИЦИАЛИЗАЦИЯ ============
     document.addEventListener('DOMContentLoaded', function() {
-        getTelegramId();
+        loadUserData();
         loadCart();
+        
         if (!localStorage.getItem('cart') || JSON.parse(localStorage.getItem('cart')).length === 0) {
             alert('🛒 Корзина пуста');
-            window.location.href = '/shop/?telegram_id=' + telegramId;
+            window.location.href = '/templates/shop?telegram_id=' + telegramId;
         }
     });
 </script>
