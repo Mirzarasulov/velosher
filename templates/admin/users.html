@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пользователи</title>
+    <title>👥 Пользователи - Velosher Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,15 +15,24 @@
             --text-muted: #a0a0b0;
             --border: #2a2a4e;
             --primary: #667eea;
+            --success: #00b894;
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0;
-            width: 260px; background: var(--card); border-right: 1px solid var(--border);
+            width: 250px; background: var(--card);
+            border-right: 1px solid var(--border);
             padding: 20px; z-index: 100; overflow-y: auto;
         }
-        .sidebar .logo { font-size: 20px; font-weight: 700; color: var(--primary); padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .sidebar .logo i { margin-right: 10px; }
+        .sidebar .logo {
+            font-size: 22px; font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
         .sidebar .nav-item {
             display: block; padding: 12px 16px; border-radius: 10px;
             color: var(--text-muted); text-decoration: none;
@@ -32,18 +41,32 @@
         .sidebar .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
         .sidebar .nav-item.active { background: rgba(102,126,234,0.15); color: var(--primary); }
         .sidebar .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
-        .main-content { margin-left: 260px; padding: 20px; }
-        .glass { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
-        .table-dark-custom { background: var(--bg); border-radius: 12px; overflow: hidden; }
+        .main-content { margin-left: 250px; padding: 20px; }
+        .glass {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .table-dark-custom {
+            background: var(--bg);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+        }
         .table-dark-custom thead { background: rgba(102,126,234,0.15); }
         .table-dark-custom th { color: var(--text); padding: 12px 16px; border: none; font-size: 13px; }
         .table-dark-custom td { color: var(--text-muted); padding: 12px 16px; border-color: var(--border); }
-        .admin-badge { background: #ff4757; color: white; padding: 2px 10px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
-        .status-active { color: #00b894; }
-        .btn-glass { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 10px; transition: all 0.3s; text-decoration: none; }
-        .btn-glass:hover { background: var(--primary); color: white; border-color: var(--primary); }
-        .theme-toggle { background: var(--border); border: none; color: var(--text); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.3s; }
-        .theme-toggle:hover { background: var(--primary); }
+        .admin-badge {
+            background: #ff4757;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+        .status-active { color: var(--success); }
         @media (max-width: 768px) {
             .sidebar { width: 100%; position: relative; padding: 15px; }
             .main-content { margin-left: 0; padding: 15px; }
@@ -51,32 +74,36 @@
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <div class="logo"><i class="fas fa-shield-alt"></i> Velosher Admin</div>
         <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Главная</a>
-        <a href="orders.html" class="nav-item"><i class="fas fa-box"></i> Заказы</a>
         <a href="products.html" class="nav-item"><i class="fas fa-tag"></i> Товары</a>
+        <a href="orders.html" class="nav-item"><i class="fas fa-box"></i> Заказы</a>
         <a href="users.html" class="nav-item active"><i class="fas fa-users"></i> Пользователи</a>
         <a href="chat.html" class="nav-item"><i class="fas fa-comment-dots"></i> Чат</a>
         <a href="broadcast.html" class="nav-item"><i class="fas fa-bullhorn"></i> Рассылка</a>
-        <a href="../shop.html" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;"><i class="fas fa-store"></i> Магазин</a>
+        <a href="/shop/" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+            <i class="fas fa-store"></i> Магазин
+        </a>
     </div>
 
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0" style="color:var(--text);"><i class="fas fa-users" style="color:var(--primary);"></i> Все пользователи</h2>
-            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
-        </div>
+        <h2 class="mb-4"><i class="fas fa-users" style="color:var(--primary);"></i> Все пользователи</h2>
 
         <div class="glass">
             <div class="table-responsive">
                 <table class="table-dark-custom table">
-                    <thead><tr><th>ID</th><th>Имя</th><th>Телефон</th><th>Заказов</th><th>Статус</th></tr></thead>
-                    <tbody>
-                        <tr><td><code style="color:var(--primary);">6040186314</code></td><td>Администратор <span class="admin-badge">👑 Админ</span></td><td>+998901234567</td><td>0</td><td><span class="status-active">🟢 Активен</span></td></tr>
-                        <tr><td><code style="color:var(--primary);">123456789</code></td><td>Иван Петров</td><td>+998901234568</td><td>2</td><td><span class="status-active">🟢 Активен</span></td></tr>
-                        <tr><td><code style="color:var(--primary);">987654321</code></td><td>Анна Иванова</td><td>+998901234569</td><td>1</td><td><span class="status-active">🟢 Активен</span></td></tr>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Телефон</th>
+                            <th>Заказов</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        <tr><td colspan="5" style="text-align:center;">Загрузка...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -84,26 +111,33 @@
     </div>
 
     <script>
-        function toggleTheme() {
-            const root = document.documentElement;
-            const currentBg = getComputedStyle(root).getPropertyValue('--bg').trim();
-            const isDark = currentBg === '#0a0a1a';
-            if (isDark) {
-                root.style.setProperty('--bg', '#f0f2f5');
-                root.style.setProperty('--card', '#ffffff');
-                root.style.setProperty('--text', '#2d3436');
-                root.style.setProperty('--text-muted', '#6c757d');
-                root.style.setProperty('--border', '#e0e0e0');
-                document.getElementById('themeIcon').className = 'fas fa-sun';
-            } else {
-                root.style.setProperty('--bg', '#0a0a1a');
-                root.style.setProperty('--card', '#1a1a2e');
-                root.style.setProperty('--text', '#ffffff');
-                root.style.setProperty('--text-muted', '#a0a0b0');
-                root.style.setProperty('--border', '#2a2a4e');
-                document.getElementById('themeIcon').className = 'fas fa-moon';
+        const API_URL = 'http://127.0.0.1:5000';
+
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API_URL}/api/users`);
+                const data = await res.json();
+                const tbody = document.getElementById('usersList');
+                if (!data.users || data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет пользователей</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.users.map(u => `
+                    <tr>
+                        <td><code style="color:var(--primary);">${u.telegram_id || u.id}</code></td>
+                        <td>${u.first_name || 'Аноним'} ${u.is_admin ? '<span class="admin-badge">👑 Админ</span>' : ''}</td>
+                        <td>${u.phone || '—'}</td>
+                        <td>${u.total_orders || 0}</td>
+                        <td><span class="status-active">🟢 Активен</span></td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Load users error:', e);
+                document.getElementById('usersList').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--danger);">❌ Ошибка загрузки</td></tr>';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', loadUsers);
     </script>
 </body>
 </html>
