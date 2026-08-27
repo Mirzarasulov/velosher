@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚲 Velosher - Магазин</title>
+    <title>🚲 Velosher - Магазин велосипедов</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -375,7 +375,7 @@
         <div class="container">
             <div class="row w-100 align-items-center">
                 <div class="col-4">
-                    <a href="/index.html" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
+                    <a href="/" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
                 </div>
                 <div class="col-8 text-end">
                     <button class="btn-cart" onclick="toggleCart()">
@@ -476,7 +476,7 @@
 
         const TELEGRAM_ID = getTelegramId();
 
-        // ============ ПОЛЬЗОВАТЕЛЬ ============
+        // ============ ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ============
         async function loadUser() {
             if (!TELEGRAM_ID) {
                 document.getElementById('userProfile').style.display = 'none';
@@ -484,7 +484,6 @@
             }
 
             try {
-                // Пробуем получить данные через API
                 const response = await fetch(`/api/user/${TELEGRAM_ID}`);
                 const data = await response.json();
                 
@@ -494,17 +493,26 @@
                     document.getElementById('userName').textContent = user.first_name || 'Пользователь';
                     document.getElementById('userPhone').textContent = user.phone || '+998 90 123 45 67';
                     document.getElementById('userAvatar').textContent = (user.first_name || 'П').charAt(0).toUpperCase();
-                }
-            } catch (error) {
-                // Если API не работает, используем данные из localStorage
-                const name = localStorage.getItem('telegram_name') || 'Пользователь';
-                const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
-                if (name) {
+                    
+                    localStorage.setItem('telegram_name', user.first_name || 'Пользователь');
+                    localStorage.setItem('telegram_phone', user.phone || '');
+                } else {
+                    // Если пользователь не найден, используем localStorage
+                    const name = localStorage.getItem('telegram_name') || 'Пользователь';
+                    const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
                     document.getElementById('userProfile').style.display = 'block';
                     document.getElementById('userName').textContent = name;
                     document.getElementById('userPhone').textContent = phone;
                     document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
                 }
+            } catch (error) {
+                console.error('Ошибка загрузки пользователя:', error);
+                const name = localStorage.getItem('telegram_name') || 'Пользователь';
+                const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
+                document.getElementById('userProfile').style.display = 'block';
+                document.getElementById('userName').textContent = name;
+                document.getElementById('userPhone').textContent = phone;
+                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
             }
         }
 
@@ -521,22 +529,20 @@
                 } else {
                     // Тестовые товары
                     products = [
-                        { id: 1, name: '🚲 Горный велосипед', price: 1500000, stock: 10, image: '' },
-                        { id: 2, name: '🚴 Шоссейный велосипед', price: 2000000, stock: 5, image: '' },
-                        { id: 3, name: '🚲 Детский велосипед', price: 800000, stock: 15, image: '' },
-                        { id: 4, name: '⚡ Электро велосипед', price: 3000000, stock: 3, image: '' },
-                        { id: 5, name: '🛴 Самокат', price: 500000, stock: 20, image: '' }
+                        { id: 1, name: '🚲 Горный велосипед', price: 4500000, stock: 10, image: '' },
+                        { id: 2, name: '🚴 Шоссейный велосипед', price: 3800000, stock: 5, image: '' },
+                        { id: 3, name: '🚲 Городской велосипед', price: 2800000, stock: 15, image: '' },
+                        { id: 4, name: '⚡ Электро велосипед', price: 8900000, stock: 3, image: '' }
                     ];
                 }
                 renderProducts();
             } catch (error) {
                 console.error('Ошибка загрузки товаров:', error);
-                // Тестовые товары
                 products = [
-                    { id: 1, name: '🚲 Горный велосипед', price: 1500000, stock: 10, image: '' },
-                    { id: 2, name: '🚴 Шоссейный велосипед', price: 2000000, stock: 5, image: '' },
-                    { id: 3, name: '🚲 Детский велосипед', price: 800000, stock: 15, image: '' },
-                    { id: 4, name: '⚡ Электро велосипед', price: 3000000, stock: 3, image: '' }
+                    { id: 1, name: '🚲 Горный велосипед', price: 4500000, stock: 10, image: '' },
+                    { id: 2, name: '🚴 Шоссейный велосипед', price: 3800000, stock: 5, image: '' },
+                    { id: 3, name: '🚲 Городской велосипед', price: 2800000, stock: 15, image: '' },
+                    { id: 4, name: '⚡ Электро велосипед', price: 8900000, stock: 3, image: '' }
                 ];
                 renderProducts();
             }
@@ -758,8 +764,7 @@
                 showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота');
                 return;
             }
-            // ✅ ПРАВИЛЬНАЯ ССЫЛКА НА CHECKOUT
-            window.location.href = `/checkout.html?telegram_id=${TELEGRAM_ID}`;
+            window.location.href = `/checkout/?telegram_id=${TELEGRAM_ID}`;
         }
 
         // ============ TOAST ============
@@ -779,7 +784,6 @@
             loadProducts();
             updateCartCount();
 
-            // Close cart on Escape
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     const isOpen = document.getElementById('cartModal').classList.contains('open');
