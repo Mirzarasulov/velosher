@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚲 Velosher - Магазин велосипедов</title>
+    <title>🚲 Velosher - Магазин</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -25,7 +25,6 @@
             min-height: 100vh;
         }
         
-        /* Navbar */
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 12px 0;
@@ -59,19 +58,7 @@
             font-weight: 700;
             margin-left: 6px;
         }
-        .btn-back {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-        .btn-back:hover { background: rgba(255,255,255,0.3); color: white; }
 
-        /* User Profile */
         .user-profile {
             background: var(--card);
             border: 1px solid var(--border);
@@ -103,7 +90,6 @@
             font-size: 12px;
         }
 
-        /* Filters */
         .filter-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -128,7 +114,6 @@
             color: var(--text);
         }
 
-        /* Products */
         .product-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -136,7 +121,6 @@
             overflow: hidden;
             transition: all 0.3s;
             height: 100%;
-            cursor: pointer;
         }
         .product-card:hover {
             transform: translateY(-6px);
@@ -179,12 +163,11 @@
             transition: all 0.3s;
         }
         .btn-add:hover { transform: scale(1.02); }
-        .btn-add:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-add.in-cart {
             background: linear-gradient(135deg, #00b894 0%, #00a381 100%);
         }
 
-        /* Cart Modal */
         .cart-overlay {
             position: fixed;
             top: 0;
@@ -306,7 +289,6 @@
         }
         .empty-cart i { font-size: 48px; margin-bottom: 15px; }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -329,7 +311,6 @@
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
-        /* Footer */
         .footer {
             background: var(--card);
             border-top: 1px solid var(--border);
@@ -339,9 +320,7 @@
         }
         .footer p { color: var(--text-muted); font-size: 14px; margin: 0; }
         .footer a { color: var(--primary); text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
 
-        /* Loading */
         .loading {
             text-align: center;
             padding: 60px 20px;
@@ -375,7 +354,7 @@
         <div class="container">
             <div class="row w-100 align-items-center">
                 <div class="col-4">
-                    <a href="/" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
+                    <a href="/templates/index.html" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
                 </div>
                 <div class="col-8 text-end">
                     <button class="btn-cart" onclick="toggleCart()">
@@ -484,6 +463,7 @@
             }
 
             try {
+                // Пробуем получить данные через Flask API
                 const response = await fetch(`/api/user/${TELEGRAM_ID}`);
                 const data = await response.json();
                 
@@ -497,7 +477,7 @@
                     localStorage.setItem('telegram_name', user.first_name || 'Пользователь');
                     localStorage.setItem('telegram_phone', user.phone || '');
                 } else {
-                    // Если пользователь не найден, используем localStorage
+                    // Если API не работает, используем данные из URL или localStorage
                     const name = localStorage.getItem('telegram_name') || 'Пользователь';
                     const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
                     document.getElementById('userProfile').style.display = 'block';
@@ -764,7 +744,8 @@
                 showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота');
                 return;
             }
-            window.location.href = `/checkout/?telegram_id=${TELEGRAM_ID}`;
+            // ✅ ПРАВИЛЬНАЯ ССЫЛКА НА CHECKOUT (в корне)
+            window.location.href = `/checkout.html?telegram_id=${TELEGRAM_ID}`;
         }
 
         // ============ TOAST ============
