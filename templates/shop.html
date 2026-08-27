@@ -75,7 +75,8 @@
             border: 2px solid var(--card);
         }
         .user-profile .name { font-weight: 600; font-size: 18px; color: var(--text); }
-        .user-profile .phone { color: var(--text-muted); font-size: 14px; }
+        .user-profile .username { color: var(--text-muted); font-size: 13px; }
+        .user-profile .phone { color: var(--text-muted); font-size: 13px; }
         .user-profile .user-id { color: var(--text-muted); font-size: 11px; }
         .user-profile .badge-online {
             background: rgba(0,184,148,0.2);
@@ -85,6 +86,17 @@
             font-size: 12px;
             display: inline-block;
         }
+
+        /* КОРЗИНА И ОФОРМЛЕНИЕ */
+        .checkout-section {
+            display: none;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .checkout-section.active { display: block; }
 
         .filter-section {
             background: var(--card);
@@ -188,27 +200,66 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* АВАТАРКА ПО УМОЛЧАНИЮ */
-        .avatar-placeholder {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
-            margin-right: 15px;
-            flex-shrink: 0;
-            border: 2px solid var(--primary);
+        .form-control {
+            background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; width: 100%;
         }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.2); background: var(--bg); color: var(--text); outline: none; }
+        .form-label { color: var(--text-muted); font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px; }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; padding: 14px; border-radius: 12px;
+            font-weight: 600; width: 100%; transition: all 0.3s; cursor: pointer;
+        }
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(102,126,234,0.3); }
+        .btn-success {
+            background: linear-gradient(135deg, #00b894 0%, #00a381 100%);
+            color: white; border: none; padding: 14px; border-radius: 12px;
+            font-weight: 600; width: 100%; transition: all 0.3s; cursor: pointer;
+        }
+        .btn-success:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); }
+        .btn-outline {
+            background: var(--bg); border: 1px solid var(--border); color: var(--text);
+            padding: 10px 20px; border-radius: 10px; transition: all 0.3s; cursor: pointer; width: 100%;
+        }
+        .btn-outline:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .product-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .product-item:last-child { border-bottom: none; }
+        .total-amount { font-size: 28px; font-weight: 700; color: var(--primary); }
+        .upload-area {
+            border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
+            text-align: center; cursor: pointer; transition: all 0.3s;
+        }
+        .upload-area:hover { border-color: var(--primary); background: rgba(102,126,234,0.05); }
+        .upload-area i { font-size: 48px; color: var(--text-muted); margin-bottom: 10px; display: block; }
+        .preview-image { max-width: 200px; max-height: 200px; border-radius: 8px; margin: 10px auto; display: block; }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .step-indicator { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; align-items: center; }
+        .step-dot {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--border); color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center; font-weight: 700;
+        }
+        .step-dot.active { background: var(--primary); color: white; }
+        .step-dot.done { background: var(--success); color: white; }
+        .step-line { width: 60px; height: 2px; background: var(--border); }
+        .step-line.done { background: var(--success); }
+        .loading-indicator { display: none; text-align: center; padding: 20px; }
+        .loading-indicator .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border); border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;
+        }
+        .back-link { color: var(--primary); text-decoration: none; font-size: 14px; cursor: pointer; }
+        .back-link:hover { text-decoration: underline; }
+        .alert { background: rgba(102,126,234,0.1); border: 1px solid var(--primary); color: var(--text); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; }
 
         @media (max-width: 768px) {
             .cart-modal { width: 100%; right: -100%; }
             .product-image { height: 140px; }
             .navbar .brand { font-size: 18px; }
-            .user-profile { flex-wrap: wrap; }
+            .step-line { width: 30px; }
         }
         @media (max-width: 480px) { .product-card { margin-bottom: 10px; } }
     </style>
@@ -242,6 +293,7 @@
                 </div>
                 <div>
                     <div class="name" id="userName">Гость</div>
+                    <div class="username" id="userUsername">@username</div>
                     <div class="phone" id="userPhone">+998 90 123 45 67</div>
                     <div class="user-id" id="userId">ID: не указан</div>
                 </div>
@@ -251,7 +303,8 @@
             </div>
         </div>
 
-        <div class="filter-section">
+        <!-- Каталог -->
+        <div class="filter-section" id="catalogSection">
             <div class="row align-items-center g-2">
                 <div class="col-md-4">
                     <h5 class="mb-0" style="color:var(--text);">
@@ -271,14 +324,102 @@
             </div>
         </div>
 
+        <!-- Товары -->
         <div class="row g-4" id="productsContainer">
             <div class="loading">
                 <div class="spinner"></div>
                 <p style="color:var(--text-muted);">Загрузка товаров...</p>
             </div>
         </div>
+
+        <!-- ОФОРМЛЕНИЕ ЗАКАЗА (встроено) -->
+        <div class="checkout-section" id="checkoutSection">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Оформление заказа</h4>
+                <span class="back-link" onclick="closeCheckout()"><i class="fas fa-times"></i> Закрыть</span>
+            </div>
+
+            <div class="step-indicator" id="stepIndicator">
+                <div class="step-dot active" id="step1Dot">1</div>
+                <div class="step-line" id="line1"></div>
+                <div class="step-dot" id="step2Dot">2</div>
+                <div class="step-line" id="line2"></div>
+                <div class="step-dot" id="step3Dot">3</div>
+            </div>
+
+            <!-- Шаг 1 -->
+            <div class="step active" id="step1">
+                <div class="card-glass" style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
+                    <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h5>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-user"></i> Имя</label>
+                        <input type="text" class="form-control" id="checkoutName" placeholder="Ваше имя">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-phone"></i> Телефон</label>
+                        <input type="text" class="form-control" id="checkoutPhone" placeholder="+998 90 123 45 67">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-map-pin"></i> Адрес доставки</label>
+                        <input type="text" class="form-control" id="checkoutAddress" placeholder="Улица, дом, квартира">
+                    </div>
+                    <button class="btn-primary" onclick="goToStep2()"><i class="fas fa-arrow-right"></i> Продолжить</button>
+                </div>
+            </div>
+
+            <!-- Шаг 2 -->
+            <div class="step" id="step2">
+                <div class="card-glass" style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
+                    <h5 style="margin-bottom:20px;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Ваш заказ</h5>
+                    <div id="checkoutItems"></div>
+                    <hr style="border-color:var(--border);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="font-size:18px; font-weight:600;">Итого:</span>
+                        <span class="total-amount" id="checkoutTotal">0 сум</span>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-6"><button class="btn-outline" onclick="goToStep1()"><i class="fas fa-arrow-left"></i> Назад</button></div>
+                        <div class="col-6"><button class="btn-success" onclick="goToStep3()"><i class="fas fa-credit-card"></i> Перейти к оплате</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Шаг 3 -->
+            <div class="step" id="step3">
+                <div class="card-glass" style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
+                    <h5 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--success);"></i> Оплата</h5>
+                    <div class="alert"><i class="fas fa-info-circle"></i> Оплата производится картой. После оплаты загрузите чек.</div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-file-image"></i> Загрузить чек оплаты</label>
+                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('receiptInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p style="color:var(--text-muted);">Нажмите или перетащите файл</p>
+                            <p style="font-size:12px; color:var(--text-muted);">Поддерживаются: JPG, PNG, PDF</p>
+                        </div>
+                        <input type="file" id="receiptInput" accept="image/*,application/pdf" style="display:none" onchange="handleFileUpload(event)">
+                        <div id="filePreview" style="display:none; margin-top:10px;">
+                            <img id="previewImage" class="preview-image" src="">
+                            <div class="text-center">
+                                <span id="fileName" style="color:var(--text-muted);"></span>
+                                <button class="btn-outline" style="padding:4px 12px; font-size:12px; margin-left:10px; width:auto;" onclick="removeFile()"><i class="fas fa-times"></i> Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-6"><button class="btn-outline" onclick="goToStep2()"><i class="fas fa-arrow-left"></i> Назад</button></div>
+                        <div class="col-6"><button class="btn-primary" onclick="submitCheckout()" id="submitBtn"><i class="fas fa-check"></i> Оформить заказ</button></div>
+                    </div>
+                    <div class="loading-indicator" id="checkoutLoading">
+                        <div class="spinner"></div>
+                        <p style="color:var(--text-muted); margin-top:10px;">Оформление заказа...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    <!-- Корзина (модалка) -->
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
     <div class="cart-modal" id="cartModal">
         <div class="cart-modal-header">
@@ -309,6 +450,8 @@
         }
 
         const TELEGRAM_ID = getTelegramId();
+        let checkoutStep = 1;
+        let selectedFile = null;
 
         // ============ ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ============
         async function loadUser() {
@@ -331,6 +474,10 @@
                     const name = user.first_name || 'Пользователь';
                     document.getElementById('userName').textContent = name;
                     
+                    // Username
+                    const username = user.username ? '@' + user.username : 'нет username';
+                    document.getElementById('userUsername').textContent = username;
+                    
                     // Телефон
                     const phone = user.phone || '+998 90 123 45 67';
                     document.getElementById('userPhone').textContent = phone;
@@ -338,32 +485,36 @@
                     // ID
                     document.getElementById('userId').textContent = `ID: ${TELEGRAM_ID}`;
                     
-                    // Аватарка (первая буква имени)
+                    // Аватарка
                     const avatar = document.getElementById('userAvatar');
                     avatar.textContent = name.charAt(0).toUpperCase();
                     
                     // Сохраняем в localStorage
                     localStorage.setItem('telegram_name', name);
+                    localStorage.setItem('telegram_username', username);
                     localStorage.setItem('telegram_phone', phone);
                 } else {
-                    // Если пользователь не найден в БД — используем localStorage
+                    // Если пользователь не найден — используем localStorage
                     const name = localStorage.getItem('telegram_name') || 'Пользователь';
+                    const username = localStorage.getItem('telegram_username') || '@username';
                     const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
                     
                     profile.style.display = 'block';
                     document.getElementById('userName').textContent = name;
+                    document.getElementById('userUsername').textContent = username;
                     document.getElementById('userPhone').textContent = phone;
                     document.getElementById('userId').textContent = `ID: ${TELEGRAM_ID}`;
                     document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
                 }
             } catch (error) {
                 console.error('Ошибка загрузки пользователя:', error);
-                // Используем localStorage
                 const name = localStorage.getItem('telegram_name') || 'Пользователь';
+                const username = localStorage.getItem('telegram_username') || '@username';
                 const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
                 
                 profile.style.display = 'block';
                 document.getElementById('userName').textContent = name;
+                document.getElementById('userUsername').textContent = username;
                 document.getElementById('userPhone').textContent = phone;
                 document.getElementById('userId').textContent = `ID: ${TELEGRAM_ID}`;
                 document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
@@ -537,7 +688,7 @@
             html += `<div class="cart-total">
                 <div class="row align-items-center">
                     <div class="col-6"><strong>Итого:</strong> <div class="total-price">${formatPrice(total)} сум</div></div>
-                    <div class="col-6 text-end"><button class="btn-checkout" onclick="goToCheckout()"><i class="fas fa-check"></i> Оформить</button></div>
+                    <div class="col-6 text-end"><button class="btn-checkout" onclick="openCheckout()"><i class="fas fa-check"></i> Оформить</button></div>
                 </div>
             </div>`;
             container.innerHTML = html;
@@ -554,13 +705,173 @@
             if (isOpen) renderCart();
         }
 
-        // ============ ПЕРЕХОД НА ОФОРМЛЕНИЕ ============
-        function goToCheckout() {
+        // ============ ОФОРМЛЕНИЕ ЗАКАЗА (ВСТРОЕННОЕ) ============
+        function openCheckout() {
             if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
             if (!TELEGRAM_ID) { showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота'); return; }
+
+            // Заполняем данные пользователя в форме
+            document.getElementById('checkoutName').value = localStorage.getItem('telegram_name') || '';
+            document.getElementById('checkoutPhone').value = localStorage.getItem('telegram_phone') || '';
             
-            // ✅ ПРЯМАЯ ССЫЛКА НА CHECKOUT
-            window.location.href = `/checkout.html?telegram_id=${TELEGRAM_ID}`;
+            // Показываем секцию оформления
+            document.getElementById('catalogSection').style.display = 'none';
+            document.getElementById('productsContainer').style.display = 'none';
+            document.getElementById('checkoutSection').classList.add('active');
+            
+            // Скрываем корзину
+            if (document.getElementById('cartModal').classList.contains('open')) {
+                toggleCart();
+            }
+            
+            // Рендерим товары в оформлении
+            renderCheckoutItems();
+            goToStep(1);
+        }
+
+        function closeCheckout() {
+            document.getElementById('catalogSection').style.display = 'block';
+            document.getElementById('productsContainer').style.display = 'flex';
+            document.getElementById('checkoutSection').classList.remove('active');
+        }
+
+        function renderCheckoutItems() {
+            const container = document.getElementById('checkoutItems');
+            if (!cart || cart.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted);">Корзина пуста</p>';
+                document.getElementById('checkoutTotal').textContent = '0 сум';
+                return;
+            }
+            let html = '';
+            let total = 0;
+            cart.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                html += `<div class="product-item">
+                    <div><div style="font-weight:600;">${item.name}</div>
+                    <div style="color:var(--text-muted); font-size:14px;">${item.quantity} × ${formatPrice(item.price)}</div></div>
+                    <div style="font-weight:600; color:var(--primary);">${formatPrice(subtotal)}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            document.getElementById('checkoutTotal').textContent = formatPrice(total) + ' сум';
+        }
+
+        function goToStep(step) {
+            checkoutStep = step;
+            document.querySelectorAll('#checkoutSection .step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById(`step${i}Dot`);
+                dot.classList.remove('active', 'done');
+                if (i < step) dot.classList.add('done');
+                else if (i === step) dot.classList.add('active');
+            }
+            for (let i = 1; i <= 2; i++) {
+                const line = document.getElementById(`line${i}`);
+                line.classList.toggle('done', i < step);
+            }
+        }
+
+        function goToStep1() { goToStep(1); }
+        function goToStep2() { 
+            if (!document.getElementById('checkoutPhone').value || document.getElementById('checkoutPhone').value.length < 10) {
+                showToast('❌ Введите корректный номер телефона');
+                return;
+            }
+            if (!document.getElementById('checkoutAddress').value) {
+                showToast('❌ Укажите адрес доставки');
+                return;
+            }
+            goToStep(2); 
+        }
+        function goToStep3() { 
+            if (!cart || cart.length === 0) {
+                showToast('❌ Корзина пуста');
+                return;
+            }
+            renderCheckoutItems();
+            goToStep(3); 
+        }
+
+        // ============ ЗАГРУЗКА ФАЙЛА ============
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            selectedFile = file;
+            const preview = document.getElementById('filePreview');
+            const img = document.getElementById('previewImage');
+            const nameSpan = document.getElementById('fileName');
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) { img.src = e.target.result; img.style.display = 'block'; };
+                reader.readAsDataURL(file);
+            } else {
+                img.style.display = 'none';
+            }
+            nameSpan.textContent = file.name;
+            preview.style.display = 'block';
+            document.getElementById('uploadArea').style.display = 'none';
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'block';
+            document.getElementById('receiptInput').value = '';
+        }
+
+        // ============ ОТПРАВКА ЗАКАЗА ============
+        function submitCheckout() {
+            if (!selectedFile) {
+                showToast('❌ Загрузите чек оплаты');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('checkoutLoading');
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            const orderData = {
+                telegram_id: TELEGRAM_ID,
+                user_name: document.getElementById('checkoutName').value,
+                phone: document.getElementById('checkoutPhone').value,
+                address: document.getElementById('checkoutAddress').value,
+                products: cart,
+                total_amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+            };
+
+            fetch('/api/order/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    const formData = new FormData();
+                    formData.append('receipt', selectedFile);
+                    formData.append('order_id', result.order_id);
+                    formData.append('telegram_id', TELEGRAM_ID);
+                    return fetch('/api/upload/receipt', { method: 'POST', body: formData });
+                } else {
+                    throw new Error('Ошибка создания заказа');
+                }
+            })
+            .then(() => {
+                localStorage.removeItem('cart');
+                cart = [];
+                updateCartCount();
+                showToast('✅ Заказ успешно оформлен!');
+                closeCheckout();
+                loadProducts();
+            })
+            .catch(error => {
+                showToast('❌ Ошибка: ' + error.message);
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            });
         }
 
         // ============ TOAST ============
@@ -572,12 +883,16 @@
             toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
+        // ============ ЗАГРУЗКА ============
         document.addEventListener('DOMContentLoaded', function() {
             loadUser();
             loadProducts();
             updateCartCount();
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
+                    if (document.getElementById('checkoutSection').classList.contains('active')) {
+                        closeCheckout();
+                    }
                     const isOpen = document.getElementById('cartModal').classList.contains('open');
                     if (isOpen) toggleCart();
                 }
