@@ -21,51 +21,34 @@
         .container { max-width: 800px; margin: 0 auto; }
         .card-glass { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
         .form-control {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 16px;
-            width: 100%;
+            background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; width: 100%;
         }
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
-            background: var(--bg);
-            color: var(--text);
-            outline: none;
-        }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.2); background: var(--bg); color: var(--text); outline: none; }
         .form-label { color: var(--text-muted); font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px; }
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.3s;
-            cursor: pointer;
+            color: white; border: none; padding: 14px; border-radius: 12px;
+            font-weight: 600; width: 100%; transition: all 0.3s; cursor: pointer;
         }
         .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(102,126,234,0.3); }
         .btn-success {
             background: linear-gradient(135deg, #00b894 0%, #00a381 100%);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.3s;
-            cursor: pointer;
+            color: white; border: none; padding: 14px; border-radius: 12px;
+            font-weight: 600; width: 100%; transition: all 0.3s; cursor: pointer;
         }
         .btn-success:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); }
-        .btn-outline { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; transition: all 0.3s; cursor: pointer; width: 100%; }
+        .btn-outline {
+            background: var(--bg); border: 1px solid var(--border); color: var(--text);
+            padding: 10px 20px; border-radius: 10px; transition: all 0.3s; cursor: pointer; width: 100%;
+        }
         .btn-outline:hover { background: var(--primary); color: white; border-color: var(--primary); }
         .product-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .product-item:last-child { border-bottom: none; }
         .total-amount { font-size: 28px; font-weight: 700; color: var(--primary); }
-        .upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area {
+            border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
+            text-align: center; cursor: pointer; transition: all 0.3s;
+        }
         .upload-area:hover { border-color: var(--primary); background: rgba(102,126,234,0.05); }
         .upload-area i { font-size: 48px; color: var(--text-muted); margin-bottom: 10px; display: block; }
         .preview-image { max-width: 200px; max-height: 200px; border-radius: 8px; margin: 10px auto; display: block; }
@@ -73,13 +56,21 @@
         .step.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .step-indicator { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; align-items: center; }
-        .step-dot { width: 40px; height: 40px; border-radius: 50%; background: var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .step-dot {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--border); color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center; font-weight: 700;
+        }
         .step-dot.active { background: var(--primary); color: white; }
         .step-dot.done { background: var(--success); color: white; }
         .step-line { width: 60px; height: 2px; background: var(--border); }
         .step-line.done { background: var(--success); }
         .loading { display: none; text-align: center; padding: 20px; }
-        .loading .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        .loading .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border); border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
         .back-link { color: var(--primary); text-decoration: none; font-size: 14px; }
         .back-link:hover { text-decoration: underline; }
@@ -91,7 +82,7 @@
 
 <div class="container">
     <div class="text-center mb-4">
-        <a href="/templates/shop" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
+        <a href="/shop/" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
         <h1 style="color:var(--text); margin-top:10px;">🛒 Оформление заказа</h1>
     </div>
 
@@ -103,7 +94,6 @@
         <div class="step-dot" id="step3Dot">3</div>
     </div>
 
-    <!-- Шаг 1: Данные получателя -->
     <div class="step active" id="step1">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h4>
@@ -123,7 +113,6 @@
         </div>
     </div>
 
-    <!-- Шаг 2: Товары -->
     <div class="step" id="step2">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Ваш заказ</h4>
@@ -140,7 +129,6 @@
         </div>
     </div>
 
-    <!-- Шаг 3: Оплата -->
     <div class="step" id="step3">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--success);"></i> Оплата</h4>
@@ -179,51 +167,39 @@
     let selectedFile = null;
     let currentStep = 1;
 
-    // ============ ПОЛУЧАЕМ ID ПОЛЬЗОВАТЕЛЯ ============
     function getTelegramId() {
         const params = new URLSearchParams(window.location.search);
         telegramId = params.get('telegram_id');
-        if (!telegramId) {
-            telegramId = localStorage.getItem('telegram_id');
-        }
-        if (telegramId) {
-            localStorage.setItem('telegram_id', telegramId);
-        }
+        if (!telegramId) { telegramId = localStorage.getItem('telegram_id'); }
+        if (telegramId) { localStorage.setItem('telegram_id', telegramId); }
         return telegramId;
     }
 
-    // ============ ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ============
     async function loadUserData() {
         telegramId = getTelegramId();
-        
         if (!telegramId) {
             alert('❌ Ошибка: ID пользователя не найден');
-            window.location.href = '/templates/shop';
+            window.location.href = '/shop/';
             return;
         }
 
         try {
-            // Пробуем получить данные через Flask API (если сервер запущен)
             const response = await fetch(`/api/user/${telegramId}`);
             const data = await response.json();
-            
             if (data.success && data.user) {
                 const user = data.user;
                 document.getElementById('userName').value = user.first_name || '';
                 document.getElementById('userPhone').value = user.phone || '';
                 document.getElementById('userAddress').value = user.address || '';
-                
                 localStorage.setItem('telegram_name', user.first_name || '');
                 localStorage.setItem('telegram_phone', user.phone || '');
             } else {
-                // Используем данные из localStorage
                 const name = localStorage.getItem('telegram_name') || '';
                 const phone = localStorage.getItem('telegram_phone') || '';
                 document.getElementById('userName').value = name;
                 document.getElementById('userPhone').value = phone;
             }
         } catch (error) {
-            console.error('Ошибка загрузки пользователя:', error);
             const name = localStorage.getItem('telegram_name') || '';
             const phone = localStorage.getItem('telegram_phone') || '';
             document.getElementById('userName').value = name;
@@ -231,13 +207,10 @@
         }
     }
 
-    // ============ ЗАГРУЗКА КОРЗИНЫ ============
     function loadCart() {
         try {
             const cartData = localStorage.getItem('cart');
-            if (cartData) {
-                cart = JSON.parse(cartData);
-            }
+            if (cartData) { cart = JSON.parse(cartData); }
         } catch (e) { cart = []; }
         renderCart();
     }
@@ -254,25 +227,18 @@
         cart.forEach(item => {
             const subtotal = item.price * item.quantity;
             total += subtotal;
-            html += `
-                <div class="product-item">
-                    <div>
-                        <div style="font-weight:600;">${item.name}</div>
-                        <div style="color:var(--text-muted); font-size:14px;">${item.quantity} × ${formatPrice(item.price)}</div>
-                    </div>
-                    <div style="font-weight:600; color:var(--primary);">${formatPrice(subtotal)}</div>
-                </div>
-            `;
+            html += `<div class="product-item">
+                <div><div style="font-weight:600;">${item.name}</div>
+                <div style="color:var(--text-muted); font-size:14px;">${item.quantity} × ${formatPrice(item.price)}</div></div>
+                <div style="font-weight:600; color:var(--primary);">${formatPrice(subtotal)}</div>
+            </div>`;
         });
         container.innerHTML = html;
         document.getElementById('totalAmount').textContent = formatPrice(total) + ' сум';
     }
 
-    function formatPrice(price) {
-        return new Intl.NumberFormat('uz-UZ').format(price);
-    }
+    function formatPrice(price) { return new Intl.NumberFormat('uz-UZ').format(price); }
 
-    // ============ ШАГИ ============
     function goToStep(step) {
         currentStep = step;
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
@@ -309,7 +275,6 @@
         goToStep(3); 
     }
 
-    // ============ ЗАГРУЗКА ФАЙЛА ============
     function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -336,26 +301,61 @@
         document.getElementById('receiptInput').value = '';
     }
 
-    // ============ ОТПРАВКА ЗАКАЗА ============
     function submitOrder() {
         if (!selectedFile) {
             alert('❌ Загрузите чек оплаты');
             return;
         }
 
-        alert('✅ Заказ оформлен! С вами свяжется оператор.');
-        localStorage.removeItem('cart');
-        window.location.href = '/templates/shop?telegram_id=' + telegramId;
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loadingIndicator');
+        submitBtn.disabled = true;
+        loading.style.display = 'block';
+
+        const orderData = {
+            telegram_id: telegramId,
+            user_name: document.getElementById('userName').value,
+            phone: document.getElementById('userPhone').value,
+            address: document.getElementById('userAddress').value,
+            products: cart,
+            total_amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        };
+
+        fetch('/api/order/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.success) {
+                const formData = new FormData();
+                formData.append('receipt', selectedFile);
+                formData.append('order_id', result.order_id);
+                formData.append('telegram_id', telegramId);
+                return fetch('/api/upload/receipt', { method: 'POST', body: formData });
+            } else {
+                throw new Error('Ошибка создания заказа');
+            }
+        })
+        .then(() => {
+            localStorage.removeItem('cart');
+            alert('✅ Заказ успешно оформлен! С вами свяжется оператор.');
+            window.location.href = '/shop/?telegram_id=' + telegramId;
+        })
+        .catch(error => {
+            alert('❌ Ошибка: ' + error.message);
+            submitBtn.disabled = false;
+            loading.style.display = 'none';
+        });
     }
 
-    // ============ ИНИЦИАЛИЗАЦИЯ ============
     document.addEventListener('DOMContentLoaded', function() {
         loadUserData();
         loadCart();
-        
         if (!localStorage.getItem('cart') || JSON.parse(localStorage.getItem('cart')).length === 0) {
             alert('🛒 Корзина пуста');
-            window.location.href = '/templates/shop?telegram_id=' + telegramId;
+            window.location.href = '/shop/?telegram_id=' + telegramId;
         }
     });
 </script>
