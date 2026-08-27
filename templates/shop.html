@@ -16,7 +16,6 @@
             --text-muted: #a0a0b0;
             --border: #2a2a4e;
             --primary: #667eea;
-            --primary2: #764ba2;
             --success: #00b894;
             --danger: #ff4757;
         }
@@ -248,7 +247,7 @@
                 <div class="step-dot-wrap"><div class="step-dot" id="step3Dot">3</div><div class="step-label">Чек</div></div>
             </div>
 
-            <!-- Шаг 1 -->
+            <!-- Шаг 1: Данные -->
             <div class="step active" id="step1">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h5>
@@ -273,11 +272,11 @@
                         <span class="total-amount" id="checkoutTotal" style="font-size:20px;">0 сум</span>
                     </div>
 
-                    <button class="btn-primary mt-4" onclick="goToStep2()"><i class="fas fa-arrow-right"></i> Продолжить к оплате</button>
+                    <button class="btn-primary mt-4" onclick="goToStep2()"><i class="fas fa-arrow-right"></i> Продолжить</button>
                 </div>
             </div>
 
-            <!-- Шаг 2: оплата -->
+            <!-- Шаг 2: Оплата -->
             <div class="step" id="step2">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--primary);"></i> Оплата на карту</h5>
@@ -294,7 +293,7 @@
                             <button class="copy-btn" onclick="copyCardNumber()"><i class="fas fa-copy"></i> Копировать</button>
                         </div>
                     </div>
-                    <div class="alert"><i class="fas fa-info-circle"></i> Переведите указанную сумму на карту выше, затем нажмите «Далее» и прикрепите чек.</div>
+                    <div class="alert"><i class="fas fa-info-circle"></i> Переведите сумму на карту выше и прикрепите чек.</div>
                     <div class="row mt-3">
                         <div class="col-6"><button class="btn-outline" onclick="goToStep1()"><i class="fas fa-arrow-left"></i> Назад</button></div>
                         <div class="col-6"><button class="btn-success" onclick="goToStep3()"><i class="fas fa-arrow-right"></i> Я оплатил(а)</button></div>
@@ -302,33 +301,33 @@
                 </div>
             </div>
 
-            <!-- Шаг 3: чек -->
+            <!-- Шаг 3: Чек -->
             <div class="step" id="step3">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-receipt" style="color:var(--success);"></i> Чек оплаты</h5>
-                    <div class="alert"><i class="fas fa-info-circle"></i> Прикрепите скриншот или фото чека</div>
+                    <div class="alert"><i class="fas fa-info-circle"></i> Прикрепите скриншот чека — он отправится в группу.</div>
                     <div class="mb-3">
                         <div class="upload-area" id="uploadArea" onclick="document.getElementById('receiptInput').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <p style="color:var(--text-muted);">Нажмите, чтобы загрузить чек</p>
-                            <p style="font-size:12px; color:var(--text-muted);">Поддерживаются: JPG, PNG</p>
+                            <p style="font-size:12px; color:var(--text-muted);">JPG, PNG</p>
                         </div>
                         <input type="file" id="receiptInput" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
                         <div id="filePreview" style="display:none; margin-top:10px;">
                             <img id="previewImage" class="preview-image" src="">
                             <div class="text-center">
                                 <span id="fileName" style="color:var(--text-muted);"></span>
-                                <button class="btn-outline" style="padding:4px 12px; font-size:12px; margin-left:10px; width:auto;" onclick="removeFile()"><i class="fas fa-times"></i> Удалить</button>
+                                <button class="btn-outline" style="padding:4px 12px; font-size:12px; width:auto;" onclick="removeFile()"><i class="fas fa-times"></i> Удалить</button>
                             </div>
                         </div>
                     </div>
                     <div class="row mt-3">
                         <div class="col-6"><button class="btn-outline" onclick="goToStep2()"><i class="fas fa-arrow-left"></i> Назад</button></div>
-                        <div class="col-6"><button class="btn-primary" onclick="submitCheckout()" id="submitBtn"><i class="fas fa-check"></i> Оформить заказ</button></div>
+                        <div class="col-6"><button class="btn-primary" onclick="submitOrder()" id="submitBtn"><i class="fas fa-check"></i> Оформить заказ</button></div>
                     </div>
                     <div class="loading-indicator" id="checkoutLoading">
                         <div class="spinner"></div>
-                        <p style="color:var(--text-muted); margin-top:10px;">Отправка заказа...</p>
+                        <p style="color:var(--text-muted); margin-top:10px;">Отправка...</p>
                     </div>
                 </div>
             </div>
@@ -409,7 +408,7 @@
             }
         }
 
-        // ============ ТОВАРЫ (локальные) ============
+        // ============ ТОВАРЫ ============
         let products = [];
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
@@ -418,9 +417,7 @@
                 { id: 'p1', name: '🚲 Горный велосипед', price: 4500000, stock: 10, image: '' },
                 { id: 'p2', name: '🚴 Шоссейный велосипед', price: 3800000, stock: 5, image: '' },
                 { id: 'p3', name: '🚲 Городской велосипед', price: 2800000, stock: 15, image: '' },
-                { id: 'p4', name: '⚡ Электро велосипед', price: 8900000, stock: 3, image: '' },
-                { id: 'p5', name: '🚲 Детский велосипед', price: 1500000, stock: 8, image: '' },
-                { id: 'p6', name: '📦 Складной велосипед', price: 3200000, stock: 6, image: '' }
+                { id: 'p4', name: '⚡ Электро велосипед', price: 8900000, stock: 3, image: '' }
             ];
             renderProducts();
         }
@@ -445,7 +442,7 @@
             if (!productsList || productsList.length === 0) {
                 container.innerHTML = `<div class="text-center py-5" style="grid-column:1/-1; color:var(--text-muted);">
                     <i class="fas fa-search" style="font-size:48px; display:block; margin-bottom:15px;"></i>
-                    <h4>Ничего не найдено</h4><p>Попробуйте изменить поиск</p></div>`;
+                    <h4>Ничего не найдено</h4></div>`;
                 return;
             }
             let html = '';
@@ -476,12 +473,12 @@
         function addToCart(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
-            if (product.stock <= 0) { showToast('❌ Товара нет в наличии'); return; }
+            if (product.stock <= 0) { showToast('❌ Нет в наличии'); return; }
             if (cart.some(item => item.id === id)) { showToast(`✅ ${product.name} уже в корзине`); return; }
             cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1, image: product.image || '' });
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
-            showToast(`🛒 ${product.name} добавлен в корзину!`);
+            showToast(`🛒 ${product.name} добавлен!`);
             renderProducts();
         }
 
@@ -548,23 +545,19 @@
         // ============ ОФОРМЛЕНИЕ ============
         function openCheckout() {
             if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
-            if (!TELEGRAM_ID) { showToast('❌ Откройте магазин через Telegram бота'); return; }
+            if (!TELEGRAM_ID) { showToast('❌ Откройте через Telegram бота'); return; }
 
             const fullName = CURRENT_USER ? (CURRENT_USER.first_name + ' ' + (CURRENT_USER.last_name || '')).trim() : '';
             document.getElementById('checkoutName').value = fullName;
 
-            // Проверяем сохранённые данные из localStorage
             const savedPhone = localStorage.getItem('user_phone') || '';
             const savedAddress = localStorage.getItem('user_address') || '';
             document.getElementById('checkoutPhone').value = savedPhone;
             document.getElementById('checkoutAddress').value = savedAddress;
-            document.getElementById('phoneAutoBadge').style.display = savedPhone ? 'inline' : 'none';
-            document.getElementById('addressAutoBadge').style.display = savedAddress ? 'inline' : 'none';
 
             document.getElementById('catalogSection').style.display = 'none';
             document.getElementById('productsContainer').style.display = 'none';
             document.getElementById('checkoutSection').classList.add('active');
-
             if (document.getElementById('cartModal').classList.contains('open')) toggleCart();
 
             renderCheckoutItems();
@@ -612,8 +605,8 @@
         function goToStep2() {
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
-            if (!phone || phone.length < 9) { showToast('❌ Введите корректный номер телефона'); return; }
-            if (!address) { showToast('❌ Укажите адрес доставки'); return; }
+            if (!phone || phone.length < 9) { showToast('❌ Введите телефон'); return; }
+            if (!address) { showToast('❌ Укажите адрес'); return; }
             goToStep(2);
         }
         function goToStep3() {
@@ -623,15 +616,11 @@
 
         function copyCardNumber() {
             const number = document.getElementById('cardNumber').textContent.replace(/\s/g, '');
-            navigator.clipboard.writeText(number).then(() => {
-                showToast('✅ Номер карты скопирован!');
-            }).catch(() => {
-                showToast('❌ Не удалось скопировать');
-            });
+            navigator.clipboard.writeText(number).then(() => showToast('✅ Номер скопирован!')).catch(() => showToast('❌ Ошибка'));
         }
 
         // ============ ЗАГРУЗКА ФАЙЛА ============
-        function compressImage(file, maxWidth = 1000, quality = 0.75) {
+        function compressImage(file, maxWidth = 800, quality = 0.7) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -661,7 +650,7 @@
                 document.getElementById('previewImage').src = selectedFileDataUrl;
                 document.getElementById('previewImage').style.display = 'block';
             } catch (e) {
-                showToast('❌ Ошибка обработки фото: ' + e.message);
+                showToast('❌ Ошибка обработки фото');
                 return;
             }
             document.getElementById('fileName').textContent = file.name;
@@ -678,8 +667,8 @@
         }
 
         // ============ ОТПРАВКА ЗАКАЗА В TELEGRAM ============
-        async function submitCheckout() {
-            if (!selectedFileDataUrl) { showToast('❌ Загрузите чек оплаты'); return; }
+        async function submitOrder() {
+            if (!selectedFileDataUrl) { showToast('❌ Загрузите чек'); return; }
 
             const submitBtn = document.getElementById('submitBtn');
             const loading = document.getElementById('checkoutLoading');
@@ -687,54 +676,75 @@
             loading.style.display = 'block';
 
             const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const name = document.getElementById('checkoutName').value;
+            const name = document.getElementById('checkoutName').value || 'Покупатель';
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
 
-            // Сохраняем данные пользователя
+            // Сохраняем в localStorage
             localStorage.setItem('user_phone', phone);
             localStorage.setItem('user_address', address);
 
-            // Отправляем заказ в Telegram через бота
-            try {
-                const orderData = {
-                    telegram_id: TELEGRAM_ID,
-                    username: CURRENT_USER.username || '',
-                    user_name: name,
-                    phone: phone,
-                    address: address,
-                    products: cart.map(item => ({
-                        name: item.name,
-                        price: item.price,
-                        quantity: item.quantity
-                    })),
-                    total_amount: total,
-                    receipt: selectedFileDataUrl,
-                    status: 'pending'
-                };
+            // Формируем сообщение для Telegram
+            let productsText = '';
+            cart.forEach(item => {
+                productsText += `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
+            });
 
-                const response = await fetch('/api/order/create', {
+            const message = `🆕 *НОВЫЙ ЗАКАЗ*
+
+👤 *Покупатель:* ${name}
+📱 *Телефон:* ${phone}
+📍 *Адрес:* ${address}
+🆔 *ID:* ${TELEGRAM_ID}
+
+📦 *Товары:*
+${productsText}
+💰 *Итого:* ${formatPrice(total)} сум
+
+⏳ *Статус:* Ожидает оплаты`;
+
+            try {
+                // 1. Отправляем сообщение в группу
+                const sendMessageUrl = `https://api.telegram.org/bot8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw/sendMessage`;
+                const msgResponse = await fetch(sendMessageUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(orderData)
+                    body: JSON.stringify({
+                        chat_id: '-4983646908',
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
                 });
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    localStorage.removeItem('cart');
-                    cart = [];
-                    selectedFile = null;
-                    selectedFileDataUrl = '';
-                    updateCartCount();
-                    showToast('✅ Заказ оформлен! С вами свяжется оператор.');
-                    closeCheckout();
-                    loadProducts();
-                } else {
-                    showToast('❌ Ошибка: ' + (result.error || 'Неизвестная ошибка'));
-                }
+                if (!msgResponse.ok) throw new Error('Ошибка отправки сообщения');
+
+                // 2. Отправляем фото чека
+                const sendPhotoUrl = `https://api.telegram.org/bot8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw/sendPhoto`;
+                const formData = new FormData();
+                const blob = await (await fetch(selectedFileDataUrl)).blob();
+                formData.append('photo', blob, 'receipt.jpg');
+                formData.append('chat_id', '-4983646908');
+                formData.append('caption', `🧾 *Чек к заказу*\n👤 ${name}`);
+
+                const photoResponse = await fetch(sendPhotoUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!photoResponse.ok) throw new Error('Ошибка отправки чека');
+
+                // Успешно!
+                localStorage.removeItem('cart');
+                cart = [];
+                selectedFile = null;
+                selectedFileDataUrl = '';
+                updateCartCount();
+                showToast('✅ Заказ оформлен! Чек отправлен.');
+                closeCheckout();
+                loadProducts();
+
             } catch (error) {
-                showToast('❌ Ошибка отправки: ' + error.message);
+                showToast('❌ Ошибка: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 loading.style.display = 'none';
@@ -750,7 +760,7 @@
             toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        // ============ ЗАГРУЗКА СТРАНИЦЫ ============
+        // ============ ЗАГРУЗКА ============
         document.addEventListener('DOMContentLoaded', function() {
             renderProfile();
             loadProducts();
