@@ -18,12 +18,7 @@
             --success: #00b894;
             --danger: #ff4757;
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0;
             width: 250px; background: var(--card);
@@ -32,7 +27,7 @@
         }
         .sidebar .logo {
             font-size: 22px; font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             padding-bottom: 20px;
@@ -48,7 +43,6 @@
         .sidebar .nav-item.active { background: rgba(102,126,234,0.15); color: var(--primary); }
         .sidebar .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
         .main-content { margin-left: 250px; padding: 20px; }
-        
         .glass {
             background: var(--card);
             border: 1px solid var(--border);
@@ -69,31 +63,10 @@
             background: var(--bg);
             color: var(--text);
         }
-        .form-control::file-selector-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .btn-primary { background: var(--primary); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
-        .btn-primary:hover { background: #5a67d8; }
         .btn-success { background: var(--success); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
         .btn-success:hover { background: #00a381; }
         .btn-danger { background: var(--danger); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
         .btn-danger:hover { background: #e63946; }
-        .btn-glass {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 6px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-glass:hover { background: var(--primary); color: white; border-color: var(--primary); }
-        
         .table-dark-custom {
             background: var(--bg);
             border-radius: 12px;
@@ -102,22 +75,13 @@
         }
         .table-dark-custom thead { background: rgba(102,126,234,0.15); }
         .table-dark-custom th { color: var(--text); padding: 12px 16px; border: none; font-size: 13px; }
-        .table-dark-custom td { color: var(--text-muted); padding: 12px 16px; border-color: var(--border); vertical-align: middle; }
-        
+        .table-dark-custom td { color: var(--text-muted); padding: 12px 16px; border-color: var(--border); }
         .badge-category {
             background: rgba(102,126,234,0.2);
             color: var(--primary);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
-        }
-        .product-thumb {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: var(--bg);
-            border: 1px solid var(--border);
         }
         .toast {
             position: fixed;
@@ -138,19 +102,6 @@
             from { opacity: 0; transform: translateX(-50%) translateY(30px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
-        .image-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .image-preview img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
         @media (max-width: 768px) {
             .sidebar { width: 100%; position: relative; padding: 15px; }
             .main-content { margin-left: 0; padding: 15px; }
@@ -158,8 +109,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo"><i class="fas fa-shield-alt"></i> Velosher Admin</div>
         <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Главная</a>
@@ -168,64 +117,52 @@
         <a href="users.html" class="nav-item"><i class="fas fa-users"></i> Пользователи</a>
         <a href="chat.html" class="nav-item"><i class="fas fa-comment-dots"></i> Чат</a>
         <a href="broadcast.html" class="nav-item"><i class="fas fa-bullhorn"></i> Рассылка</a>
-        <a href="/templates/shop" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+        <a href="/shop/" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
             <i class="fas fa-store"></i> Магазин
         </a>
     </div>
 
-    <!-- Main -->
     <div class="main-content">
         <h2 class="mb-4"><i class="fas fa-tag" style="color:var(--primary);"></i> Управление товарами</h2>
 
-        <!-- Add Product -->
         <div class="glass">
             <h5><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Добавить товар</h5>
-            <form id="addProductForm" enctype="multipart/form-data">
-                <div class="row g-2">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" id="productName" placeholder="Название товара" required>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control" id="productPrice" placeholder="Цена (SUM)" required>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control" id="productStock" placeholder="Кол-во">
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select" id="productCategory">
-                            <option value="">Без категории</option>
-                            <option value="1">🏔️ Горные</option>
-                            <option value="2">🏙️ Городские</option>
-                            <option value="3">🚴 Шоссейные</option>
-                            <option value="4">⚡ Электро</option>
-                            <option value="5">👶 Детские</option>
-                            <option value="6">📦 Складные</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn-success w-100"><i class="fas fa-plus"></i> Добавить</button>
-                    </div>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" id="productName" placeholder="Название товара">
                 </div>
-                <div class="row g-2 mt-2">
-                    <div class="col-md-6">
-                        <textarea class="form-control" id="productDescription" placeholder="Описание товара" rows="2"></textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="file" class="form-control" id="productImage" accept="image/*">
-                        <div class="image-preview" id="imagePreview"></div>
-                    </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" id="productPrice" placeholder="Цена (SUM)">
                 </div>
-            </form>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" id="productStock" placeholder="Кол-во">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="productCategory">
+                        <option value="">Без категории</option>
+                        <option value="1">🏔️ Горные</option>
+                        <option value="2">🏙️ Городские</option>
+                        <option value="3">🚴 Шоссейные</option>
+                        <option value="4">⚡ Электро</option>
+                        <option value="5">👶 Детские</option>
+                        <option value="6">📦 Складные</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn-success w-100" onclick="addProduct()"><i class="fas fa-plus"></i> Добавить</button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <textarea class="form-control" id="productDescription" placeholder="Описание товара" rows="2"></textarea>
+            </div>
         </div>
 
-        <!-- Products List -->
         <div class="glass">
             <h5><i class="fas fa-list" style="color:var(--primary);"></i> Все товары</h5>
             <div class="table-responsive">
                 <table class="table-dark-custom table">
                     <thead>
                         <tr>
-                            <th>Фото</th>
                             <th>ID</th>
                             <th>Название</th>
                             <th>Категория</th>
@@ -235,7 +172,7 @@
                         </tr>
                     </thead>
                     <tbody id="productsList">
-                        <tr><td colspan="7" style="text-align:center;">Загрузка...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;">Загрузка...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -257,41 +194,21 @@
 
         function formatPrice(p) { return new Intl.NumberFormat('uz-UZ').format(p); }
 
-        // Preview image
-        document.getElementById('productImage').addEventListener('change', function(e) {
-            const preview = document.getElementById('imagePreview');
-            preview.innerHTML = '';
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    const img = document.createElement('img');
-                    img.src = ev.target.result;
-                    preview.appendChild(img);
-                }
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-
-        // Load products
         async function loadProducts() {
             try {
                 const res = await fetch(`${API_URL}/api/products`);
                 const data = await res.json();
                 const tbody = document.getElementById('productsList');
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Нет товаров</td></tr>';
+                if (!data.products || data.products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Нет товаров</td></tr>';
                     return;
                 }
                 const categoryMap = {
                     1: '🏔️ Горные', 2: '🏙️ Городские', 3: '🚴 Шоссейные',
                     4: '⚡ Электро', 5: '👶 Детские', 6: '📦 Складные'
                 };
-                tbody.innerHTML = data.map(p => `
+                tbody.innerHTML = data.products.map(p => `
                     <tr>
-                        <td>
-                            ${p.image_url ? `<img src="${p.image_url}" class="product-thumb" alt="фото">` : 
-                            `<div class="product-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:20px;">📷</div>`}
-                        </td>
                         <td>${p.id}</td>
                         <td>${p.name}</td>
                         <td><span class="badge-category">${categoryMap[p.category_id] || 'Без категории'}</span></td>
@@ -304,38 +221,27 @@
                 `).join('');
             } catch (e) {
                 console.error('Load products error:', e);
-                document.getElementById('productsList').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">❌ Ошибка загрузки</td></tr>';
+                document.getElementById('productsList').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);">❌ Ошибка загрузки</td></tr>';
             }
         }
 
-        // Add product with image
-        document.getElementById('addProductForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
+        async function addProduct() {
             const name = document.getElementById('productName').value.trim();
             const price = parseFloat(document.getElementById('productPrice').value);
             const stock = parseInt(document.getElementById('productStock').value) || 0;
             const category_id = document.getElementById('productCategory').value;
             const description = document.getElementById('productDescription').value.trim();
-            const imageFile = document.getElementById('productImage').files[0];
 
             if (!name || !price) {
                 showToast('❌ Введите название и цену');
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('price', price);
-            formData.append('stock', stock);
-            if (category_id) formData.append('category_id', category_id);
-            if (description) formData.append('description', description);
-            if (imageFile) formData.append('image', imageFile);
-
             try {
                 const res = await fetch(`${API_URL}/api/product/add`, {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, price, stock, category_id: category_id || null, description })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -343,8 +249,6 @@
                     document.getElementById('productPrice').value = '';
                     document.getElementById('productStock').value = '';
                     document.getElementById('productDescription').value = '';
-                    document.getElementById('productImage').value = '';
-                    document.getElementById('imagePreview').innerHTML = '';
                     showToast('✅ Товар добавлен!');
                     loadProducts();
                 } else {
@@ -353,9 +257,8 @@
             } catch (e) {
                 showToast('❌ Ошибка: ' + e.message);
             }
-        });
+        }
 
-        // Delete product
         async function deleteProduct(id) {
             if (!confirm('Удалить товар?')) return;
             try {
