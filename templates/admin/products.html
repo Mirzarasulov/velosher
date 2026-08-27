@@ -68,13 +68,13 @@
             background: var(--bg);
             color: var(--text);
         }
-        .btn-primary { background: var(--primary); border: none; }
+        .btn-primary { background: var(--primary); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
         .btn-primary:hover { background: #5a67d8; }
-        .btn-success { background: var(--success); border: none; }
+        .btn-success { background: var(--success); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
         .btn-success:hover { background: #00a381; }
-        .btn-danger { background: var(--danger); border: none; }
+        .btn-danger { background: var(--danger); border: none; color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .btn-danger:hover { background: #e63946; }
-        .table-dark-custom { background: var(--bg); border-radius: 12px; overflow: hidden; }
+        .table-dark-custom { background: var(--bg); border-radius: 12px; overflow: hidden; width: 100%; }
         .table-dark-custom thead { background: rgba(102,126,234,0.15); }
         .table-dark-custom th { color: var(--text); padding: 12px 16px; border: none; }
         .table-dark-custom td { color: var(--text-muted); padding: 12px 16px; border-color: var(--border); }
@@ -85,13 +85,21 @@
             border-radius: 20px;
             font-size: 12px;
         }
-        .category-tag {
-            display: inline-block;
-            background: rgba(102,126,234,0.15);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin: 2px;
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            z-index: 9999;
+            animation: slideUp 0.4s ease;
+            display: none;
+        }
+        .toast.success { background: var(--success); color: white; }
+        .toast.error { background: var(--danger); color: white; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @media (max-width: 768px) {
             .sidebar { width: 100%; position: relative; padding: 15px; }
@@ -101,7 +109,6 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo"><i class="fas fa-shield-alt"></i> Velosher Admin</div>
         <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Главная</a>
@@ -109,12 +116,12 @@
         <a href="orders.html" class="nav-item"><i class="fas fa-box"></i> Заказы</a>
         <a href="users.html" class="nav-item"><i class="fas fa-users"></i> Пользователи</a>
         <a href="chat.html" class="nav-item"><i class="fas fa-comment-dots"></i> Чат</a>
-        <a href="../shop.html" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+        <a href="broadcast.html" class="nav-item"><i class="fas fa-bullhorn"></i> Рассылка</a>
+        <a href="/templates/shop" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
             <i class="fas fa-store"></i> Магазин
         </a>
     </div>
 
-    <!-- Main -->
     <div class="main-content">
         <h2 class="mb-4"><i class="fas fa-tag" style="color:var(--primary);"></i> Управление товарами</h2>
 
@@ -122,46 +129,37 @@
         <div class="glass">
             <h5><i class="fas fa-folder-plus" style="color:var(--primary);"></i> Добавить категорию</h5>
             <div class="row g-2">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" id="categoryName" placeholder="Название категории (RU)">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" id="categoryName" placeholder="Название категории">
                 </div>
-                <div class="col-md-4">
-                    <input type="text" class="form-control" id="categoryNameUz" placeholder="Kategoriya nomi (UZ)">
-                </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <input type="text" class="form-control" id="categoryIcon" placeholder="Иконка (fa-...)" value="fa-tag">
                 </div>
-                <div class="col-md-2">
-                    <button class="btn btn-success w-100" onclick="addCategory()">
-                        <i class="fas fa-plus"></i> Добавить
-                    </button>
+                <div class="col-md-3">
+                    <button class="btn-success w-100" onclick="addCategory()"><i class="fas fa-plus"></i> Добавить</button>
                 </div>
             </div>
-            <div id="categoryList" class="mt-3">
-                <!-- Список категорий -->
-            </div>
+            <div id="categoryList" class="mt-3"></div>
         </div>
 
         <!-- Добавление товара -->
         <div class="glass">
             <h5><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Добавить товар</h5>
             <div class="row g-2">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <input type="text" class="form-control" id="productName" placeholder="Название товара">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="number" class="form-control" id="productPrice" placeholder="Цена (SUM)">
                 </div>
                 <div class="col-md-2">
-                    <input type="number" class="form-control" id="productStock" placeholder="Количество">
+                    <input type="number" class="form-control" id="productStock" placeholder="Кол-во">
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" id="productCategory"></select>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-primary w-100" onclick="addProduct()">
-                        <i class="fas fa-plus"></i> Добавить
-                    </button>
+                    <button class="btn-primary w-100" onclick="addProduct()"><i class="fas fa-plus"></i> Добавить</button>
                 </div>
             </div>
             <div class="mt-2">
@@ -175,14 +173,7 @@
             <div class="table-responsive">
                 <table class="table-dark-custom table">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Название</th>
-                            <th>Категория</th>
-                            <th>Цена</th>
-                            <th>Кол-во</th>
-                            <th>Действия</th>
-                        </tr>
+                        <tr><th>ID</th><th>Название</th><th>Категория</th><th>Цена</th><th>Кол-во</th><th>Действия</th></tr>
                     </thead>
                     <tbody id="productsList"></tbody>
                 </table>
@@ -190,13 +181,28 @@
         </div>
     </div>
 
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
     <script>
-        // ============ ЗАГРУЗКА ДАННЫХ ============
+        const API_URL = 'http://127.0.0.1:5000';
+
+        // ============ TOAST ============
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // ============ КАТЕГОРИИ ============
         async function loadCategories() {
             try {
-                const response = await fetch('/api/categories');
+                const response = await fetch(`${API_URL}/api/categories`);
                 const data = await response.json();
-                if (data.success) {
+                if (data.categories) {
                     renderCategories(data.categories);
                     updateCategorySelect(data.categories);
                 }
@@ -211,18 +217,14 @@
                 container.innerHTML = '<p style="color:var(--text-muted);">Нет категорий</p>';
                 return;
             }
-            
             let html = '';
             categories.forEach(cat => {
-                html += `
-                    <span class="category-tag">
-                        <i class="fas ${cat.icon || 'fa-tag'}"></i>
-                        ${cat.name}
-                        <button onclick="deleteCategory(${cat.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;margin-left:4px;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </span>
-                `;
+                html += `<span class="badge-category" style="margin:4px;">
+                    <i class="fas ${cat.icon || 'fa-tag'}"></i> ${cat.name}
+                    <button onclick="deleteCategory(${cat.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </span>`;
             });
             container.innerHTML = html;
         }
@@ -235,9 +237,49 @@
             });
         }
 
+        async function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            const icon = document.getElementById('categoryIcon').value.trim() || 'fa-tag';
+            if (!name) { showToast('Введите название категории', 'error'); return; }
+
+            try {
+                const response = await fetch(`${API_URL}/api/category/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, icon })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('categoryName').value = '';
+                    showToast('✅ Категория добавлена!');
+                    loadCategories();
+                } else {
+                    showToast('❌ Ошибка: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Удалить категорию и все товары в ней?')) return;
+            try {
+                const response = await fetch(`${API_URL}/api/category/${id}/delete`, { method: 'DELETE' });
+                const data = await response.json();
+                if (data.success) {
+                    showToast('✅ Категория удалена!');
+                    loadCategories();
+                    loadProducts();
+                }
+            } catch (error) {
+                showToast('❌ Ошибка: ' + error.message, 'error');
+            }
+        }
+
+        // ============ ТОВАРЫ ============
         async function loadProducts() {
             try {
-                const response = await fetch('/api/products');
+                const response = await fetch(`${API_URL}/api/products`);
                 const data = await response.json();
                 if (data.products) {
                     renderProducts(data.products);
@@ -253,7 +295,6 @@
                 container.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Нет товаров</td></tr>';
                 return;
             }
-            
             let html = '';
             products.forEach(p => {
                 html += `
@@ -261,12 +302,10 @@
                         <td>${p.id}</td>
                         <td>${p.name}</td>
                         <td><span class="badge-category">${p.category || 'Без категории'}</span></td>
-                        <td>${p.price.toLocaleString()} сум</td>
+                        <td>${formatPrice(p.price)} сум</td>
                         <td>${p.stock}</td>
                         <td>
-                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button class="btn-danger" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -274,75 +313,27 @@
             container.innerHTML = html;
         }
 
-        // ============ ДОБАВЛЕНИЕ КАТЕГОРИИ ============
-        async function addCategory() {
-            const name = document.getElementById('categoryName').value.trim();
-            const nameUz = document.getElementById('categoryNameUz').value.trim();
-            const icon = document.getElementById('categoryIcon').value.trim() || 'fa-tag';
-            
-            if (!name) {
-                alert('Введите название категории');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/category/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, name_uz: nameUz || name, icon })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('categoryName').value = '';
-                    document.getElementById('categoryNameUz').value = '';
-                    alert('✅ Категория добавлена!');
-                    loadCategories();
-                } else {
-                    alert('❌ Ошибка: ' + data.error);
-                }
-            } catch (error) {
-                alert('❌ Ошибка: ' + error.message);
-            }
+        function formatPrice(price) {
+            return new Intl.NumberFormat('uz-UZ').format(price);
         }
 
-        async function deleteCategory(id) {
-            if (!confirm('Удалить категорию?')) return;
-            try {
-                const response = await fetch(`/api/category/${id}/delete`, { method: 'DELETE' });
-                const data = await response.json();
-                if (data.success) {
-                    loadCategories();
-                    loadProducts();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // ============ ДОБАВЛЕНИЕ ТОВАРА ============
         async function addProduct() {
             const name = document.getElementById('productName').value.trim();
             const price = parseFloat(document.getElementById('productPrice').value);
             const stock = parseInt(document.getElementById('productStock').value) || 0;
-            const category = document.getElementById('productCategory').value;
+            const category_id = document.getElementById('productCategory').value;
             const description = document.getElementById('productDescription').value.trim();
-            
+
             if (!name || !price) {
-                alert('Введите название и цену товара');
+                showToast('❌ Введите название и цену товара', 'error');
                 return;
             }
-            
+
             try {
-                const response = await fetch('/api/product/add', {
+                const response = await fetch(`${API_URL}/api/product/add`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name,
-                        description,
-                        price,
-                        stock,
-                        category_id: category || null
-                    })
+                    body: JSON.stringify({ name, price, stock, category_id: category_id || null, description })
                 });
                 const data = await response.json();
                 if (data.success) {
@@ -350,26 +341,27 @@
                     document.getElementById('productPrice').value = '';
                     document.getElementById('productStock').value = '';
                     document.getElementById('productDescription').value = '';
-                    alert('✅ Товар добавлен!');
+                    showToast('✅ Товар добавлен!');
                     loadProducts();
                 } else {
-                    alert('❌ Ошибка: ' + data.error);
+                    showToast('❌ Ошибка: ' + data.error, 'error');
                 }
             } catch (error) {
-                alert('❌ Ошибка: ' + error.message);
+                showToast('❌ Ошибка: ' + error.message, 'error');
             }
         }
 
         async function deleteProduct(id) {
             if (!confirm('Удалить товар?')) return;
             try {
-                const response = await fetch(`/api/product/${id}/delete`, { method: 'DELETE' });
+                const response = await fetch(`${API_URL}/api/product/${id}/delete`, { method: 'DELETE' });
                 const data = await response.json();
                 if (data.success) {
+                    showToast('✅ Товар удален!');
                     loadProducts();
                 }
             } catch (error) {
-                console.error('Error:', error);
+                showToast('❌ Ошибка: ' + error.message, 'error');
             }
         }
 
