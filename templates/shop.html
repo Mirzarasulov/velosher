@@ -43,16 +43,7 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .footer { background: var(--card); border-top: 1px solid var(--border); padding: 30px 0; margin-top: 40px; text-align: center; }
         .footer p { color: var(--text-muted); font-size: 14px; }
-        .theme-toggle {
-            background: var(--border);
-            border: none;
-            color: var(--text);
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
+        .theme-toggle { background: var(--border); border: none; color: var(--text); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.3s; }
         .theme-toggle:hover { background: var(--primary); }
         .cart-modal { position: fixed; top: 0; right: -400px; width: 380px; max-width: 92%; height: 100%; background: var(--card); z-index: 10000; transition: right 0.4s; box-shadow: -10px 0 40px rgba(0,0,0,0.3); overflow-y: auto; border-left: 1px solid var(--border); }
         .cart-modal.open { right: 0; }
@@ -72,6 +63,11 @@
         .btn-checkout:hover { transform: scale(1.02); }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; }
         .overlay.show { display: block; }
+        .user-profile { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 20px; display: none; }
+        .user-profile .user-name { color: var(--text); font-size: 18px; font-weight: 600; }
+        .user-profile .user-phone { color: var(--text-muted); font-size: 14px; }
+        .user-profile .user-id { color: var(--text-muted); font-size: 12px; }
+        .user-profile .user-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; margin-right: 15px; }
         @media (max-width: 768px) { .product-image { height: 140px; } .cart-modal { width: 100%; max-width: 100%; } }
     </style>
 </head>
@@ -81,11 +77,11 @@
         <div class="container">
             <div class="row w-100 align-items-center">
                 <div class="col-4">
-                    <a href="index.html" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
+                    <a href="https://mirzarasulov.github.io/velosher/" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
                 </div>
                 <div class="col-8 text-end">
                     <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
-                    <a href="index.html" class="btn-back me-2"><i class="fas fa-arrow-left"></i></a>
+                    <a href="https://mirzarasulov.github.io/velosher/" class="btn-back me-2"><i class="fas fa-arrow-left"></i></a>
                     <button class="cart-btn" onclick="toggleCart()">
                         <i class="fas fa-shopping-cart"></i> <span class="cart-count" id="cartCount">0</span>
                     </button>
@@ -95,6 +91,21 @@
     </nav>
 
     <div class="container py-4">
+        <!-- ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ ИЗ ТЕЛЕГРАМ -->
+        <div class="user-profile" id="userProfile">
+            <div class="d-flex align-items-center">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div>
+                    <div class="user-name" id="userName">Гость</div>
+                    <div class="user-phone" id="userPhone">+998 90 123 45 67</div>
+                    <div class="user-id" id="userId">ID: не указан</div>
+                </div>
+                <div class="ms-auto">
+                    <span class="badge bg-success" id="userStatus">🟢 Онлайн</span>
+                </div>
+            </div>
+        </div>
+
         <div class="filter-section">
             <div class="row align-items-center">
                 <div class="col-md-4"><h5 class="mb-0" style="color:var(--text);"><i class="fas fa-filter" style="color:var(--primary);"></i> Каталог</h5></div>
@@ -125,6 +136,7 @@
     <div class="footer"><div class="container"><p>© 2024 Velosher Shop</p></div></div>
 
     <script>
+        // ============ ТЕСТОВЫЕ ТОВАРЫ ============
         const products = [
             { id: 1, name: '🚲 Горный велосипед', price: 1500000, image: '', stock: 10 },
             { id: 2, name: '🚴 Шоссейный велосипед', price: 2000000, image: '', stock: 5 },
@@ -135,6 +147,38 @@
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
         let cartOpen = false;
 
+        // ============ ПОЛЬЗОВАТЕЛЬ ИЗ ТЕЛЕГРАМ ============
+        function getUserFromTelegram() {
+            // Пытаемся получить данные из URL параметров
+            const urlParams = new URLSearchParams(window.location.search);
+            const tgId = urlParams.get('telegram_id');
+            const tgName = urlParams.get('first_name');
+            const tgPhone = urlParams.get('phone');
+            
+            if (tgId) {
+                document.getElementById('userProfile').style.display = 'block';
+                document.getElementById('userName').textContent = tgName || 'Пользователь';
+                document.getElementById('userPhone').textContent = tgPhone || '+998 90 123 45 67';
+                document.getElementById('userId').textContent = 'ID: ' + tgId;
+                document.getElementById('userAvatar').textContent = tgName ? tgName.charAt(0).toUpperCase() : '👤';
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('telegram_id', tgId);
+                localStorage.setItem('telegram_name', tgName || 'Пользователь');
+                localStorage.setItem('telegram_phone', tgPhone || '');
+            } else {
+                // Проверяем localStorage
+                const savedId = localStorage.getItem('telegram_id');
+                if (savedId) {
+                    document.getElementById('userProfile').style.display = 'block';
+                    document.getElementById('userName').textContent = localStorage.getItem('telegram_name') || 'Пользователь';
+                    document.getElementById('userPhone').textContent = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
+                    document.getElementById('userId').textContent = 'ID: ' + savedId;
+                }
+            }
+        }
+
+        // ============ ТЕМНАЯ ТЕМА ============
         function toggleTheme() {
             const root = document.documentElement;
             const currentBg = getComputedStyle(root).getPropertyValue('--bg').trim();
@@ -156,6 +200,7 @@
             }
         }
 
+        // ============ КОРЗИНА ============
         function toggleCart() {
             cartOpen = !cartOpen;
             document.getElementById('cartModal').classList.toggle('open', cartOpen);
@@ -306,8 +351,12 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        renderProducts();
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && cartOpen) toggleCart(); });
+        // ============ ЗАГРУЗКА ============
+        document.addEventListener('DOMContentLoaded', function() {
+            getUserFromTelegram();
+            renderProducts();
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && cartOpen) toggleCart(); });
+        });
     </script>
 </body>
 </html>
