@@ -358,9 +358,11 @@
         if (tg) { tg.ready(); tg.expand(); }
         const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
 
-        function getCurrentUser() {
+        let currentUser = null;
+
+        function loadUserFromTelegram() {
             if (tgUser && tgUser.id) {
-                return {
+                currentUser = {
                     id: String(tgUser.id),
                     first_name: tgUser.first_name || 'Пользователь',
                     last_name: tgUser.last_name || '',
@@ -368,12 +370,13 @@
                     phone: tgUser.phone_number || '',
                     photo_url: tgUser.photo_url || ''
                 };
+                return true;
             }
             // Если не в Telegram — пробуем из URL
             const params = new URLSearchParams(window.location.search);
             let id = params.get('telegram_id') || localStorage.getItem('telegram_id');
             if (id) {
-                return {
+                currentUser = {
                     id: id,
                     first_name: localStorage.getItem('telegram_name') || 'Пользователь',
                     last_name: '',
@@ -381,54 +384,73 @@
                     phone: localStorage.getItem('telegram_phone') || '',
                     photo_url: ''
                 };
+                return true;
             }
-            return null;
+            return false;
         }
 
-        const CURRENT_USER = getCurrentUser();
-        const TELEGRAM_ID = CURRENT_USER ? CURRENT_USER.id : null;
-        const TELEGRAM_PHONE = CURRENT_USER ? CURRENT_USER.phone : '';
-
-        let checkoutStep = 1;
-        let selectedFile = null;
-        let selectedFileDataUrl = '';
+        const hasUser = loadUserFromTelegram();
+        const TELEGRAM_ID = currentUser ? currentUser.id : null;
 
         // ============ ПРОФИЛЬ ============
         function renderProfile() {
             const profile = document.getElementById('userProfile');
-            if (!CURRENT_USER) { profile.style.display = 'none'; return; }
+            if (!currentUser) { profile.style.display = 'none'; return; }
             profile.style.display = 'block';
-            const fullName = (CURRENT_USER.first_name + ' ' + (CURRENT_USER.last_name || '')).trim();
+            const fullName = (currentUser.first_name + ' ' + (currentUser.last_name || '')).trim();
             document.getElementById('userName').textContent = fullName || 'Пользователь';
-            document.getElementById('userUsername').textContent = CURRENT_USER.username ? '@' + CURRENT_USER.username : 'нет username';
-            document.getElementById('userId').textContent = `ID: ${CURRENT_USER.id}`;
+            document.getElementById('userUsername').textContent = currentUser.username ? '@' + currentUser.username : 'нет username';
+            document.getElementById('userId').textContent = `ID: ${currentUser.id}`;
             const avatar = document.getElementById('userAvatar');
-            if (CURRENT_USER.photo_url) {
-                avatar.innerHTML = `<img src="${CURRENT_USER.photo_url}" alt="${fullName}">`;
+            if (currentUser.photo_url) {
+                avatar.innerHTML = `<img src="${currentUser.photo_url}" alt="${fullName}">`;
             } else {
                 avatar.textContent = (fullName.charAt(0) || '👤').toUpperCase();
             }
         }
 
-        // ============ ТОВАРЫ ============
-        let products = [];
+        // ============ ТОВАРЫ (ЛОКАЛЬНЫЕ) ============
+        let products = [
+            { id: 'p1', name: '🚲 Горный велосипед XC-9000', price: 4500000, stock: 10, image: '' },
+            { id: 'p2', name: '🚴 Шоссейный велосипед Aero-Pro', price: 5200000, stock: 5, image: '' },
+            { id: 'p3', name: '🚲 Городской велосипед City Pro', price: 2800000, stock: 15, image: '' },
+            { id: 'p4', name: '⚡ Электро-велосипед E-Bike 500W', price: 8900000, stock: 3, image: '' },
+            { id: 'p5', name: '👶 Детский велосипед Junior', price: 1500000, stock: 8, image: '' },
+            { id: 'p6', name: '📦 Складной велосипед Fold-X', price: 3200000, stock: 6, image: '' }
+        ];
+
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-        function loadProducts() {
-            products = [
-                { id: 'p1', name: '🚲 Горный велосипед', price: 4500000, stock: 10, image: '' },
-                { id: 'p2', name: '🚴 Шоссейный велосипед', price: 3800000, stock: 5, image: '' },
-                { id: 'p3', name: '🚲 Городской велосипед', price: 2800000, stock: 15, image: '' },
-                { id: 'p4', name: '⚡ Электро велосипед', price: 8900000, stock: 3, image: '' }
-            ];
-            renderProducts();
+        function renderProducts() {
+            const container = document.getElementById('productsContainer');
+            let html = '';
+            products.forEach(p => {
+                const inCart = cart.some(item => item.id === p.id);
+                const imageUrl = p.image || 'https://via.placeholder.com/300x200/667eea/white?text=🚲';
+                html += `<div class="col-md-3 col-6">
+                    <div class="product-card">
+                        <img src="${imageUrl}" class="product-image" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200/667eea/white?text=🚲'">
+                        <div class="product-body">
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-price">${formatPrice(p.price)} сум</div>
+                            <div class="product-stock">${p.stock > 0 ? `✅ В наличии: ${p.stock} шт.` : '❌ Нет в наличии'}</div>
+                            <button class="btn-add ${inCart ? 'in-cart' : ''}" onclick="addToCart('${p.id}')" ${p.stock > 0 ? '' : 'disabled'}>
+                                ${inCart ? '✅ В корзине' : '🛒 Добавить'}
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            updateCartCount();
         }
 
-        function renderProducts() { renderFiltered(products); }
+        function formatPrice(price) { return new Intl.NumberFormat('uz-UZ').format(price); }
 
         function filterProducts() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            renderFiltered(products.filter(p => p.name.toLowerCase().includes(query)));
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            renderFiltered(filtered);
         }
 
         function sortProducts() {
@@ -466,10 +488,7 @@
                 </div>`;
             });
             container.innerHTML = html;
-            updateCartCount();
         }
-
-        function formatPrice(price) { return new Intl.NumberFormat('uz-UZ').format(price); }
 
         // ============ КОРЗИНА ============
         function addToCart(id) {
@@ -547,15 +566,12 @@
         // ============ ОФОРМЛЕНИЕ (авто-заполнение из Telegram) ============
         function openCheckout() {
             if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
-            if (!TELEGRAM_ID) { showToast('❌ Откройте через Telegram бота'); return; }
+            if (!currentUser) { showToast('❌ Откройте через Telegram бота'); return; }
 
             // ✅ АВТО-ЗАПОЛНЕНИЕ ИЗ TELEGRAM
-            const fullName = CURRENT_USER ? (CURRENT_USER.first_name + ' ' + (CURRENT_USER.last_name || '')).trim() : '';
+            const fullName = (currentUser.first_name + ' ' + (currentUser.last_name || '')).trim();
             document.getElementById('checkoutName').value = fullName;
-
-            // Телефон из Telegram (если есть) или из localStorage
-            const phone = TELEGRAM_PHONE || localStorage.getItem('telegram_phone') || '';
-            document.getElementById('checkoutPhone').value = phone;
+            document.getElementById('checkoutPhone').value = currentUser.phone || '';
 
             document.getElementById('catalogSection').style.display = 'none';
             document.getElementById('productsContainer').style.display = 'none';
@@ -668,7 +684,7 @@
             document.getElementById('receiptInput').value = '';
         }
 
-        // ============ ОТПРАВКА ЗАКАЗА В TELEGRAM ============
+        // ============ ОТПРАВКА ЗАКАЗА В TELEGRAM (БЕЗ FLASK!) ============
         async function submitOrder() {
             if (!selectedFileDataUrl) { showToast('❌ Загрузите чек'); return; }
 
@@ -681,9 +697,7 @@
             const name = document.getElementById('checkoutName').value || 'Покупатель';
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
-
-            // Сохраняем телефон в localStorage для будущих заказов
-            if (phone) localStorage.setItem('telegram_phone', phone);
+            const username = currentUser ? currentUser.username : '';
 
             // Формируем сообщение для Telegram
             let productsText = '';
@@ -694,6 +708,7 @@
             const message = `🆕 *НОВЫЙ ЗАКАЗ*
 
 👤 *Покупатель:* ${name}
+💬 *Username:* ${username ? '@' + username : 'не указан'}
 📱 *Телефон:* ${phone}
 📍 *Адрес:* ${address}
 🆔 *ID:* ${TELEGRAM_ID}
@@ -720,7 +735,10 @@ ${productsText}
                     })
                 });
 
-                if (!msgResponse.ok) throw new Error('Ошибка отправки сообщения');
+                if (!msgResponse.ok) {
+                    const errorText = await msgResponse.text();
+                    throw new Error('Ошибка отправки сообщения: ' + errorText);
+                }
 
                 // 2. Отправляем фото чека
                 const sendPhotoUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
@@ -735,7 +753,10 @@ ${productsText}
                     body: formData
                 });
 
-                if (!photoResponse.ok) throw new Error('Ошибка отправки чека');
+                if (!photoResponse.ok) {
+                    const errorText = await photoResponse.text();
+                    throw new Error('Ошибка отправки чека: ' + errorText);
+                }
 
                 // Успешно!
                 localStorage.removeItem('cart');
@@ -745,7 +766,7 @@ ${productsText}
                 updateCartCount();
                 showToast('✅ Заказ оформлен! Чек отправлен.');
                 closeCheckout();
-                loadProducts();
+                renderProducts();
 
             } catch (error) {
                 showToast('❌ Ошибка: ' + error.message);
@@ -767,7 +788,7 @@ ${productsText}
         // ============ ЗАГРУЗКА ============
         document.addEventListener('DOMContentLoaded', function() {
             renderProfile();
-            loadProducts();
+            renderProducts();
             updateCartCount();
 
             const params = new URLSearchParams(window.location.search);
