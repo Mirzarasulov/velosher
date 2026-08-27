@@ -244,7 +244,7 @@
                 <div class="step-dot-wrap"><div class="step-dot" id="step3Dot">3</div><div class="step-label">Чек</div></div>
             </div>
 
-            <!-- Шаг 1: Данные (авто-заполнение из Telegram) -->
+            <!-- Шаг 1: Данные -->
             <div class="step active" id="step1">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h5>
@@ -353,15 +353,28 @@
     </div>
 
     <script>
-        // ============ ТЕЛЕГРАМ ПОЛЬЗОВАТЕЛЬ (авто-заполнение) ============
+        // ============================================================
+        // 1. ПОЛУЧЕНИЕ ДАННЫХ ИЗ TELEGRAM
+        // ============================================================
         const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) { tg.ready(); tg.expand(); }
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            try { tg.setHeaderColor('#0a0a1a'); tg.setBackgroundColor('#0a0a1a'); } catch(e) {}
+        }
+
+        // Получаем пользователя из Telegram
         const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
 
         let currentUser = null;
+        let TELEGRAM_ID = null;
 
         function loadUserFromTelegram() {
+            console.log('🔍 Загрузка пользователя из Telegram...');
+            
+            // Вариант 1: Из Telegram WebApp
             if (tgUser && tgUser.id) {
+                console.log('✅ Пользователь из Telegram WebApp:', tgUser);
                 currentUser = {
                     id: String(tgUser.id),
                     first_name: tgUser.first_name || 'Пользователь',
@@ -370,12 +383,31 @@
                     phone: tgUser.phone_number || '',
                     photo_url: tgUser.photo_url || ''
                 };
+                TELEGRAM_ID = currentUser.id;
                 return true;
             }
-            // Если не в Telegram — пробуем из URL
+
+            // Вариант 2: Из URL параметров (если открыли через ссылку)
             const params = new URLSearchParams(window.location.search);
-            let id = params.get('telegram_id') || localStorage.getItem('telegram_id');
+            let id = params.get('telegram_id');
             if (id) {
+                console.log('✅ Пользователь из URL:', id);
+                currentUser = {
+                    id: id,
+                    first_name: params.get('first_name') || localStorage.getItem('telegram_name') || 'Пользователь',
+                    last_name: '',
+                    username: params.get('username') || localStorage.getItem('telegram_username') || '',
+                    phone: params.get('phone') || localStorage.getItem('telegram_phone') || '',
+                    photo_url: ''
+                };
+                TELEGRAM_ID = currentUser.id;
+                return true;
+            }
+
+            // Вариант 3: Из localStorage
+            id = localStorage.getItem('telegram_id');
+            if (id) {
+                console.log('✅ Пользователь из localStorage:', id);
                 currentUser = {
                     id: id,
                     first_name: localStorage.getItem('telegram_name') || 'Пользователь',
@@ -384,33 +416,47 @@
                     phone: localStorage.getItem('telegram_phone') || '',
                     photo_url: ''
                 };
+                TELEGRAM_ID = currentUser.id;
                 return true;
             }
+
+            console.log('❌ Пользователь не найден');
             return false;
         }
 
         const hasUser = loadUserFromTelegram();
-        const TELEGRAM_ID = currentUser ? currentUser.id : null;
 
-        // ============ ПРОФИЛЬ ============
+        // ============================================================
+        // 2. ПРОФИЛЬ
+        // ============================================================
         function renderProfile() {
             const profile = document.getElementById('userProfile');
-            if (!currentUser) { profile.style.display = 'none'; return; }
+            if (!currentUser) {
+                profile.style.display = 'none';
+                return;
+            }
+            
             profile.style.display = 'block';
             const fullName = (currentUser.first_name + ' ' + (currentUser.last_name || '')).trim();
+            
             document.getElementById('userName').textContent = fullName || 'Пользователь';
             document.getElementById('userUsername').textContent = currentUser.username ? '@' + currentUser.username : 'нет username';
             document.getElementById('userId').textContent = `ID: ${currentUser.id}`;
+            
             const avatar = document.getElementById('userAvatar');
             if (currentUser.photo_url) {
                 avatar.innerHTML = `<img src="${currentUser.photo_url}" alt="${fullName}">`;
             } else {
                 avatar.textContent = (fullName.charAt(0) || '👤').toUpperCase();
             }
+            
+            console.log('👤 Профиль обновлён:', fullName);
         }
 
-        // ============ ТОВАРЫ (ЛОКАЛЬНЫЕ) ============
-        let products = [
+        // ============================================================
+        // 3. ТОВАРЫ (локальные, без API)
+        // ============================================================
+        const products = [
             { id: 'p1', name: '🚲 Горный велосипед XC-9000', price: 4500000, stock: 10, image: '' },
             { id: 'p2', name: '🚴 Шоссейный велосипед Aero-Pro', price: 5200000, stock: 5, image: '' },
             { id: 'p3', name: '🚲 Городской велосипед City Pro', price: 2800000, stock: 15, image: '' },
@@ -420,6 +466,9 @@
         ];
 
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let selectedFile = null;
+        let selectedFileDataUrl = '';
+        let checkoutStep = 1;
 
         function renderProducts() {
             const container = document.getElementById('productsContainer');
@@ -443,22 +492,6 @@
             });
             container.innerHTML = html;
             updateCartCount();
-        }
-
-        function formatPrice(price) { return new Intl.NumberFormat('uz-UZ').format(price); }
-
-        function filterProducts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-            renderFiltered(filtered);
-        }
-
-        function sortProducts() {
-            const sort = document.getElementById('sortSelect').value;
-            let sorted = [...products];
-            if (sort === 'price_asc') sorted.sort((a, b) => a.price - b.price);
-            if (sort === 'price_desc') sorted.sort((a, b) => b.price - a.price);
-            renderFiltered(sorted);
         }
 
         function renderFiltered(productsList) {
@@ -490,7 +523,24 @@
             container.innerHTML = html;
         }
 
-        // ============ КОРЗИНА ============
+        function formatPrice(price) { return new Intl.NumberFormat('uz-UZ').format(price); }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            renderFiltered(products.filter(p => p.name.toLowerCase().includes(query)));
+        }
+
+        function sortProducts() {
+            const sort = document.getElementById('sortSelect').value;
+            let sorted = [...products];
+            if (sort === 'price_asc') sorted.sort((a, b) => a.price - b.price);
+            if (sort === 'price_desc') sorted.sort((a, b) => b.price - a.price);
+            renderFiltered(sorted);
+        }
+
+        // ============================================================
+        // 4. КОРЗИНА
+        // ============================================================
         function addToCart(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
@@ -563,15 +613,27 @@
             if (isOpen) renderCart();
         }
 
-        // ============ ОФОРМЛЕНИЕ (авто-заполнение из Telegram) ============
+        // ============================================================
+        // 5. ОФОРМЛЕНИЕ (АВТО-ЗАПОЛНЕНИЕ ИЗ TELEGRAM)
+        // ============================================================
         function openCheckout() {
             if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
-            if (!currentUser) { showToast('❌ Откройте через Telegram бота'); return; }
+            if (!currentUser) { 
+                showToast('❌ Откройте через Telegram бота');
+                return;
+            }
+
+            console.log('🔄 Открытие оформления, пользователь:', currentUser);
 
             // ✅ АВТО-ЗАПОЛНЕНИЕ ИЗ TELEGRAM
             const fullName = (currentUser.first_name + ' ' + (currentUser.last_name || '')).trim();
-            document.getElementById('checkoutName').value = fullName;
-            document.getElementById('checkoutPhone').value = currentUser.phone || '';
+            const phone = currentUser.phone || '';
+            
+            document.getElementById('checkoutName').value = fullName || '';
+            document.getElementById('checkoutPhone').value = phone || '';
+            
+            console.log('📝 Заполнено имя:', fullName);
+            console.log('📝 Заполнен телефон:', phone);
 
             document.getElementById('catalogSection').style.display = 'none';
             document.getElementById('productsContainer').style.display = 'none';
@@ -620,6 +682,7 @@
         }
 
         function goToStep1() { goToStep(1); }
+        
         function goToStep2() {
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
@@ -627,6 +690,7 @@
             if (!address) { showToast('❌ Укажите адрес'); return; }
             goToStep(2);
         }
+        
         function goToStep3() {
             if (!cart || cart.length === 0) { showToast('❌ Корзина пуста'); return; }
             goToStep(3);
@@ -637,7 +701,9 @@
             navigator.clipboard.writeText(number).then(() => showToast('✅ Номер скопирован!')).catch(() => showToast('❌ Ошибка'));
         }
 
-        // ============ ЗАГРУЗКА ФАЙЛА ============
+        // ============================================================
+        // 6. ЗАГРУЗКА ФАЙЛА
+        // ============================================================
         function compressImage(file, maxWidth = 800, quality = 0.7) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -684,7 +750,9 @@
             document.getElementById('receiptInput').value = '';
         }
 
-        // ============ ОТПРАВКА ЗАКАЗА В TELEGRAM (БЕЗ FLASK!) ============
+        // ============================================================
+        // 7. ОТПРАВКА ЗАКАЗА В TELEGRAM
+        // ============================================================
         async function submitOrder() {
             if (!selectedFileDataUrl) { showToast('❌ Загрузите чек'); return; }
 
@@ -699,7 +767,7 @@
             const address = document.getElementById('checkoutAddress').value;
             const username = currentUser ? currentUser.username : '';
 
-            // Формируем сообщение для Telegram
+            // Формируем сообщение
             let productsText = '';
             cart.forEach(item => {
                 productsText += `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
@@ -711,7 +779,7 @@
 💬 *Username:* ${username ? '@' + username : 'не указан'}
 📱 *Телефон:* ${phone}
 📍 *Адрес:* ${address}
-🆔 *ID:* ${TELEGRAM_ID}
+🆔 *ID:* ${TELEGRAM_ID || 'не указан'}
 
 📦 *Товары:*
 ${productsText}
@@ -723,7 +791,9 @@ ${productsText}
             const GROUP_ID = '-4983646908';
 
             try {
-                // 1. Отправляем сообщение в группу
+                console.log('📤 Отправка заказа...');
+
+                // 1. Отправляем сообщение
                 const sendMessageUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
                 const msgResponse = await fetch(sendMessageUrl, {
                     method: 'POST',
@@ -737,8 +807,10 @@ ${productsText}
 
                 if (!msgResponse.ok) {
                     const errorText = await msgResponse.text();
+                    console.error('❌ Ошибка отправки сообщения:', errorText);
                     throw new Error('Ошибка отправки сообщения: ' + errorText);
                 }
+                console.log('✅ Сообщение отправлено');
 
                 // 2. Отправляем фото чека
                 const sendPhotoUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
@@ -755,8 +827,10 @@ ${productsText}
 
                 if (!photoResponse.ok) {
                     const errorText = await photoResponse.text();
+                    console.error('❌ Ошибка отправки чека:', errorText);
                     throw new Error('Ошибка отправки чека: ' + errorText);
                 }
+                console.log('✅ Чек отправлен');
 
                 // Успешно!
                 localStorage.removeItem('cart');
@@ -769,14 +843,17 @@ ${productsText}
                 renderProducts();
 
             } catch (error) {
-                showToast('❌ Ошибка: ' + error.message);
+                console.error('❌ Ошибка:', error);
+                showToast('❌ ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 loading.style.display = 'none';
             }
         }
 
-        // ============ TOAST ============
+        // ============================================================
+        // 8. TOAST
+        // ============================================================
         function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -785,14 +862,22 @@ ${productsText}
             toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        // ============ ЗАГРУЗКА ============
+        // ============================================================
+        // 9. ЗАГРУЗКА СТРАНИЦЫ
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Страница загружена');
+            console.log('👤 Текущий пользователь:', currentUser);
+            
             renderProfile();
             renderProducts();
             updateCartCount();
 
+            // Если есть параметр open=checkout — открываем оформление
             const params = new URLSearchParams(window.location.search);
-            if (params.get('open') === 'checkout') openCheckout();
+            if (params.get('open') === 'checkout') {
+                setTimeout(openCheckout, 500);
+            }
 
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
