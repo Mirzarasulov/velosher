@@ -738,17 +738,18 @@
             if (isOpen) renderCart();
         }
 
-        function goToCheckout() {
-            if (cart.length === 0) {
-                showToast('❌ Корзина пуста');
-                return;
-            }
-            if (!TELEGRAM_ID) {
-                showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота');
-                return;
-            }
-            window.location.href = `/checkout/?telegram_id=${TELEGRAM_ID}`;
-        }
+function goToCheckout() {
+    if (cart.length === 0) {
+        showToast('❌ Корзина пуста');
+        return;
+    }
+    if (!TELEGRAM_ID) {
+        showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота');
+        return;
+    }
+    // 👇 ИЗМЕНИТЕ ЭТУ СТРОКУ - добавьте .html
+    window.location.href = `/templates/checkout.html?telegram_id=${TELEGRAM_ID}`;
+}
 
         // ============ TOAST ============
         function showToast(message) {
