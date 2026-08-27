@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚲 Velosher</title>
+    <title>🚲 Velosher - Магазин</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -11,17 +11,20 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #0a0a1a;
             color: #fff;
             padding: 16px;
             min-height: 100vh;
         }
+
         .container {
             max-width: 600px;
             margin: 0 auto;
         }
+
         .card {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -30,6 +33,7 @@
             margin-bottom: 14px;
             backdrop-filter: blur(10px);
         }
+
         .card-title {
             font-size: 18px;
             font-weight: 700;
@@ -38,9 +42,11 @@
             align-items: center;
             gap: 10px;
         }
+
         .card-title .icon {
             font-size: 22px;
         }
+
         .btn {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -52,39 +58,42 @@
             width: 100%;
             font-size: 15px;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
         }
+
         .btn:hover {
             transform: scale(1.01);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
+
         .btn:active {
             transform: scale(0.98);
         }
+
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
         }
+
         .btn-success {
             background: linear-gradient(135deg, #00b894, #00a381);
         }
+
         .btn-success:hover {
             box-shadow: 0 8px 25px rgba(0, 184, 148, 0.3);
         }
-        .btn-danger {
-            background: linear-gradient(135deg, #ff4757, #e63946);
-        }
+
         .btn-outline {
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: #fff;
         }
+
         .btn-outline:hover {
             background: rgba(255, 255, 255, 0.05);
         }
+
         .input {
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
@@ -97,16 +106,16 @@
             font-size: 15px;
             transition: all 0.3s;
         }
+
         .input:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
         }
-        .input:disabled {
-            opacity: 0.5;
-        }
+
         .input::placeholder {
             color: #555;
         }
+
         .user-card {
             display: flex;
             align-items: center;
@@ -116,6 +125,7 @@
             border-radius: 14px;
             border: 1px solid rgba(102, 126, 234, 0.1);
         }
+
         .avatar {
             width: 50px;
             height: 50px;
@@ -128,15 +138,18 @@
             font-weight: 700;
             flex-shrink: 0;
         }
+
         .user-info .name {
             font-weight: 600;
             font-size: 17px;
         }
+
         .user-info .phone {
             color: #888;
             font-size: 13px;
             margin-top: 2px;
         }
+
         .badge {
             display: inline-block;
             background: rgba(0, 184, 148, 0.15);
@@ -146,10 +159,7 @@
             font-size: 11px;
             font-weight: 600;
         }
-        .badge-gray {
-            background: rgba(255, 255, 255, 0.05);
-            color: #666;
-        }
+
         .product {
             display: flex;
             justify-content: space-between;
@@ -157,18 +167,22 @@
             padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
+
         .product:last-child {
             border-bottom: none;
         }
+
         .product .name {
             font-size: 15px;
         }
+
         .product .price {
             color: #667eea;
             font-weight: 700;
             font-size: 14px;
             margin-top: 3px;
         }
+
         .product .btn-small {
             padding: 6px 14px;
             border-radius: 8px;
@@ -180,13 +194,16 @@
             background: rgba(102, 126, 234, 0.2);
             color: #667eea;
         }
+
         .product .btn-small:hover {
             background: rgba(102, 126, 234, 0.3);
         }
+
         .product .btn-small.in-cart {
             background: rgba(0, 184, 148, 0.2);
             color: #00b894;
         }
+
         .cart-item {
             display: flex;
             justify-content: space-between;
@@ -195,18 +212,18 @@
             padding: 10px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
+
         .cart-item:last-child {
             border-bottom: none;
         }
-        .cart-item .name {
-            font-size: 14px;
-        }
+
         .cart-item .subtotal {
             color: #667eea;
             font-size: 13px;
             font-weight: 600;
             margin-top: 2px;
         }
+
         .cart-total {
             font-size: 20px;
             font-weight: 700;
@@ -214,9 +231,11 @@
             text-align: right;
             padding: 12px 0 8px;
         }
+
         .hidden {
             display: none !important;
         }
+
         .toast {
             position: fixed;
             bottom: 24px;
@@ -234,16 +253,20 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
+
         .toast.show {
             display: block;
             animation: slideUp 0.4s ease;
         }
+
         .toast.success {
             border-color: rgba(0, 184, 148, 0.3);
         }
+
         .toast.error {
             border-color: rgba(255, 71, 87, 0.3);
         }
+
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -254,52 +277,7 @@
                 transform: translateX(-50%) translateY(0);
             }
         }
-        .upload-box {
-            border: 2px dashed rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 30px 20px;
-            text-align: center;
-            cursor: pointer;
-            margin-bottom: 14px;
-            transition: all 0.3s;
-        }
-        .upload-box:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.04);
-        }
-        .upload-box.has-file {
-            border-color: #00b894;
-            background: rgba(0, 184, 148, 0.04);
-        }
-        .upload-box .icon {
-            font-size: 38px;
-            margin-bottom: 8px;
-            display: block;
-        }
-        .upload-box .text {
-            color: #888;
-            font-size: 14px;
-        }
-        .upload-box .sub {
-            color: #444;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-        .preview-image {
-            max-width: 180px;
-            max-height: 220px;
-            border-radius: 10px;
-            display: block;
-            margin: 0 auto 10px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .back-btn {
-            margin-top: 10px;
-            background: rgba(255, 255, 255, 0.04);
-        }
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
+
         .step-title {
             color: #666;
             margin: 12px 0 16px;
@@ -308,6 +286,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .payment-card {
             background: linear-gradient(135deg, #1a1a3e, #2d1b4e);
             padding: 20px;
@@ -318,6 +297,7 @@
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.06);
         }
+
         .payment-card::before {
             content: '';
             position: absolute;
@@ -328,6 +308,7 @@
             background: rgba(102, 126, 234, 0.08);
             border-radius: 50%;
         }
+
         .payment-card .chip {
             width: 38px;
             height: 28px;
@@ -335,12 +316,14 @@
             background: linear-gradient(135deg, #ffd76a, #f7b733);
             margin-bottom: 12px;
         }
+
         .payment-card .bank {
             font-size: 11px;
             opacity: 0.6;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
         .payment-card .number {
             font-size: 20px;
             letter-spacing: 3px;
@@ -348,12 +331,14 @@
             font-family: 'Courier New', monospace;
             font-weight: 600;
         }
+
         .payment-card .holder {
             font-size: 12px;
             opacity: 0.7;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .payment-card .copy-btn {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -364,40 +349,17 @@
             font-size: 12px;
             transition: all 0.3s;
         }
+
         .payment-card .copy-btn:hover {
             background: rgba(255, 255, 255, 0.15);
         }
+
         .flex-between {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .flex-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .gap-5 {
-            gap: 5px;
-        }
-        .gap-10 {
-            gap: 10px;
-        }
-        .mt-10 {
-            margin-top: 10px;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .text-muted {
-            color: #666;
-        }
-        .text-success {
-            color: #00b894;
-        }
-        .text-primary {
-            color: #667eea;
-        }
+
         .amount-box {
             background: rgba(0, 184, 148, 0.06);
             padding: 16px;
@@ -406,15 +368,18 @@
             margin-bottom: 14px;
             border: 1px solid rgba(0, 184, 148, 0.08);
         }
+
         .amount-box .label {
             color: #666;
             font-size: 13px;
         }
+
         .amount-box .amount {
             font-size: 30px;
             font-weight: 800;
             color: #00b894;
         }
+
         .alert-box {
             background: rgba(102, 126, 234, 0.06);
             padding: 10px 14px;
@@ -424,6 +389,7 @@
             color: #888;
             border-left: 3px solid #667eea;
         }
+
         .loading-spinner {
             display: inline-block;
             width: 18px;
@@ -435,11 +401,13 @@
             vertical-align: middle;
             margin-right: 8px;
         }
+
         @keyframes spin {
             to {
                 transform: rotate(360deg);
             }
         }
+
         .count-badge {
             background: #ff4757;
             color: white;
@@ -449,21 +417,33 @@
             font-weight: 700;
             margin-left: 4px;
         }
+
         .empty-state {
             text-align: center;
             padding: 30px 0;
             color: #444;
         }
+
         .empty-state .icon {
             font-size: 40px;
             margin-bottom: 10px;
             display: block;
         }
-        .divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.04);
-            margin: 12px 0;
+
+        .telegram-data {
+            background: rgba(102, 126, 234, 0.06);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            color: #888;
+            border: 1px solid rgba(102, 126, 234, 0.08);
         }
+
+        .telegram-data strong {
+            color: #667eea;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 12px;
@@ -485,7 +465,7 @@
 
     <div class="container">
 
-        <!-- ПРОФИЛЬ -->
+        <!-- ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ -->
         <div class="card" id="profileCard">
             <div class="user-card">
                 <div class="avatar" id="avatar">👤</div>
@@ -528,7 +508,7 @@
             </div>
             <div class="cart-total" id="cartTotal">0 сум</div>
             <button class="btn btn-success" onclick="openCheckout()">✅ Оформить заказ</button>
-            <button class="btn back-btn" onclick="toggleCart()">🔙 Продолжить покупки</button>
+            <button class="btn btn-outline" onclick="toggleCart()">🔙 Продолжить покупки</button>
         </div>
 
         <!-- ОФОРМЛЕНИЕ -->
@@ -538,6 +518,13 @@
                     <span class="icon">📝</span> Оформление
                 </div>
                 <button onclick="closeCheckout()" style="background:none;border:none;color:#555;cursor:pointer;font-size:20px;padding:4px;">✕</button>
+            </div>
+
+            <!-- ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ИЗ TELEGRAM -->
+            <div class="telegram-data" id="telegramData">
+                <strong>👤 Данные из Telegram</strong><br>
+                <span id="telegramName">Имя: не указано</span><br>
+                <span id="telegramId">ID: не указан</span>
             </div>
 
             <!-- Шаг 1 -->
@@ -566,29 +553,27 @@
                     </div>
                 </div>
                 <div class="alert-box">
-                    ⚠️ Переведите сумму на карту выше, затем прикрепите чек
+                    ⚠️ Переведите сумму на карту выше и подтвердите заказ
                 </div>
                 <button class="btn btn-success" onclick="goToStep3()">💳 Я оплатил(а)</button>
-                <button class="btn back-btn" onclick="goToStep1()">← Назад</button>
+                <button class="btn btn-outline" onclick="goToStep1()">← Назад</button>
             </div>
 
             <!-- Шаг 3 -->
             <div id="step3" class="hidden">
-                <div class="step-title">Шаг 3 — Чек оплаты</div>
-                <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
-                    <span class="icon">📎</span>
-                    <div class="text">Нажмите, чтобы загрузить чек</div>
-                    <div class="sub">JPG, PNG, WEBP до 10 МБ</div>
+                <div class="step-title">Шаг 3 — Подтверждение</div>
+                <div style="background:rgba(0,184,148,0.06);padding:16px;border-radius:12px;text-align:center;margin-bottom:14px;border:1px solid rgba(0,184,148,0.08);">
+                    <div style="font-size:40px;margin-bottom:8px;">✅</div>
+                    <div style="font-size:16px;font-weight:600;color:#00b894;">Заказ готов к отправке!</div>
+                    <div style="color:#888;font-size:13px;margin-top:4px;">Нажмите кнопку ниже, чтобы отправить заказ в Telegram</div>
                 </div>
-                <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
-                <div id="filePreview" style="display:none;margin-bottom:14px;text-align:center;">
-                    <img id="previewImage" class="preview-image">
-                    <div>
-                        <button onclick="removeFile()" style="background:#ff4757;color:white;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;">✕ Удалить</button>
-                    </div>
+                <div class="alert-box">
+                    📋 Заказ будет отправлен в группу с вашими данными и суммой
                 </div>
-                <button class="btn btn-success" onclick="submitOrder()" id="submitBtn">✅ Оформить заказ</button>
-                <button class="btn back-btn" onclick="goToStep2()">← Назад</button>
+                <button class="btn btn-success" onclick="submitOrder()" id="submitBtn">
+                    📤 Отправить заказ
+                </button>
+                <button class="btn btn-outline" onclick="goToStep2()">← Назад</button>
             </div>
         </div>
 
@@ -599,12 +584,18 @@
 
     <script>
         // ================================================================
-        // 1. TELEGRAM USER
+        // 1. TELEGRAM WEB APP
         // ================================================================
         const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) { tg.ready();
-            tg.expand(); }
 
+        // Инициализация WebApp
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            console.log('✅ Telegram WebApp инициализирован');
+        }
+
+        // Получаем данные пользователя из Telegram
         let user = null;
         let tgId = null;
 
@@ -612,21 +603,25 @@
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 user = tg.initDataUnsafe.user;
                 tgId = String(user.id);
-                console.log('✅ Telegram user:', user);
+                console.log('✅ Данные пользователя из Telegram:', user);
             }
+
+            // Резервный способ: из URL
             if (!tgId) {
                 const params = new URLSearchParams(window.location.search);
-                const urlId = params.get('telegram_id');
-                if (urlId) {
-                    tgId = urlId;
+                tgId = params.get('telegram_id');
+                if (tgId) {
                     user = {
-                        id: urlId,
+                        id: tgId,
                         first_name: params.get('first_name') || 'Пользователь',
                         username: params.get('username') || '',
                         phone_number: params.get('phone') || ''
                     };
+                    console.log('✅ Данные пользователя из URL:', user);
                 }
             }
+
+            // Резервный способ: из localStorage
             if (!tgId) {
                 const savedId = localStorage.getItem('telegram_id');
                 if (savedId) {
@@ -637,36 +632,54 @@
                         username: localStorage.getItem('telegram_username') || '',
                         phone_number: localStorage.getItem('telegram_phone') || ''
                     };
+                    console.log('✅ Данные пользователя из localStorage:', user);
                 }
             }
+
+            // Сохраняем данные
             if (tgId) {
                 localStorage.setItem('telegram_id', tgId);
                 if (user && user.first_name) localStorage.setItem('telegram_name', user.first_name);
                 if (user && user.username) localStorage.setItem('telegram_username', user.username);
                 if (user && user.phone_number) localStorage.setItem('telegram_phone', user.phone_number);
             }
-        } catch (e) { console.error('Telegram error:', e); }
+        } catch (e) {
+            console.error('❌ Ошибка получения данных пользователя:', e);
+        }
 
         // ================================================================
-        // 2. PROFILE
+        // 2. ПРОФИЛЬ
         // ================================================================
         function renderProfile() {
             const card = document.getElementById('profileCard');
-            if (!tgId) { card.style.display = 'none'; return; }
+            if (!tgId) {
+                card.style.display = 'none';
+                return;
+            }
+
             card.style.display = 'block';
             const name = user && user.first_name ? user.first_name : 'Пользователь';
             const phone = user && user.phone_number ? user.phone_number : 'Телефон не указан';
+
             document.getElementById('userName').textContent = name;
             document.getElementById('userPhone').textContent = '📱 ' + phone;
             document.getElementById('avatar').textContent = name.charAt(0).toUpperCase();
+
+            // Отображаем данные в форме оформления
             document.getElementById('checkoutName').value = name;
             if (user && user.phone_number) {
                 document.getElementById('checkoutPhone').value = user.phone_number;
             }
+
+            // Отображаем данные в блоке Telegram
+            document.getElementById('telegramName').textContent = 'Имя: ' + name;
+            document.getElementById('telegramId').textContent = 'ID: ' + tgId;
+
+            console.log('👤 Профиль загружен:', name, phone);
         }
 
         // ================================================================
-        // 3. PRODUCTS
+        // 3. ТОВАРЫ
         // ================================================================
         const products = [
             { id: 1, name: '🚲 Горный XC-9000', price: 4500000, stock: 10 },
@@ -676,8 +689,6 @@
         ];
 
         let cart = [];
-        let selectedFile = null;
-        let selectedFileData = null;
 
         function loadCart() {
             try {
@@ -715,10 +726,16 @@
 
         function addToCart(id) {
             const product = products.find(p => p.id === id);
-            if (!product || product.stock <= 0) { showToast('❌ Нет в наличии', 'error'); return; }
+            if (!product || product.stock <= 0) {
+                showToast('❌ Нет в наличии', 'error');
+                return;
+            }
             const existing = cart.find(item => item.id === id);
             if (existing) {
-                if (existing.quantity >= product.stock) { showToast('❌ Больше нет в наличии', 'error'); return; }
+                if (existing.quantity >= product.stock) {
+                    showToast('❌ Больше нет в наличии', 'error');
+                    return;
+                }
                 existing.quantity++;
             } else {
                 cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
@@ -744,7 +761,10 @@
             const product = products.find(p => p.id === id);
             const newQty = item.quantity + delta;
             if (newQty <= 0) { removeFromCart(id); return; }
-            if (product && newQty > product.stock) { showToast('❌ Больше нет в наличии', 'error'); return; }
+            if (product && newQty > product.stock) {
+                showToast('❌ Больше нет в наличии', 'error');
+                return;
+            }
             item.quantity = newQty;
             saveCart();
             renderCart();
@@ -772,7 +792,7 @@
                 html += `
                     <div class="cart-item">
                         <div>
-                            <div class="name">${item.name}</div>
+                            <div style="font-size:14px;font-weight:500;">${item.name}</div>
                             <div class="subtotal">${formatPrice(subtotal)} сум</div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
@@ -802,16 +822,23 @@
         }
 
         // ================================================================
-        // 4. CHECKOUT
+        // 4. ОФОРМЛЕНИЕ
         // ================================================================
         function openCheckout() {
-            if (cart.length === 0) { showToast('❌ Корзина пуста', 'error'); return; }
+            if (cart.length === 0) {
+                showToast('❌ Корзина пуста', 'error');
+                return;
+            }
+
+            // Автозаполнение из Telegram
             if (user) {
                 document.getElementById('checkoutName').value = user.first_name || '';
                 document.getElementById('checkoutPhone').value = user.phone_number || '';
             }
+
             const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             document.getElementById('payAmount').textContent = formatPrice(total) + ' сум';
+
             document.getElementById('catalogSection').classList.add('hidden');
             document.getElementById('cartSection').classList.add('hidden');
             document.getElementById('checkoutSection').classList.remove('hidden');
@@ -835,13 +862,22 @@
         function goToStep2() {
             const phone = document.getElementById('checkoutPhone').value.trim();
             const address = document.getElementById('checkoutAddress').value.trim();
-            if (!phone || phone.length < 9) { showToast('❌ Введите телефон', 'error'); return; }
-            if (!address) { showToast('❌ Укажите адрес', 'error'); return; }
+            if (!phone || phone.length < 9) {
+                showToast('❌ Введите телефон', 'error');
+                return;
+            }
+            if (!address) {
+                showToast('❌ Укажите адрес', 'error');
+                return;
+            }
             goToStep(2);
         }
 
         function goToStep3() {
-            if (cart.length === 0) { showToast('❌ Корзина пуста', 'error'); return; }
+            if (cart.length === 0) {
+                showToast('❌ Корзина пуста', 'error');
+                return;
+            }
             goToStep(3);
         }
 
@@ -851,69 +887,17 @@
                 navigator.clipboard.writeText(cardNumber).then(() => {
                     showToast('✅ Номер скопирован!', 'success');
                 }).catch(() => {
-                    showToast('Номер карты: ' + cardNumber, 'error');
+                    showToast('Номер карты: ' + cardNumber);
                 });
             } else {
-                showToast('Номер карты: ' + cardNumber, 'error');
+                showToast('Номер карты: ' + cardNumber);
             }
         }
 
         // ================================================================
-        // 5. FILE UPLOAD
+        // 5. ОТПРАВКА ЗАКАЗА ЧЕРЕЗ WebApp.sendData()
         // ================================================================
-        function handleFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                showToast('❌ Выберите изображение', 'error');
-                event.target.value = '';
-                return;
-            }
-            if (file.size > 10 * 1024 * 1024) {
-                showToast('❌ Файл слишком большой. Максимум 10 МБ', 'error');
-                event.target.value = '';
-                return;
-            }
-            selectedFile = file;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedFileData = e.target.result;
-                document.getElementById('previewImage').src = e.target.result;
-                document.getElementById('filePreview').style.display = 'block';
-                document.getElementById('uploadBox').classList.add('has-file');
-                document.getElementById('uploadBox').querySelector('.icon').textContent = '✅';
-            };
-            reader.onerror = function() {
-                selectedFile = null;
-                selectedFileData = null;
-                showToast('❌ Не удалось прочитать файл', 'error');
-            };
-            reader.readAsDataURL(file);
-            showToast('✅ Чек загружен!', 'success');
-        }
-
-        function removeFile() {
-            selectedFile = null;
-            selectedFileData = null;
-            document.getElementById('filePreview').style.display = 'none';
-            document.getElementById('uploadBox').classList.remove('has-file');
-            document.getElementById('uploadBox').querySelector('.icon').textContent = '📎';
-            document.getElementById('fileInput').value = '';
-        }
-
-        // ================================================================
-        // 6. SUBMIT ORDER
-        // ================================================================
-        async function submitOrder() {
-            if (!selectedFile) {
-                showToast('❌ Загрузите чек', 'error');
-                return;
-            }
-            if (!selectedFileData) {
-                showToast('❌ Чек ещё загружается', 'error');
-                return;
-            }
-
+        function submitOrder() {
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner"></span> Отправка...';
@@ -924,71 +908,87 @@
                 const address = document.getElementById('checkoutAddress').value.trim();
 
                 if (!phone || !address) {
-                    throw new Error('Заполните все поля');
+                    showToast('❌ Заполните все поля', 'error');
+                    btn.disabled = false;
+                    btn.textContent = '📤 Отправить заказ';
+                    return;
                 }
 
                 const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
 
-                // Формируем сообщение
-                let productsText = '';
-                cart.forEach(item => {
-                    productsText += `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
-                });
+                // Формируем данные для отправки
+                const orderData = {
+                    action: 'checkout',
+                    telegram_id: tgId || 'не указан',
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    products: cart.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    })),
+                    total: total,
+                    total_formatted: formatPrice(total)
+                };
 
-                const message = `🆕 *НОВЫЙ ЗАКАЗ*
+                console.log('📤 Отправляем данные через WebApp.sendData():', orderData);
 
-👤 *Покупатель:* ${name}
-📱 *Телефон:* ${phone}
-📍 *Адрес:* ${address}
-🆔 *ID:* ${tgId || 'не указан'}
+                // ============================================================
+                // ✅ ГЛАВНОЕ: ОТПРАВКА ЧЕРЕЗ WebApp.sendData()
+                // ============================================================
+                if (tg) {
+                    tg.sendData(JSON.stringify(orderData));
+                    console.log('✅ Данные отправлены в Telegram!');
 
-📦 *Товары:*
-${productsText}
-💰 *Итого:* ${formatPrice(total)} сум`;
+                    // Очищаем корзину
+                    cart = [];
+                    saveCart();
+                    renderCart();
+                    updateCartCount();
+                    renderProducts();
 
-                const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
-                const GROUP_ID = '-4983646908';
+                    showToast('✅ Заказ отправлен! С вами свяжутся.', 'success');
 
-                // Отправляем через Telegram API
-                const formData = new FormData();
-                const blob = await (await fetch(selectedFileData)).blob();
-                formData.append('photo', blob, 'receipt.jpg');
-                formData.append('chat_id', GROUP_ID);
-                formData.append('caption', message);
-                formData.append('parse_mode', 'Markdown');
+                    // Закрываем Web App через 1 секунду
+                    setTimeout(() => {
+                        if (tg) tg.close();
+                    }, 1500);
 
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                });
+                    setTimeout(closeCheckout, 1000);
 
-                const result = await response.json();
+                } else {
+                    // Если WebApp не доступен (для тестирования в браузере)
+                    console.warn('⚠️ Telegram WebApp не найден, используем alert');
+                    alert('Заказ оформлен!\n\n' +
+                        'Имя: ' + name + '\n' +
+                        'Телефон: ' + phone + '\n' +
+                        'Адрес: ' + address + '\n' +
+                        'Сумма: ' + formatPrice(total) + ' сум');
 
-                if (!result.ok) {
-                    throw new Error(result.description || 'Ошибка отправки');
+                    cart = [];
+                    saveCart();
+                    renderCart();
+                    updateCartCount();
+                    renderProducts();
+                    showToast('✅ Заказ оформлен!', 'success');
+                    setTimeout(closeCheckout, 1000);
                 }
-
-                // Успешно!
-                cart = [];
-                saveCart();
-                renderCart();
-                updateCartCount();
-                renderProducts();
-                removeFile();
-                showToast('✅ Заказ оформлен! Чек отправлен.', 'success');
-                setTimeout(closeCheckout, 1500);
 
             } catch (error) {
                 console.error('❌ Ошибка:', error);
                 showToast('❌ ' + error.message, 'error');
-            } finally {
                 btn.disabled = false;
-                btn.textContent = '✅ Оформить заказ';
+                btn.textContent = '📤 Отправить заказ';
             }
+
+            btn.disabled = false;
+            btn.textContent = '📤 Отправить заказ';
         }
 
         // ================================================================
-        // 7. HELPERS
+        // 6. ВСПОМОГАТЕЛЬНЫЕ
         // ================================================================
         function formatPrice(price) {
             return new Intl.NumberFormat('uz-UZ').format(Number(price) || 0);
@@ -1005,12 +1005,13 @@ ${productsText}
         }
 
         // ================================================================
-        // 8. INIT
+        // 7. ЗАПУСК
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
             renderProfile();
             loadCart();
             renderProducts();
+            console.log('🚀 Velosher Shop загружен!');
         });
     </script>
 
