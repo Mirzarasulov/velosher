@@ -82,7 +82,7 @@
 
 <div class="container">
     <div class="text-center mb-4">
-        <a href="/shop/" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
+        <a href="/templates/shop" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
         <h1 style="color:var(--text); margin-top:10px;">🛒 Оформление заказа</h1>
     </div>
 
@@ -179,7 +179,7 @@
         telegramId = getTelegramId();
         if (!telegramId) {
             alert('❌ Ошибка: ID пользователя не найден');
-            window.location.href = '/shop/';
+            window.location.href = '/templates/shop';
             return;
         }
 
@@ -341,7 +341,7 @@
         .then(() => {
             localStorage.removeItem('cart');
             alert('✅ Заказ успешно оформлен! С вами свяжется оператор.');
-            window.location.href = '/shop/?telegram_id=' + telegramId;
+            window.location.href = '/templates/shop?telegram_id=' + telegramId;
         })
         .catch(error => {
             alert('❌ Ошибка: ' + error.message);
@@ -355,7 +355,7 @@
         loadCart();
         if (!localStorage.getItem('cart') || JSON.parse(localStorage.getItem('cart')).length === 0) {
             alert('🛒 Корзина пуста');
-            window.location.href = '/shop/?telegram_id=' + telegramId;
+            window.location.href = '/templates/shop?telegram_id=' + telegramId;
         }
     });
 </script>
