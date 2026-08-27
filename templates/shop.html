@@ -52,8 +52,6 @@
         .user-profile .username { color: var(--primary); font-size: 13px; font-weight: 600; }
         .user-profile .user-id { color: var(--text-muted); font-size: 11px; }
         .user-profile .badge-online { background: rgba(0,184,148,0.15); color: #00b894; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .user-profile .saved-info { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
-        .user-profile .saved-info i { color: var(--success); margin-right: 4px; }
 
         .checkout-section { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
         .checkout-section.active { display: block; }
@@ -200,7 +198,6 @@
                     <span class="badge-online"><i class="fas fa-circle" style="color:#00b894; font-size:9px;"></i> Онлайн</span>
                 </div>
             </div>
-            <div class="saved-info" id="savedInfo" style="display:none;"></div>
         </div>
 
         <!-- Каталог -->
@@ -247,7 +244,7 @@
                 <div class="step-dot-wrap"><div class="step-dot" id="step3Dot">3</div><div class="step-label">Чек</div></div>
             </div>
 
-            <!-- Шаг 1: Данные -->
+            <!-- Шаг 1: Данные (авто-заполнение из Telegram) -->
             <div class="step active" id="step1">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h5>
@@ -256,11 +253,11 @@
                         <input type="text" class="form-control" id="checkoutName" placeholder="Ваше имя">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-phone"></i> Телефон <span class="autofilled" id="phoneAutoBadge" style="display:none;">заполнено автоматически</span></label>
+                        <label class="form-label"><i class="fas fa-phone"></i> Телефон</label>
                         <input type="text" class="form-control" id="checkoutPhone" placeholder="+998 90 123 45 67">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-map-pin"></i> Адрес доставки <span class="autofilled" id="addressAutoBadge" style="display:none;">заполнено автоматически</span></label>
+                        <label class="form-label"><i class="fas fa-map-pin"></i> Адрес доставки</label>
                         <input type="text" class="form-control" id="checkoutAddress" placeholder="Улица, дом, квартира">
                     </div>
 
@@ -356,7 +353,7 @@
     </div>
 
     <script>
-        // ============ ТЕЛЕГРАМ ПОЛЬЗОВАТЕЛЬ ============
+        // ============ ТЕЛЕГРАМ ПОЛЬЗОВАТЕЛЬ (авто-заполнение) ============
         const tg = window.Telegram ? window.Telegram.WebApp : null;
         if (tg) { tg.ready(); tg.expand(); }
         const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
@@ -368,24 +365,29 @@
                     first_name: tgUser.first_name || 'Пользователь',
                     last_name: tgUser.last_name || '',
                     username: tgUser.username || '',
+                    phone: tgUser.phone_number || '',
                     photo_url: tgUser.photo_url || ''
                 };
             }
+            // Если не в Telegram — пробуем из URL
             const params = new URLSearchParams(window.location.search);
             let id = params.get('telegram_id') || localStorage.getItem('telegram_id');
-            if (id) localStorage.setItem('telegram_id', id);
-            if (!id) return null;
-            return {
-                id: id,
-                first_name: localStorage.getItem('telegram_name') || 'Пользователь',
-                last_name: '',
-                username: localStorage.getItem('telegram_username') || '',
-                photo_url: ''
-            };
+            if (id) {
+                return {
+                    id: id,
+                    first_name: localStorage.getItem('telegram_name') || 'Пользователь',
+                    last_name: '',
+                    username: localStorage.getItem('telegram_username') || '',
+                    phone: localStorage.getItem('telegram_phone') || '',
+                    photo_url: ''
+                };
+            }
+            return null;
         }
 
         const CURRENT_USER = getCurrentUser();
         const TELEGRAM_ID = CURRENT_USER ? CURRENT_USER.id : null;
+        const TELEGRAM_PHONE = CURRENT_USER ? CURRENT_USER.phone : '';
 
         let checkoutStep = 1;
         let selectedFile = null;
@@ -542,18 +544,18 @@
             if (isOpen) renderCart();
         }
 
-        // ============ ОФОРМЛЕНИЕ ============
+        // ============ ОФОРМЛЕНИЕ (авто-заполнение из Telegram) ============
         function openCheckout() {
             if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
             if (!TELEGRAM_ID) { showToast('❌ Откройте через Telegram бота'); return; }
 
+            // ✅ АВТО-ЗАПОЛНЕНИЕ ИЗ TELEGRAM
             const fullName = CURRENT_USER ? (CURRENT_USER.first_name + ' ' + (CURRENT_USER.last_name || '')).trim() : '';
             document.getElementById('checkoutName').value = fullName;
 
-            const savedPhone = localStorage.getItem('user_phone') || '';
-            const savedAddress = localStorage.getItem('user_address') || '';
-            document.getElementById('checkoutPhone').value = savedPhone;
-            document.getElementById('checkoutAddress').value = savedAddress;
+            // Телефон из Telegram (если есть) или из localStorage
+            const phone = TELEGRAM_PHONE || localStorage.getItem('telegram_phone') || '';
+            document.getElementById('checkoutPhone').value = phone;
 
             document.getElementById('catalogSection').style.display = 'none';
             document.getElementById('productsContainer').style.display = 'none';
@@ -680,9 +682,8 @@
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
 
-            // Сохраняем в localStorage
-            localStorage.setItem('user_phone', phone);
-            localStorage.setItem('user_address', address);
+            // Сохраняем телефон в localStorage для будущих заказов
+            if (phone) localStorage.setItem('telegram_phone', phone);
 
             // Формируем сообщение для Telegram
             let productsText = '';
@@ -703,14 +704,17 @@ ${productsText}
 
 ⏳ *Статус:* Ожидает оплаты`;
 
+            const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
+            const GROUP_ID = '-4983646908';
+
             try {
                 // 1. Отправляем сообщение в группу
-                const sendMessageUrl = `https://api.telegram.org/bot8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw/sendMessage`;
+                const sendMessageUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
                 const msgResponse = await fetch(sendMessageUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        chat_id: '-4983646908',
+                        chat_id: GROUP_ID,
                         text: message,
                         parse_mode: 'Markdown'
                     })
@@ -719,12 +723,12 @@ ${productsText}
                 if (!msgResponse.ok) throw new Error('Ошибка отправки сообщения');
 
                 // 2. Отправляем фото чека
-                const sendPhotoUrl = `https://api.telegram.org/bot8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw/sendPhoto`;
+                const sendPhotoUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
                 const formData = new FormData();
                 const blob = await (await fetch(selectedFileDataUrl)).blob();
                 formData.append('photo', blob, 'receipt.jpg');
-                formData.append('chat_id', '-4983646908');
-                formData.append('caption', `🧾 *Чек к заказу*\n👤 ${name}`);
+                formData.append('chat_id', GROUP_ID);
+                formData.append('caption', `🧾 *Чек к заказу*\n👤 ${name}\n📱 ${phone}`);
 
                 const photoResponse = await fetch(sendPhotoUrl, {
                     method: 'POST',
