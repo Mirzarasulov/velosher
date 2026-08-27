@@ -6,8 +6,6 @@
     <title>🛒 Оформление заказа - Velosher</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -19,23 +17,44 @@
             --primary: #667eea;
             --success: #00b894;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .card-glass { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
-        .form-control, .form-select {
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            min-height: 100vh; 
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .card-glass { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 24px; 
+            margin-bottom: 20px; 
+        }
+        .form-control {
             background: var(--bg);
             color: var(--text);
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 12px 16px;
+            width: 100%;
         }
-        .form-control:focus, .form-select:focus {
+        .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
             background: var(--bg);
             color: var(--text);
+            outline: none;
         }
-        .form-label { color: var(--text-muted); font-size: 14px; font-weight: 600; }
+        .form-label { 
+            color: var(--text-muted); 
+            font-size: 14px; 
+            font-weight: 600; 
+            display: block; 
+            margin-bottom: 6px; 
+        }
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -45,8 +64,10 @@
             font-weight: 600;
             width: 100%;
             transition: all 0.3s;
+            cursor: pointer;
         }
         .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(102,126,234,0.3); }
+        
         .btn-success {
             background: linear-gradient(135deg, #00b894 0%, #00a381 100%);
             color: white;
@@ -56,45 +77,98 @@
             font-weight: 600;
             width: 100%;
             transition: all 0.3s;
+            cursor: pointer;
         }
         .btn-success:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); }
-        .btn-outline { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; transition: all 0.3s; }
+        
+        .btn-outline { 
+            background: var(--bg); 
+            border: 1px solid var(--border); 
+            color: var(--text); 
+            padding: 10px 20px; 
+            border-radius: 10px; 
+            transition: all 0.3s; 
+            cursor: pointer;
+            width: 100%;
+        }
         .btn-outline:hover { background: var(--primary); color: white; border-color: var(--primary); }
-        .product-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        
+        .product-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 0; 
+            border-bottom: 1px solid var(--border); 
+        }
         .product-item:last-child { border-bottom: none; }
         .total-amount { font-size: 28px; font-weight: 700; color: var(--primary); }
-        .map-container { height: 300px; border-radius: 12px; overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
-        .map-container .leaflet-control-zoom { display: none; }
-        .upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        
+        .upload-area { 
+            border: 2px dashed var(--border); 
+            border-radius: 12px; 
+            padding: 30px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+        }
         .upload-area:hover { border-color: var(--primary); background: rgba(102,126,234,0.05); }
-        .upload-area.dragover { border-color: var(--success); background: rgba(0,184,148,0.05); }
-        .upload-area i { font-size: 48px; color: var(--text-muted); margin-bottom: 10px; }
+        .upload-area i { font-size: 48px; color: var(--text-muted); margin-bottom: 10px; display: block; }
         .preview-image { max-width: 200px; max-height: 200px; border-radius: 8px; margin: 10px auto; display: block; }
-        .badge-status { padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; display: inline-block; }
-        .badge-pending { background: rgba(255,193,7,0.2); color: #ffc107; }
-        .badge-success { background: rgba(0,184,148,0.2); color: #00b894; }
-        .loading { display: none; text-align: center; padding: 20px; }
-        .loading .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        
         .step { display: none; }
         .step.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .step-indicator { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; }
-        .step-dot { width: 40px; height: 40px; border-radius: 50%; background: var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        
+        .step-indicator { 
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+            margin-bottom: 30px; 
+            align-items: center; 
+        }
+        .step-dot { 
+            width: 40px; height: 40px; border-radius: 50%; 
+            background: var(--border); color: var(--text-muted); 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 700; 
+        }
         .step-dot.active { background: var(--primary); color: white; }
         .step-dot.done { background: var(--success); color: white; }
-        .step-line { width: 60px; height: 2px; background: var(--border); align-self: center; }
+        .step-line { width: 60px; height: 2px; background: var(--border); }
         .step-line.done { background: var(--success); }
-        @media (max-width: 768px) { .step-line { width: 30px; } }
+        
+        .loading { display: none; text-align: center; padding: 20px; }
+        .loading .spinner { 
+            width: 40px; height: 40px; 
+            border: 3px solid var(--border); 
+            border-top-color: var(--primary); 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto; 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .back-link { color: var(--primary); text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        
+        .alert { 
+            background: rgba(102,126,234,0.1); 
+            border: 1px solid var(--primary); 
+            color: var(--text); 
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            margin-bottom: 16px; 
+        }
+        
+        @media (max-width: 768px) { 
+            .step-line { width: 30px; } 
+        }
     </style>
 </head>
 <body>
 
-<div class="container" id="app">
+<div class="container">
     <div class="text-center mb-4">
-        <a href="/shop/" style="color:var(--primary); text-decoration:none; font-size:14px;">
-            <i class="fas fa-arrow-left"></i> Вернуться в магазин
-        </a>
+        <a href="/shop.html" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
         <h1 style="color:var(--text); margin-top:10px;">🛒 Оформление заказа</h1>
     </div>
 
@@ -107,14 +181,14 @@
         <div class="step-dot" id="step3Dot">3</div>
     </div>
 
-    <!-- Шаг 1: Данные пользователя -->
+    <!-- Шаг 1: Данные -->
     <div class="step active" id="step1">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h4>
             
             <div class="mb-3">
                 <label class="form-label"><i class="fas fa-user"></i> Имя</label>
-                <input type="text" class="form-control" id="userName" readonly>
+                <input type="text" class="form-control" id="userName" readonly value="Пользователь">
             </div>
             
             <div class="mb-3">
@@ -127,22 +201,13 @@
                 <input type="text" class="form-control" id="userAddress" placeholder="Улица, дом, квартира">
             </div>
 
-            <div class="mb-3">
-                <label class="form-label"><i class="fas fa-map-marked-alt"></i> Выберите на карте</label>
-                <div class="map-container" id="map"></div>
-                <small class="text-muted">Кликните на карте, чтобы выбрать точку доставки</small>
-                <input type="hidden" id="locationLat">
-                <input type="hidden" id="locationLng">
-                <div id="selectedAddress" style="margin-top:8px; color:var(--text-muted); font-size:14px;"></div>
-            </div>
-
             <button class="btn-primary" onclick="goToStep2()">
                 <i class="fas fa-arrow-right"></i> Продолжить
             </button>
         </div>
     </div>
 
-    <!-- Шаг 2: Товары и сумма -->
+    <!-- Шаг 2: Товары -->
     <div class="step" id="step2">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Ваш заказ</h4>
@@ -155,7 +220,7 @@
             
             <div class="row mt-3">
                 <div class="col-6">
-                    <button class="btn-outline" style="width:100%;" onclick="goToStep1()">
+                    <button class="btn-outline" onclick="goToStep1()">
                         <i class="fas fa-arrow-left"></i> Назад
                     </button>
                 </div>
@@ -168,12 +233,12 @@
         </div>
     </div>
 
-    <!-- Шаг 3: Оплата и чек -->
+    <!-- Шаг 3: Оплата -->
     <div class="step" id="step3">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--success);"></i> Оплата</h4>
             
-            <div class="alert alert-info" style="background:rgba(102,126,234,0.1); border:1px solid var(--primary); color:var(--text);">
+            <div class="alert">
                 <i class="fas fa-info-circle"></i> Оплата производится картой. После оплаты загрузите чек.
             </div>
 
@@ -189,8 +254,8 @@
                     <img id="previewImage" class="preview-image" src="">
                     <div class="text-center">
                         <span id="fileName" style="color:var(--text-muted);"></span>
-                        <button class="btn-outline" style="padding:4px 12px; font-size:12px; margin-left:10px;" onclick="removeFile()">
-                            <i class="fas fa-times"></i>
+                        <button class="btn-outline" style="padding:4px 12px; font-size:12px; margin-left:10px; width:auto;" onclick="removeFile()">
+                            <i class="fas fa-times"></i> Удалить
                         </button>
                     </div>
                 </div>
@@ -198,7 +263,7 @@
 
             <div class="row mt-3">
                 <div class="col-6">
-                    <button class="btn-outline" style="width:100%;" onclick="goToStep2()">
+                    <button class="btn-outline" onclick="goToStep2()">
                         <i class="fas fa-arrow-left"></i> Назад
                     </button>
                 </div>
@@ -219,58 +284,24 @@
 
 <script>
     let telegramId = null;
-    let userData = null;
     let cart = [];
-    let map = null;
-    let marker = null;
     let selectedFile = null;
     let currentStep = 1;
 
-    // Получаем telegram_id из URL
     function getTelegramId() {
         const params = new URLSearchParams(window.location.search);
         telegramId = params.get('telegram_id');
         if (!telegramId) {
-            // Проверяем localStorage
             telegramId = localStorage.getItem('telegram_id');
             if (!telegramId) {
-                alert('❌ Ошибка: ID пользователя не найден. Вернитесь в магазин.');
-                window.location.href = '/shop/';
+                alert('❌ Ошибка: ID пользователя не найден');
+                window.location.href = '/shop.html';
                 return;
             }
         }
         localStorage.setItem('telegram_id', telegramId);
     }
 
-    // Загружаем данные пользователя
-    async function loadUserData() {
-        try {
-            const response = await fetch(`/api/user/${telegramId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                userData = data.user;
-                document.getElementById('userName').value = userData.first_name || 'Пользователь';
-                document.getElementById('userPhone').value = userData.phone || '';
-                document.getElementById('userAddress').value = userData.address || '';
-                
-                if (userData.location_lat && userData.location_lng) {
-                    setTimeout(() => {
-                        updateMapLocation(parseFloat(userData.location_lat), parseFloat(userData.location_lng));
-                    }, 500);
-                }
-            } else {
-                // Если пользователь не найден, создаем базовые данные
-                document.getElementById('userName').value = 'Пользователь';
-                document.getElementById('userPhone').value = '+998';
-                document.getElementById('userAddress').value = '';
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки пользователя:', error);
-        }
-    }
-
-    // Загружаем корзину
     function loadCart() {
         try {
             const cartData = localStorage.getItem('cart');
@@ -314,67 +345,11 @@
         return new Intl.NumberFormat('uz-UZ').format(price);
     }
 
-    // Карта
-    function initMap() {
-        const defaultLat = 41.311;
-        const defaultLng = 69.279;
-        
-        map = L.map('map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView([defaultLat, defaultLng], 13);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: ''
-        }).addTo(map);
-        
-        map.on('click', function(e) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
-            updateMapLocation(lat, lng);
-            getAddressFromCoords(lat, lng);
-        });
-        
-        // Если есть сохраненная локация
-        if (document.getElementById('locationLat').value) {
-            const lat = parseFloat(document.getElementById('locationLat').value);
-            const lng = parseFloat(document.getElementById('locationLng').value);
-            updateMapLocation(lat, lng);
-        }
-    }
-
-    function updateMapLocation(lat, lng) {
-        if (marker) {
-            map.removeLayer(marker);
-        }
-        marker = L.marker([lat, lng]).addTo(map);
-        map.setView([lat, lng], 15);
-        
-        document.getElementById('locationLat').value = lat;
-        document.getElementById('locationLng').value = lng;
-    }
-
-    async function getAddressFromCoords(lat, lng) {
-        try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ru`);
-            const data = await response.json();
-            if (data.display_name) {
-                document.getElementById('selectedAddress').textContent = '📍 ' + data.display_name;
-                document.getElementById('userAddress').value = data.display_name;
-            }
-        } catch (error) {
-            document.getElementById('selectedAddress').textContent = `📍 ${lat}, ${lng}`;
-        }
-    }
-
-    // Шаги
     function goToStep(step) {
         currentStep = step;
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
         document.getElementById(`step${step}`).classList.add('active');
         
-        // Обновляем индикаторы
         for (let i = 1; i <= 3; i++) {
             const dot = document.getElementById(`step${i}Dot`);
             dot.classList.remove('active', 'done');
@@ -389,17 +364,12 @@
 
     function goToStep1() { goToStep(1); }
     function goToStep2() { 
-        // Проверяем заполнение данных
         if (!document.getElementById('userPhone').value || document.getElementById('userPhone').value.length < 10) {
             alert('❌ Введите корректный номер телефона');
             return;
         }
         if (!document.getElementById('userAddress').value) {
             alert('❌ Укажите адрес доставки');
-            return;
-        }
-        if (!document.getElementById('locationLat').value) {
-            alert('❌ Укажите точку на карте');
             return;
         }
         goToStep(2); 
@@ -412,7 +382,6 @@
         goToStep(3); 
     }
 
-    // Загрузка файла
     function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -445,114 +414,25 @@
         document.getElementById('receiptInput').value = '';
     }
 
-    // Drag and drop
-    document.addEventListener('DOMContentLoaded', function() {
-        const uploadArea = document.getElementById('uploadArea');
-        
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('dragover');
-        });
-        
-        uploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.classList.remove('dragover');
-        });
-        
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                document.getElementById('receiptInput').files = files;
-                handleFileUpload({ target: { files: files } });
-            }
-        });
-    });
-
-    // Отправка заказа
-    async function submitOrder() {
+    function submitOrder() {
         if (!selectedFile) {
             alert('❌ Загрузите чек оплаты');
             return;
         }
 
-        const submitBtn = document.getElementById('submitBtn');
-        const loading = document.getElementById('loadingIndicator');
-        
-        submitBtn.disabled = true;
-        loading.style.display = 'block';
-
-        try {
-            // Подготавливаем данные заказа
-            const orderData = {
-                telegram_id: telegramId,
-                user_name: document.getElementById('userName').value,
-                phone: document.getElementById('userPhone').value,
-                address: document.getElementById('userAddress').value,
-                location_lat: document.getElementById('locationLat').value,
-                location_lng: document.getElementById('locationLng').value,
-                products: cart,
-                total_amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-                payment_method: 'card'
-            };
-
-            // Создаем заказ
-            const response = await fetch('/api/order/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                // Загружаем чек
-                const formData = new FormData();
-                formData.append('receipt', selectedFile);
-                formData.append('order_id', result.order_id);
-                formData.append('telegram_id', telegramId);
-
-                const uploadResponse = await fetch('/api/upload/receipt', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const uploadResult = await uploadResponse.json();
-                
-                if (uploadResult.success) {
-                    // Очищаем корзину
-                    localStorage.removeItem('cart');
-                    cart = [];
-                    
-                    alert('✅ Заказ успешно оформлен! С вами свяжется оператор.');
-                    window.location.href = '/shop/?telegram_id=' + telegramId;
-                } else {
-                    alert('❌ Ошибка загрузки чека: ' + uploadResult.error);
-                }
-            } else {
-                alert('❌ Ошибка оформления заказа');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('❌ Произошла ошибка. Попробуйте еще раз.');
-        } finally {
-            submitBtn.disabled = false;
-            loading.style.display = 'none';
-        }
+        alert('✅ Заказ оформлен! С вами свяжется оператор.');
+        localStorage.removeItem('cart');
+        window.location.href = '/shop.html?telegram_id=' + telegramId;
     }
 
     // Инициализация
     document.addEventListener('DOMContentLoaded', function() {
         getTelegramId();
-        loadUserData();
         loadCart();
-        setTimeout(initMap, 300);
         
-        // Если нет корзины, перенаправляем
         if (!localStorage.getItem('cart') || JSON.parse(localStorage.getItem('cart')).length === 0) {
             alert('🛒 Корзина пуста');
-            window.location.href = '/shop/?telegram_id=' + telegramId;
+            window.location.href = '/shop.html?telegram_id=' + telegramId;
         }
     });
 </script>
