@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказы - Админ-панель</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a1a; color: #fff; min-height: 100vh; }
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.06); padding: 30px 20px; z-index: 100; }
+        .sidebar .logo { font-size: 24px; font-weight: 800; color: #667eea; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 30px; }
+        .sidebar .nav-item { display: block; padding: 14px 18px; border-radius: 12px; color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.3s; margin-bottom: 4px; font-weight: 500; font-size: 15px; }
+        .sidebar .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .sidebar .nav-item.active { background: rgba(102,126,234,0.15); color: #667eea; }
+        .sidebar .nav-item i { margin-right: 14px; width: 20px; text-align: center; }
+        .main-content { margin-left: 280px; padding: 30px; }
+        .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; }
+        .table-dark-custom { background: rgba(255,255,255,0.02); border-radius: 12px; overflow: hidden; }
+        .table-dark-custom thead { background: rgba(102,126,234,0.15); }
+        .table-dark-custom th { color: #fff; padding: 14px 16px; border: none; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table-dark-custom td { color: rgba(255,255,255,0.85); padding: 14px 16px; border-color: rgba(255,255,255,0.04); }
+        .badge-status { padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-pending { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .badge-paid { background: rgba(40,167,69,0.2); color: #28a745; }
+        .badge-shipped { background: rgba(23,162,184,0.2); color: #17a2b8; }
+        .badge-delivered { background: rgba(0,123,255,0.2); color: #007bff; }
+        .badge-cancelled { background: rgba(220,53,69,0.2); color: #dc3545; }
+        .text-muted-custom { color: rgba(255,255,255,0.4); }
+        .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); padding: 6px 14px; border-radius: 8px; transition: all 0.3s; font-size: 13px; cursor: pointer; }
+        .btn-glass:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        @media (max-width: 768px) { .sidebar { width: 100%; position: relative; padding: 15px; } .main-content { margin-left: 0; padding: 15px; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-shield-alt"></i> Velosher Admin</div>
+        <a href="/admin/" class="nav-item"><i class="fas fa-chart-pie"></i> Главная</a>
+        <a href="/admin/orders/" class="nav-item active"><i class="fas fa-box"></i> Заказы</a>
+        <a href="/admin/products/" class="nav-item"><i class="fas fa-tag"></i> Товары</a>
+        <a href="/admin/users/" class="nav-item"><i class="fas fa-users"></i> Пользователи</a>
+        <a href="/admin/chat/" class="nav-item"><i class="fas fa-comment-dots"></i> Чат</a>
+        <a href="/admin/broadcast/" class="nav-item"><i class="fas fa-bullhorn"></i> Рассылка</a>
+        <a href="/shop/" class="nav-item" style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.06); padding-top:20px;"><i class="fas fa-store"></i> Магазин</a>
+    </div>
+
+    <div class="main-content">
+        <h2 class="mb-4 fw-bold" style="color:#fff;">
+            <i class="fas fa-box" style="color:#667eea;"></i> Все заказы
+        </h2>
+        <div class="glass">
+            <div id="ordersList">
+                <div class="text-center py-4 text-muted-custom">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/orders');
+                const data = await res.json();
+                let html = `<div class="table-responsive"><table class="table-dark-custom table">
+                    <thead><tr><th>Заказ</th><th>Покупатель</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead><tbody>`;
+                if (data.orders && data.orders.length > 0) {
+                    data.orders.forEach(o => {
+                        const statusClass = `badge-${o.status || 'pending'}`;
+                        html += `<tr>
+                            <td><strong style="color:#667eea;">#${o.order_id}</strong></td>
+                            <td>${o.user_name || 'Гость'}</td>
+                            <td><strong>${(o.total_amount || 0).toLocaleString()} сум</strong></td>
+                            <td><span class="badge-status ${statusClass}">${o.status || 'pending'}</span></td>
+                            <td style="color:rgba(255,255,255,0.4); font-size:13px;">${o.created_at ? o.created_at.slice(0,16) : '-'}</td>
+                        </tr>`;
+                    });
+                } else {
+                    html += `<tr><td colspan="5" class="text-center text-muted-custom">Нет заказов</td></tr>`;
+                }
+                html += '</tbody></table></div>';
+                document.getElementById('ordersList').innerHTML = html;
+            } catch(e) {
+                document.getElementById('ordersList').innerHTML = '<div class="text-center py-4 text-danger">Ошибка загрузки</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadOrders);
+        setInterval(loadOrders, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚲 Velosher - Магазин велосипедов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8f9fa; min-height: 100vh; }
+        .navbar-custom { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 18px 0; box-shadow: 0 4px 30px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100; }
+        .navbar-custom .brand { color: white; font-size: 26px; font-weight: 800; text-decoration: none; }
+        .navbar-custom .brand i { margin-right: 12px; }
+        .cart-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 22px; border-radius: 14px; transition: all 0.3s; font-weight: 600; }
+        .cart-btn:hover { background: rgba(255,255,255,0.3); color: white; transform: scale(1.05); }
+        .cart-count { background: #ff4757; color: white; border-radius: 50%; padding: 2px 10px; font-size: 13px; margin-left: 8px; }
+        .product-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; border: 1px solid rgba(0,0,0,0.04); cursor: pointer; }
+        .product-card:hover { transform: translateY(-12px); box-shadow: 0 20px 50px rgba(102,126,234,0.15); }
+        .product-image-wrapper { position: relative; overflow: hidden; background: #f8f9fa; padding: 20px; }
+        .product-image { width: 100%; height: 220px; object-fit: contain; transition: transform 0.5s ease; }
+        .product-card:hover .product-image { transform: scale(1.05); }
+        .product-badge { position: absolute; top: 12px; right: 12px; background: #ff4757; color: white; padding: 4px 14px; border-radius: 30px; font-weight: 700; font-size: 13px; }
+        .product-body { padding: 20px; }
+        .product-name { font-weight: 600; font-size: 17px; color: #2d3436; margin-bottom: 6px; }
+        .product-price { font-size: 22px; font-weight: 700; color: #667eea; }
+        .product-old-price { text-decoration: line-through; color: #b2bec3; font-size: 15px; margin-left: 10px; }
+        .btn-add { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; transition: all 0.3s; width: 100%; font-size: 15px; }
+        .btn-add:hover { transform: scale(1.03); box-shadow: 0 8px 25px rgba(102,126,234,0.35); color: white; }
+        .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-add.in-cart { background: #00b894; }
+        .filter-section { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 30px; border: 1px solid rgba(0,0,0,0.04); }
+        .filter-section .form-control, .filter-section .form-select { border-radius: 12px; border: 1px solid #e0e0e0; padding: 12px 16px; font-size: 14px; }
+        .filter-section .form-control:focus, .filter-section .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .toast-message { position: fixed; bottom: 30px; right: 30px; background: #2d3436; color: white; padding: 16px 28px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 99999; animation: slideUp 0.5s ease; font-size: 16px; font-weight: 500; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .cart-modal { position: fixed; top: 0; right: -480px; width: 450px; max-width: 92%; height: 100%; background: white; z-index: 10000; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.15); overflow-y: auto; }
+        .cart-modal.open { right: 0; }
+        .cart-modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-modal-header .close-btn { background: none; border: none; color: white; font-size: 32px; cursor: pointer; transition: transform 0.3s; }
+        .cart-modal-header .close-btn:hover { transform: rotate(90deg); }
+        .cart-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f0f2f5; gap: 16px; }
+        .cart-item:hover { background: #f8f9fa; }
+        .cart-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 600; color: #2d3436; }
+        .cart-item-price { color: #667eea; font-weight: 700; }
+        .cart-item-qty { display: flex; align-items: center; gap: 10px; }
+        .cart-item-qty button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; background: white; cursor: pointer; transition: all 0.3s; font-size: 16px; font-weight: 600; }
+        .cart-item-qty button:hover { background: #667eea; color: white; border-color: #667eea; }
+        .cart-total { padding: 24px; background: #f8f9fa; border-top: 2px solid #667eea; position: sticky; bottom: 0; }
+        .cart-total .total-price { font-size: 26px; font-weight: 700; color: #667eea; }
+        .btn-checkout { background: linear-gradient(135deg, #00b894 0%, #00a381 100%); color: white; border: none; padding: 14px 20px; border-radius: 14px; font-weight: 600; transition: all 0.3s; width: 100%; font-size: 16px; }
+        .btn-checkout:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); color: white; }
+        .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 9999; display: none; backdrop-filter: blur(4px); }
+        .overlay.show { display: block; }
+        .footer { background: #2d3436; color: rgba(255,255,255,0.6); padding: 40px 0; margin-top: 60px; text-align: center; }
+        
+        /* Модальное окно оплаты */
+        .payment-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .payment-modal.show { display: flex; }
+        .payment-content { background: white; border-radius: 24px; padding: 40px; max-width: 450px; width: 90%; text-align: center; animation: slideUp 0.5s ease; }
+        .payment-content .card-icon { font-size: 48px; color: #667eea; margin-bottom: 15px; }
+        .payment-content .card-number { font-size: 24px; font-weight: 700; color: #2d3436; letter-spacing: 4px; font-family: monospace; padding: 15px; background: #f8f9fa; border-radius: 12px; margin: 15px 0; }
+        .payment-content .card-holder { color: #6c757d; font-size: 14px; }
+        .payment-content .amount { font-size: 32px; font-weight: 700; color: #667eea; margin: 15px 0; }
+        .payment-content .btn-pay { background: linear-gradient(135deg, #00b894 0%, #00a381 100%); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 600; font-size: 18px; width: 100%; transition: all 0.3s; }
+        .payment-content .btn-pay:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); }
+        .payment-content .btn-pay:disabled { opacity: 0.5; cursor: not-allowed; }
+        .payment-content .btn-close-pay { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 12px; width: 100%; margin-top: 10px; font-weight: 500; transition: all 0.3s; cursor: pointer; }
+        .payment-content .btn-close-pay:hover { background: #e0e0e0; }
+        
+        @media (max-width: 768px) { .product-image { height: 160px; } .product-price { font-size: 18px; } .cart-modal { width: 100%; max-width: 100%; } .payment-content { padding: 20px; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar-custom">
+        <div class="container">
+            <div class="row w-100 align-items-center">
+                <div class="col-6"><a href="/shop/" class="brand"><i class="fas fa-bicycle"></i> Velosher</a></div>
+                <div class="col-6 text-end">
+                    <button class="cart-btn" onclick="toggleCart()">
+                        <i class="fas fa-shopping-cart"></i> Корзина
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="filter-section">
+            <div class="row align-items-center">
+                <div class="col-md-4"><h5 class="mb-0 fw-bold" style="color:#2d3436;"><i class="fas fa-filter" style="color:#667eea;"></i> Каталог</h5></div>
+                <div class="col-md-4 mt-2 mt-md-0"><input type="text" class="form-control" id="searchInput" placeholder="🔍 Поиск..." onkeyup="filterProducts()"></div>
+                <div class="col-md-4 mt-2 mt-md-0">
+                    <select class="form-select" id="sortSelect" onchange="sortProducts()">
+                        <option value="default">По умолчанию</option>
+                        <option value="price_asc">Цена: по возрастанию</option>
+                        <option value="price_desc">Цена: по убыванию</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4" id="productsContainer">
+            <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-3 text-muted">Загрузка...</p></div>
+        </div>
+    </div>
+
+    <!-- CART MODAL -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-modal-header"><h5 class="mb-0 fw-bold"><i class="fas fa-shopping-cart"></i> Моя корзина</h5><button class="close-btn" onclick="toggleCart()">×</button></div>
+        <div id="cartItems"><div class="text-center py-5 text-muted"><i class="fas fa-shopping-bag" style="font-size:56px; color:#b2bec3;"></i><p class="mt-3">Корзина пуста</p></div></div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-content">
+            <div class="card-icon">💳</div>
+            <h4>Оплата заказа</h4>
+            <div class="card-number">8600 1234 5678 9012</div>
+            <div class="card-holder">👤 Иванов И.И.</div>
+            <div class="amount" id="paymentAmount">0 сум</div>
+            <button class="btn-pay" id="payButton" onclick="confirmPayment()">
+                <i class="fas fa-check"></i> Оплатить
+            </button>
+            <button class="btn-close-pay" onclick="closePayment()">❌ Отмена</button>
+        </div>
+    </div>
+
+    <div id="toast" style="display:none;"></div>
+
+    <div class="footer"><div class="container"><p class="mb-0">© 2024 Velosher Shop</p></div></div>
+
+    <script>
+        let allProducts = [];
+        let cart = [];
+        let cartOpen = false;
+
+        // ========== ЗАГРУЗКА КОРЗИНЫ ==========
+        async function loadCart() {
+            try {
+                const res = await fetch('/api/cart');
+                const data = await res.json();
+                cart = data.items || [];
+                document.getElementById('cartCount').textContent = cart.reduce((s, i) => s + i.quantity, 0);
+            } catch(e) { console.error('Ошибка:', e); }
+        }
+
+        async function saveCart() {
+            try {
+                await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart })
+                });
+            } catch(e) { console.error('Ошибка:', e); }
+        }
+
+        function toggleCart() {
+            cartOpen = !cartOpen;
+            document.getElementById('cartModal').classList.toggle('open', cartOpen);
+            document.getElementById('overlay').classList.toggle('show', cartOpen);
+            if (cartOpen) renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-shopping-bag" style="font-size:56px; color:#b2bec3;"></i><p class="mt-3">Корзина пуста</p><button class="btn btn-outline-primary btn-sm" onclick="toggleCart()">Продолжить покупки</button></div>`;
+                return;
+            }
+            let html = '', total = 0;
+            cart.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                html += `<div class="cart-item"><img src="${item.image || 'https://via.placeholder.com/60/667eea/white?text=🚲'}" alt="${item.name}"><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-price">${item.price.toLocaleString()} сум</div></div><div class="cart-item-qty"><button onclick="updateQty(${item.id}, -1)">−</button><span style="font-weight:600; font-size:16px; min-width:30px; text-align:center;">${item.quantity}</span><button onclick="updateQty(${item.id}, 1)">+</button></div></div>`;
+            });
+            html += `<div class="cart-total"><div class="row align-items-center"><div class="col-6"><strong>Итого:</strong><div class="total-price">${total.toLocaleString()} сум</div></div><div class="col-6 text-end"><button class="btn-checkout" onclick="openPayment(${total})"><i class="fas fa-credit-card"></i> Оплатить</button></div></div></div>`;
+            container.innerHTML = html;
+        }
+
+        async function updateQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+                await saveCart();
+                document.getElementById('cartCount').textContent = cart.reduce((s, i) => s + i.quantity, 0);
+                renderCart();
+            }
+        }
+
+        // ========== ОПЛАТА ==========
+        function openPayment(total) {
+            if (cart.length === 0) {
+                showToast('❌ Корзина пуста');
+                return;
+            }
+            document.getElementById('paymentAmount').textContent = total.toLocaleString() + ' сум';
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        function closePayment() {
+            document.getElementById('paymentModal').classList.remove('show');
+        }
+
+        function confirmPayment() {
+            const btn = document.getElementById('payButton');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обработка...';
+            
+            setTimeout(() => {
+                // Создаем заказ
+                const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+                const orderData = {
+                    telegram_id: localStorage.getItem('telegram_id') || '',
+                    user_name: 'Покупатель',
+                    phone: '+998901234567',
+                    address: 'Ташкент',
+                    products: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
+                    total_amount: total
+                };
+                
+                fetch('/api/order/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                }).then(() => {
+                    showToast('✅ Заказ оформлен! Спасибо за покупку!');
+                    cart = [];
+                    saveCart();
+                    document.getElementById('cartCount').textContent = 0;
+                    renderCart();
+                    closePayment();
+                    toggleCart();
+                }).catch(() => {
+                    showToast('❌ Ошибка оформления заказа');
+                }).finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Оплатить';
+                });
+            }, 2000);
+        }
+
+        // ========== ЗАГРУЗКА ТОВАРОВ ==========
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                if (data.products && data.products.length > 0) {
+                    allProducts = data.products;
+                    renderProducts(allProducts);
+                } else {
+                    document.getElementById('productsContainer').innerHTML = `<div class="col-12 text-center py-5"><i class="fas fa-box-open" style="font-size:48px; color:#b2bec3;"></i><p class="text-muted mt-3">Товаров пока нет</p></div>`;
+                }
+            } catch(e) {
+                document.getElementById('productsContainer').innerHTML = `<div class="col-12 text-center py-5"><i class="fas fa-exclamation-triangle" style="font-size:48px; color:#ff4757;"></i><p class="text-danger mt-3">⚠️ Ошибка загрузки</p><button class="btn btn-outline-primary mt-2" onclick="loadProducts()"><i class="fas fa-sync"></i> Попробовать снова</button></div>`;
+            }
+        }
+
+        function renderProducts(products) {
+            let html = '';
+            products.forEach(p => {
+                const discount = p.old_price ? Math.round((1 - p.price / p.old_price) * 100) : 0;
+                const inCart = cart.some(item => item.id === p.id);
+                html += `<div class="col-md-3 col-6"><div class="product-card" onclick="window.location.href='/product/${p.id}/'"><div class="product-image-wrapper">${discount > 0 ? `<span class="product-badge">-${discount}%</span>` : ''}<img src="${p.image || 'https://via.placeholder.com/300x300/667eea/white?text=🚲'}" class="product-image" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x300/667eea/white?text=🚲'"></div><div class="product-body"><div class="product-name">${p.name}</div><div><span class="product-price">${p.price.toLocaleString()} сум</span>${p.old_price ? `<span class="product-old-price">${p.old_price.toLocaleString()} сум</span>` : ''}</div><button class="btn-add ${inCart ? 'in-cart' : ''}" onclick="event.stopPropagation(); addToCart(${p.id})" ${p.stock > 0 ? '' : 'disabled'}>${inCart ? '✅ В корзине' : '🛒 Добавить'}</button></div></div></div>`;
+            });
+            document.getElementById('productsContainer').innerHTML = html;
+        }
+
+        async function addToCart(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            const existing = cart.find(item => item.id === productId);
+            if (existing) { showToast(`✅ ${product.name} уже в корзине`); return; }
+            cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1, image: product.image || '' });
+            await saveCart();
+            document.getElementById('cartCount').textContent = cart.reduce((s, i) => s + i.quantity, 0);
+            showToast(`🛒 ${product.name} добавлен в корзину!`);
+            const buttons = document.querySelectorAll('.btn-add');
+            buttons.forEach(btn => {
+                if (btn.parentElement.querySelector('.product-name')?.textContent === product.name) {
+                    btn.textContent = '✅ В корзине';
+                    btn.classList.add('in-cart');
+                }
+            });
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query) || (p.description && p.description.toLowerCase().includes(query)));
+            renderProducts(filtered);
+        }
+
+        function sortProducts() {
+            const sort = document.getElementById('sortSelect').value;
+            let sorted = [...allProducts];
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (query) sorted = sorted.filter(p => p.name.toLowerCase().includes(query));
+            if (sort === 'price_asc') sorted.sort((a, b) => a.price - b.price);
+            if (sort === 'price_desc') sorted.sort((a, b) => b.price - a.price);
+            renderProducts(sorted);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.className = 'toast-message';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            loadCart();
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (document.getElementById('paymentModal').classList.contains('show')) closePayment();
+                    if (cartOpen) toggleCart();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

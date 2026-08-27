@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рассылка - Админ-панель</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a1a; color: #fff; min-height: 100vh; }
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.06); padding: 30px 20px; z-index: 100; }
+        .sidebar .logo { font-size: 24px; font-weight: 800; color: #667eea; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 30px; }
+        .sidebar .nav-item { display: block; padding: 14px 18px; border-radius: 12px; color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.3s; margin-bottom: 4px; font-weight: 500; font-size: 15px; }
+        .sidebar .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .sidebar .nav-item.active { background: rgba(102,126,234,0.15); color: #667eea; }
+        .sidebar .nav-item i { margin-right: 14px; width: 20px; text-align: center; }
+        .main-content { margin-left: 280px; padding: 30px; }
+        .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; }
+        .form-control { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 12px; padding: 12px 16px; }
+        .form-control:focus { background: rgba(255,255,255,0.08); border-color: #667eea; color: #fff; box-shadow: none; }
+        .form-control::placeholder { color: rgba(255,255,255,0.3); }
+        .form-control[type="file"] { padding: 10px; color: rgba(255,255,255,0.6); }
+        .form-control[type="file"]::file-selector-button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 8px 16px; border-radius: 8px; color: #fff; font-weight: 500; cursor: pointer; }
+        .btn-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; transition: all 0.3s; }
+        .btn-gradient:hover { transform: scale(1.03); box-shadow: 0 8px 25px rgba(102,126,234,0.3); color: #fff; }
+        .btn-gradient:disabled { opacity: 0.5; cursor: not-allowed; }
+        .text-muted-custom { color: rgba(255,255,255,0.4); }
+        .alert-info { background: rgba(102,126,234,0.1); border: 1px solid rgba(102,126,234,0.2); color: #667eea; border-radius: 12px; padding: 12px 16px; }
+        @media (max-width: 768px) { .sidebar { width: 100%; position: relative; padding: 15px; } .main-content { margin-left: 0; padding: 15px; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-shield-alt"></i> Velosher Admin</div>
+        <a href="/admin/" class="nav-item"><i class="fas fa-chart-pie"></i> Главная</a>
+        <a href="/admin/orders/" class="nav-item"><i class="fas fa-box"></i> Заказы</a>
+        <a href="/admin/products/" class="nav-item"><i class="fas fa-tag"></i> Товары</a>
+        <a href="/admin/users/" class="nav-item"><i class="fas fa-users"></i> Пользователи</a>
+        <a href="/admin/chat/" class="nav-item"><i class="fas fa-comment-dots"></i> Чат</a>
+        <a href="/admin/broadcast/" class="nav-item active"><i class="fas fa-bullhorn"></i> Рассылка</a>
+        <a href="/shop/" class="nav-item" style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.06); padding-top:20px;"><i class="fas fa-store"></i> Магазин</a>
+    </div>
+
+    <div class="main-content">
+        <h2 class="mb-4 fw-bold" style="color:#fff;">
+            <i class="fas fa-bullhorn" style="color:#667eea;"></i> Рассылка сообщений
+        </h2>
+        
+        <div class="glass mb-4">
+            <h5 class="mb-3" style="color:#fff;">
+                <i class="fas fa-pen" style="color:#667eea;"></i> Создать рассылку
+            </h5>
+            <form id="broadcastForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label" style="color:rgba(255,255,255,0.7);">📝 Текст сообщения</label>
+                    <textarea class="form-control" id="broadcastMessage" rows="4" placeholder="Введите текст для рассылки..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" style="color:rgba(255,255,255,0.7);">🖼️ Фото (опционально)</label>
+                    <input type="file" class="form-control" id="broadcastImage" accept="image/*">
+                    <small class="text-muted-custom">Поддерживаются: JPG, PNG, GIF</small>
+                </div>
+                <div class="mb-3">
+                    <div class="alert-info alert">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Всего пользователей:</strong> <span id="totalUsers" style="color:#fff;">0</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-gradient w-100" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i> Отправить всем пользователям
+                </button>
+            </form>
+        </div>
+
+        <div class="glass">
+            <h5 class="mb-3" style="color:#fff;">
+                <i class="fas fa-history" style="color:#667eea;"></i> История рассылок
+            </h5>
+            <div id="broadcastHistory">
+                <div class="text-center py-4 text-muted-custom">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadUserCount() {
+            try {
+                const res = await fetch('/api/users');
+                const data = await res.json();
+                document.getElementById('totalUsers').textContent = data.users ? data.users.length : 0;
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('broadcastForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            
+            const formData = new FormData();
+            formData.append('message', document.getElementById('broadcastMessage').value);
+            const image = document.getElementById('broadcastImage').files[0];
+            if (image) formData.append('image', image);
+            
+            try {
+                const res = await fetch('/api/broadcast/send', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`✅ Рассылка отправлена!\n\nОтправлено: ${data.sent} из ${data.total} пользователей`);
+                    this.reset();
+                    loadBroadcasts();
+                    loadUserCount();
+                } else {
+                    alert('❌ Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+                }
+            } catch(e) {
+                alert('❌ Ошибка отправки');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить всем пользователям';
+            }
+        });
+
+        async function loadBroadcasts() {
+            try {
+                const res = await fetch('/api/broadcasts');
+                const data = await res.json();
+                let html = '';
+                if (data.broadcasts && data.broadcasts.length > 0) {
+                    data.broadcasts.forEach(b => {
+                        const imgHtml = b.image ? `<img src="${b.image}" style="max-width:100px; max-height:60px; border-radius:8px; object-fit:cover;">` : '📝';
+                        html += `
+                            <div class="d-flex justify-content-between align-items-center p-2" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                <div style="flex:1;">
+                                    <div style="font-size:14px; color:rgba(255,255,255,0.7);">${b.message || 'Без текста'}</div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.3);">
+                                        Отправлено: ${b.sent_to || 0} пользователей
+                                    </div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.2);">
+                                        ${b.created_at ? b.created_at.slice(0,16) : ''}
+                                    </div>
+                                </div>
+                                <div>${imgHtml}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<div class="text-center py-4 text-muted-custom">Нет рассылок</div>';
+                }
+                document.getElementById('broadcastHistory').innerHTML = html;
+            } catch(e) { console.error(e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserCount();
+            loadBroadcasts();
+        });
+    </script>
+</body>
+</html>

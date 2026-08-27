@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velosher Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
+        .glass { background: white; border-radius: 24px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        .btn-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 600; transition: all 0.3s; }
+        .btn-gradient:hover { transform: scale(1.05); color: white; box-shadow: 0 8px 25px rgba(102,126,234,0.4); }
+        .telegram-id-input { border: 2px solid #e0e0e0; border-radius: 12px; padding: 12px 16px; width: 100%; font-size: 16px; }
+        .telegram-id-input:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102,126,234,0.2); }
+        .user-card { background: #f8f9fa; border-radius: 12px; padding: 15px; margin-top: 15px; border-left: 4px solid #667eea; }
+        .admin-badge { background: #ff4757; color: white; padding: 2px 10px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; }
+        .stat-number { font-size: 2.5rem; font-weight: 700; color: #667eea; }
+        @media (max-width: 768px) { .glass { padding: 15px; } .stat-number { font-size: 1.8rem; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <nav class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div><a href="/" class="text-decoration-none"><span class="fs-3 fw-bold" style="color:#667eea;"><i class="fas fa-bicycle"></i> Velosher</span></a></div>
+        <div class="d-flex gap-2">
+            <a href="/shop/" class="btn btn-gradient btn-sm"><i class="fas fa-store"></i> Магазин</a>
+            <a href="/admin/" class="btn btn-outline-secondary btn-sm"><i class="fas fa-shield-alt"></i> Админ</a>
+        </div>
+    </nav>
+
+    <div class="glass">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="display-4 fw-bold"><i class="fas fa-bicycle" style="color:#667eea;"></i> Velosher Shop</h1>
+                <p class="lead text-muted">Магазин велосипедов с Telegram ботом</p>
+                
+                <div class="mt-4">
+                    <label class="fw-bold">👤 Ваш Telegram ID:</label>
+                    <div class="input-group">
+                        <input type="text" class="telegram-id-input" id="telegramIdInput" placeholder="Введите ваш Telegram ID">
+                        <button class="btn btn-gradient" onclick="loadUserData()"><i class="fas fa-search"></i> Загрузить</button>
+                    </div>
+                    <small class="text-muted">ID можно узнать у бота /start</small>
+                </div>
+
+                <div id="userData" style="display:none;" class="mt-3">
+                    <div class="user-card">
+                        <h5><i class="fas fa-user-circle" style="color:#667eea;"></i> <span id="userName"></span>
+                            <span class="admin-badge" id="adminBadge" style="display:none;">👑 Админ</span>
+                        </h5>
+                        <p class="mb-1"><i class="fas fa-phone"></i> <span id="userPhone"></span></p>
+                        <p class="mb-1"><i class="fas fa-map-marker-alt"></i> <span id="userLocation"></span></p>
+                        <p class="mb-0"><i class="fas fa-shopping-bag"></i> Заказов: <span id="userOrders"></span></p>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2 flex-wrap">
+                    <a href="/shop/" class="btn btn-gradient"><i class="fas fa-store"></i> В магазин</a>
+                    <a href="https://t.me/velosher_shop_bot" class="btn btn-outline-secondary"><i class="fab fa-telegram"></i> Telegram бот</a>
+                </div>
+            </div>
+
+            <div class="col-md-4 mt-4 mt-md-0">
+                <div class="row g-2">
+                    <div class="col-6"><div class="stat-card"><div class="stat-number" id="statUsers">0</div><div class="stat-label">👥 Пользователи</div></div></div>
+                    <div class="col-6"><div class="stat-card"><div class="stat-number" id="statOrders">0</div><div class="stat-label">📦 Заказы</div></div></div>
+                    <div class="col-12"><div class="stat-card"><div class="stat-number" id="statRevenue">0</div><div class="stat-label">💰 Выручка</div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadUserData() {
+        const telegramId = document.getElementById('telegramIdInput').value.trim();
+        if (!telegramId) { alert('Введите Telegram ID'); return; }
+        try {
+            const res = await fetch(`/api/user/${telegramId}`);
+            const data = await res.json();
+            if (data.success && data.user) {
+                const user = data.user;
+                document.getElementById('userName').textContent = user.first_name || 'Не указано';
+                document.getElementById('userPhone').textContent = user.phone || 'Не указан';
+                document.getElementById('userLocation').textContent = user.location || 'Не указана';
+                document.getElementById('userOrders').textContent = user.total_orders || 0;
+                document.getElementById('userData').style.display = 'block';
+                if (user.telegram_id === '6040186314') {
+                    document.getElementById('adminBadge').style.display = 'inline';
+                }
+            } else {
+                alert('❌ Пользователь не найден. Зарегистрируйтесь в боте /start');
+            }
+        } catch(e) { alert('❌ Ошибка загрузки данных'); }
+    }
+
+    async function loadStats() {
+        try {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            document.getElementById('statUsers').textContent = data.users || 0;
+            document.getElementById('statOrders').textContent = data.orders || 0;
+            document.getElementById('statRevenue').textContent = (data.revenue || 0).toLocaleString();
+        } catch(e) { console.error(e); }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const tgId = urlParams.get('telegram_id');
+    if (tgId) { document.getElementById('telegramIdInput').value = tgId; loadUserData(); }
+
+    loadStats();
+    setInterval(loadStats, 30000);
+    document.getElementById('telegramIdInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') loadUserData();
+    });
+</script>
+</body>
+</html>
