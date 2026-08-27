@@ -20,26 +20,14 @@
             --success: #00b894;
             --danger: #ff4757;
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 12px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 12px 0; position: sticky; top: 0; z-index: 100; }
         .navbar .brand { color: white; font-size: 22px; font-weight: 700; text-decoration: none; }
         .navbar .brand i { margin-right: 10px; }
         .navbar .btn-cart { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 18px; border-radius: 10px; font-size: 14px; transition: all 0.3s; }
         .navbar .btn-cart:hover { background: rgba(255,255,255,0.3); }
         .cart-count { background: #ff4757; color: white; border-radius: 50%; padding: 2px 10px; font-size: 13px; font-weight: 700; margin-left: 6px; }
 
-        /* ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ */
         .user-profile {
             background: linear-gradient(135deg, rgba(102,126,234,0.12), rgba(118,75,162,0.08));
             border: 1px solid var(--border);
@@ -54,9 +42,9 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex; align-items: center; justify-content: center;
             font-size: 26px; color: white; margin-right: 15px; flex-shrink: 0;
-            border: 2px solid var(--primary); overflow: hidden;
+            border: 2px solid var(--primary);
+            overflow: hidden;
         }
-        .user-profile .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-profile .avatar .online-dot {
             position: absolute; bottom: 2px; right: 12px; width: 14px; height: 14px;
             background: #00b894; border-radius: 50%; border: 2px solid var(--card);
@@ -64,14 +52,10 @@
         .user-profile .name { font-weight: 700; font-size: 18px; color: var(--text); display:flex; align-items:center; gap:6px; }
         .user-profile .username { color: var(--primary); font-size: 13px; font-weight: 600; }
         .user-profile .user-id { color: var(--text-muted); font-size: 11px; }
-        .user-profile .badge-online {
-            background: rgba(0,184,148,0.15); color: #00b894;
-            padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
-        }
+        .user-profile .badge-online { background: rgba(0,184,148,0.15); color: #00b894; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .user-profile .saved-info { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
         .user-profile .saved-info i { color: var(--success); margin-right: 4px; }
 
-        /* КОРЗИНА И ОФОРМЛЕНИЕ */
         .checkout-section { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
         .checkout-section.active { display: block; }
 
@@ -155,16 +139,12 @@
         .back-link:hover { text-decoration: underline; }
         .alert { background: rgba(102,126,234,0.1); border: 1px solid var(--primary); color: var(--text); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; }
 
-        /* ПЛАТЁЖНАЯ КАРТА */
         .payment-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 60%, #4c3a8c 100%);
             border-radius: 20px; padding: 24px; color: white; position: relative; overflow: hidden;
             box-shadow: 0 15px 35px rgba(102,126,234,0.35); margin-bottom: 20px;
         }
-        .payment-card::before {
-            content: ''; position: absolute; width: 200px; height: 200px; background: rgba(255,255,255,0.08);
-            border-radius: 50%; top: -80px; right: -60px;
-        }
+        .payment-card::before { content: ''; position: absolute; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%; top: -80px; right: -60px; }
         .payment-card .bank-name { font-weight: 700; letter-spacing: 1px; font-size: 14px; opacity: 0.9; text-transform: uppercase; }
         .payment-card .card-number { font-size: 24px; font-weight: 700; letter-spacing: 3px; margin: 22px 0 16px; font-family: 'Courier New', monospace; }
         .payment-card .card-holder { font-size: 13px; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; }
@@ -253,7 +233,7 @@
             </div>
         </div>
 
-        <!-- ОФОРМЛЕНИЕ ЗАКАЗА (3 ШАГА) -->
+        <!-- ОФОРМЛЕНИЕ ЗАКАЗА -->
         <div class="checkout-section" id="checkoutSection">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Оформление заказа</h4>
@@ -268,7 +248,7 @@
                 <div class="step-dot-wrap"><div class="step-dot" id="step3Dot">3</div><div class="step-label">Чек</div></div>
             </div>
 
-            <!-- Шаг 1: авто-заполнение из Telegram/Firebase + заказ -->
+            <!-- Шаг 1 -->
             <div class="step active" id="step1">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h5>
@@ -297,28 +277,24 @@
                 </div>
             </div>
 
-            <!-- Шаг 2: оплата на карту -->
+            <!-- Шаг 2: оплата -->
             <div class="step" id="step2">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--primary);"></i> Оплата на карту</h5>
-
                     <div class="pay-amount-box">
                         <div class="lbl">Сумма к оплате</div>
                         <div class="amt" id="payAmount">0 сум</div>
                     </div>
-
                     <div class="payment-card">
                         <div class="chip"></div>
                         <div class="bank-name" id="cardBank">UZCARD / HUMO</div>
-                        <div class="card-number" id="cardNumber">8600 0000 0000 0000</div>
+                        <div class="card-number" id="cardNumber">8600 1234 5678 9012</div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-holder" id="cardHolder">VELOSHER SHOP</div>
                             <button class="copy-btn" onclick="copyCardNumber()"><i class="fas fa-copy"></i> Копировать</button>
                         </div>
                     </div>
-
-                    <div class="alert"><i class="fas fa-info-circle"></i> Переведите указанную сумму на карту выше, затем нажмите «Далее» и прикрепите чек оплаты.</div>
-
+                    <div class="alert"><i class="fas fa-info-circle"></i> Переведите указанную сумму на карту выше, затем нажмите «Далее» и прикрепите чек.</div>
                     <div class="row mt-3">
                         <div class="col-6"><button class="btn-outline" onclick="goToStep1()"><i class="fas fa-arrow-left"></i> Назад</button></div>
                         <div class="col-6"><button class="btn-success" onclick="goToStep3()"><i class="fas fa-arrow-right"></i> Я оплатил(а)</button></div>
@@ -326,11 +302,11 @@
                 </div>
             </div>
 
-            <!-- Шаг 3: чек оплаты -->
+            <!-- Шаг 3: чек -->
             <div class="step" id="step3">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-receipt" style="color:var(--success);"></i> Чек оплаты</h5>
-                    <div class="alert"><i class="fas fa-info-circle"></i> Прикрепите скриншот или фото чека — мы проверим оплату и подтвердим заказ.</div>
+                    <div class="alert"><i class="fas fa-info-circle"></i> Прикрепите скриншот или фото чека</div>
                     <div class="mb-3">
                         <div class="upload-area" id="uploadArea" onclick="document.getElementById('receiptInput').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
@@ -360,7 +336,7 @@
 
     </div>
 
-    <!-- Корзина (модалка) -->
+    <!-- Корзина -->
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
     <div class="cart-modal" id="cartModal">
         <div class="cart-modal-header">
@@ -381,23 +357,9 @@
     </div>
 
     <script>
-        // ============ FIREBASE (Realtime Database) ============
-        // Все данные (товары, пользователи, заказы) читаются/пишутся напрямую сюда через REST.
-        // Правила доступа Firebase должны разрешать чтение/запись (см. пояснение в чате).
-        const FIREBASE_URL = "https://velosher-f82b5-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-        // ⚠️ Реквизиты карты для оплаты — замените на настоящие
-        const CARD_NUMBER = "8600 1234 5678 9012";
-        const CARD_HOLDER = "VELOSHER SHOP";
-        const CARD_BANK = "UZCARD / HUMO";
-
-        // ============ TELEGRAM WEBAPP ============
+        // ============ ТЕЛЕГРАМ ПОЛЬЗОВАТЕЛЬ ============
         const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            try { tg.setHeaderColor('#0a0a1a'); tg.setBackgroundColor('#0a0a1a'); } catch(e) {}
-        }
+        if (tg) { tg.ready(); tg.expand(); }
         const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
 
         function getCurrentUser() {
@@ -410,7 +372,6 @@
                     photo_url: tgUser.photo_url || ''
                 };
             }
-            // Резервный вариант для теста в обычном браузере
             const params = new URLSearchParams(window.location.search);
             let id = params.get('telegram_id') || localStorage.getItem('telegram_id');
             if (id) localStorage.setItem('telegram_id', id);
@@ -430,19 +391,16 @@
         let checkoutStep = 1;
         let selectedFile = null;
         let selectedFileDataUrl = '';
-        let dbUser = null; // данные о пользователе из Firebase (телефон, адрес, собранные ботом)
 
         // ============ ПРОФИЛЬ ============
         function renderProfile() {
             const profile = document.getElementById('userProfile');
             if (!CURRENT_USER) { profile.style.display = 'none'; return; }
-
             profile.style.display = 'block';
             const fullName = (CURRENT_USER.first_name + ' ' + (CURRENT_USER.last_name || '')).trim();
             document.getElementById('userName').textContent = fullName || 'Пользователь';
             document.getElementById('userUsername').textContent = CURRENT_USER.username ? '@' + CURRENT_USER.username : 'нет username';
             document.getElementById('userId').textContent = `ID: ${CURRENT_USER.id}`;
-
             const avatar = document.getElementById('userAvatar');
             if (CURRENT_USER.photo_url) {
                 avatar.innerHTML = `<img src="${CURRENT_USER.photo_url}" alt="${fullName}">`;
@@ -451,72 +409,19 @@
             }
         }
 
-        function renderSavedInfoBadge() {
-            const el = document.getElementById('savedInfo');
-            if (dbUser && (dbUser.phone || dbUser.address || dbUser.location)) {
-                el.style.display = 'block';
-                el.innerHTML = `<i class="fas fa-check-circle"></i> Данные для доставки уже сохранены — при заказе подставим их автоматически`;
-            } else {
-                el.style.display = 'none';
-            }
-        }
-
-        // Загружаем профиль пользователя из Firebase (его собрал бот, либо он сам вводил раньше на сайте)
-        async function loadUserFromFirebase() {
-            if (!TELEGRAM_ID) return;
-            try {
-                const res = await fetch(`${FIREBASE_URL}/users/${TELEGRAM_ID}.json`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data) dbUser = data;
-                }
-            } catch (e) {
-                console.warn('Не удалось получить данные пользователя из Firebase:', e);
-            }
-            renderSavedInfoBadge();
-        }
-
-        // Сохраняем/обновляем профиль пользователя в Firebase (чтобы в следующий раз не вводить заново)
-        async function saveUserToFirebase(partialData) {
-            if (!TELEGRAM_ID) return;
-            try {
-                await fetch(`${FIREBASE_URL}/users/${TELEGRAM_ID}.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegram_id: TELEGRAM_ID,
-                        username: CURRENT_USER.username || '',
-                        first_name: CURRENT_USER.first_name || '',
-                        updated_at: new Date().toISOString(),
-                        ...partialData
-                    })
-                });
-            } catch (e) {
-                console.warn('Не удалось сохранить профиль в Firebase:', e);
-            }
-        }
-
-        // ============ ТОВАРЫ ============
+        // ============ ТОВАРЫ (локальные) ============
         let products = [];
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-        async function loadProducts() {
-            const fallback = [
-                { id: 'fallback-1', name: '🚲 Горный велосипед', price: 4500000, stock: 10, image: '' },
-                { id: 'fallback-2', name: '🚴 Шоссейный велосипед', price: 3800000, stock: 5, image: '' },
-                { id: 'fallback-3', name: '🚲 Городской велосипед', price: 2800000, stock: 15, image: '' },
-                { id: 'fallback-4', name: '⚡ Электро велосипед', price: 8900000, stock: 3, image: '' }
+        function loadProducts() {
+            products = [
+                { id: 'p1', name: '🚲 Горный велосипед', price: 4500000, stock: 10, image: '' },
+                { id: 'p2', name: '🚴 Шоссейный велосипед', price: 3800000, stock: 5, image: '' },
+                { id: 'p3', name: '🚲 Городской велосипед', price: 2800000, stock: 15, image: '' },
+                { id: 'p4', name: '⚡ Электро велосипед', price: 8900000, stock: 3, image: '' },
+                { id: 'p5', name: '🚲 Детский велосипед', price: 1500000, stock: 8, image: '' },
+                { id: 'p6', name: '📦 Складной велосипед', price: 3200000, stock: 6, image: '' }
             ];
-            try {
-                const response = await fetch(`${FIREBASE_URL}/products.json`);
-                if (!response.ok) throw new Error('HTTP ' + response.status);
-                const data = await response.json();
-                products = data ? Object.entries(data).map(([key, p]) => ({ ...p, id: p.id || key })) : fallback;
-                if (products.length === 0) products = fallback;
-            } catch (error) {
-                console.warn('Firebase недоступен, показываю примерный каталог:', error);
-                products = fallback;
-            }
             renderProducts();
         }
 
@@ -640,21 +545,21 @@
             if (isOpen) renderCart();
         }
 
-        // ============ ОФОРМЛЕНИЕ ЗАКАЗА (3 ШАГА) ============
+        // ============ ОФОРМЛЕНИЕ ============
         function openCheckout() {
             if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
             if (!TELEGRAM_ID) { showToast('❌ Откройте магазин через Telegram бота'); return; }
 
-            // Шаг 1: авто-заполнение из Telegram + сохранённых в Firebase данных (собраны ботом)
             const fullName = CURRENT_USER ? (CURRENT_USER.first_name + ' ' + (CURRENT_USER.last_name || '')).trim() : '';
             document.getElementById('checkoutName').value = fullName;
 
-            const phoneVal = dbUser && dbUser.phone ? dbUser.phone : '';
-            const addressVal = dbUser && (dbUser.address || dbUser.location) ? (dbUser.address || dbUser.location) : '';
-            document.getElementById('checkoutPhone').value = phoneVal;
-            document.getElementById('checkoutAddress').value = addressVal;
-            document.getElementById('phoneAutoBadge').style.display = phoneVal ? 'inline' : 'none';
-            document.getElementById('addressAutoBadge').style.display = addressVal ? 'inline' : 'none';
+            // Проверяем сохранённые данные из localStorage
+            const savedPhone = localStorage.getItem('user_phone') || '';
+            const savedAddress = localStorage.getItem('user_address') || '';
+            document.getElementById('checkoutPhone').value = savedPhone;
+            document.getElementById('checkoutAddress').value = savedAddress;
+            document.getElementById('phoneAutoBadge').style.display = savedPhone ? 'inline' : 'none';
+            document.getElementById('addressAutoBadge').style.display = savedAddress ? 'inline' : 'none';
 
             document.getElementById('catalogSection').style.display = 'none';
             document.getElementById('productsContainer').style.display = 'none';
@@ -707,15 +612,8 @@
         function goToStep2() {
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
-            if (!phone || phone.length < 9) {
-                showToast('❌ Введите корректный номер телефона'); return;
-            }
-            if (!address) {
-                showToast('❌ Укажите адрес доставки'); return;
-            }
-            document.getElementById('cardNumber').textContent = CARD_NUMBER;
-            document.getElementById('cardHolder').textContent = CARD_HOLDER;
-            document.getElementById('cardBank').textContent = CARD_BANK;
+            if (!phone || phone.length < 9) { showToast('❌ Введите корректный номер телефона'); return; }
+            if (!address) { showToast('❌ Укажите адрес доставки'); return; }
             goToStep(2);
         }
         function goToStep3() {
@@ -724,7 +622,7 @@
         }
 
         function copyCardNumber() {
-            const number = CARD_NUMBER.replace(/\s/g, '');
+            const number = document.getElementById('cardNumber').textContent.replace(/\s/g, '');
             navigator.clipboard.writeText(number).then(() => {
                 showToast('✅ Номер карты скопирован!');
             }).catch(() => {
@@ -732,7 +630,7 @@
             });
         }
 
-        // ============ ЗАГРУЗКА ФАЙЛА (чек оплаты) ============
+        // ============ ЗАГРУЗКА ФАЙЛА ============
         function compressImage(file, maxWidth = 1000, quality = 0.75) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -779,7 +677,7 @@
             document.getElementById('receiptInput').value = '';
         }
 
-        // ============ ОТПРАВКА ЗАКАЗА ============
+        // ============ ОТПРАВКА ЗАКАЗА В TELEGRAM ============
         async function submitCheckout() {
             if (!selectedFileDataUrl) { showToast('❌ Загрузите чек оплаты'); return; }
 
@@ -793,42 +691,50 @@
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
 
-            const order = {
-                telegram_id: TELEGRAM_ID,
-                username: CURRENT_USER.username || '',
-                user_name: name,
-                phone: phone,
-                address: address,
-                products: cart,
-                total_amount: total,
-                receipt: selectedFileDataUrl,
-                status: 'pending',
-                notified: false,
-                created_at: new Date().toISOString()
-            };
+            // Сохраняем данные пользователя
+            localStorage.setItem('user_phone', phone);
+            localStorage.setItem('user_address', address);
 
+            // Отправляем заказ в Telegram через бота
             try {
-                const res = await fetch(`${FIREBASE_URL}/orders.json`, {
+                const orderData = {
+                    telegram_id: TELEGRAM_ID,
+                    username: CURRENT_USER.username || '',
+                    user_name: name,
+                    phone: phone,
+                    address: address,
+                    products: cart.map(item => ({
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    })),
+                    total_amount: total,
+                    receipt: selectedFileDataUrl,
+                    status: 'pending'
+                };
+
+                const response = await fetch('/api/order/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(order)
+                    body: JSON.stringify(orderData)
                 });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const result = await res.json();
 
-                // Запоминаем телефон/адрес пользователя на будущее — в следующий раз не нужно вводить заново
-                await saveUserToFirebase({ phone, address, location: address });
-
-                localStorage.removeItem('cart');
-                cart = [];
-                selectedFile = null;
-                selectedFileDataUrl = '';
-                updateCartCount();
-                showToast(`✅ Заказ оформлен! Мы свяжемся с вами после проверки оплаты.`);
-                closeCheckout();
-                loadProducts();
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.removeItem('cart');
+                    cart = [];
+                    selectedFile = null;
+                    selectedFileDataUrl = '';
+                    updateCartCount();
+                    showToast('✅ Заказ оформлен! С вами свяжется оператор.');
+                    closeCheckout();
+                    loadProducts();
+                } else {
+                    showToast('❌ Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+                }
             } catch (error) {
-                showToast('❌ Ошибка: ' + error.message);
+                showToast('❌ Ошибка отправки: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 loading.style.display = 'none';
@@ -845,12 +751,11 @@
         }
 
         // ============ ЗАГРУЗКА СТРАНИЦЫ ============
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
             renderProfile();
-            await Promise.all([loadUserFromFirebase(), loadProducts()]);
+            loadProducts();
             updateCartCount();
 
-            // Автооткрытие корзины/оформления по параметру ?open=checkout
             const params = new URLSearchParams(window.location.search);
             if (params.get('open') === 'checkout') openCheckout();
 
