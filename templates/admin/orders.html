@@ -19,12 +19,7 @@
             --danger: #ff4757;
             --warning: #f59e0b;
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0;
             width: 250px; background: var(--card);
@@ -33,7 +28,7 @@
         }
         .sidebar .logo {
             font-size: 22px; font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             padding-bottom: 20px;
@@ -49,7 +44,6 @@
         .sidebar .nav-item.active { background: rgba(102,126,234,0.15); color: var(--primary); }
         .sidebar .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
         .main-content { margin-left: 250px; padding: 20px; }
-        
         .glass {
             background: var(--card);
             border: 1px solid var(--border);
@@ -57,21 +51,10 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        .btn-glass {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 6px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-glass:hover { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-success { background: var(--success); border: none; color: white; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
         .btn-success:hover { opacity: 0.8; }
         .btn-danger { background: var(--danger); border: none; color: white; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
         .btn-danger:hover { opacity: 0.8; }
-        
         .table-dark-custom {
             background: var(--bg);
             border-radius: 12px;
@@ -81,18 +64,16 @@
         .table-dark-custom thead { background: rgba(102,126,234,0.15); }
         .table-dark-custom th { color: var(--text); padding: 12px 16px; border: none; font-size: 13px; }
         .table-dark-custom td { color: var(--text-muted); padding: 12px 16px; border-color: var(--border); }
-        
         .badge-status {
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
         }
-        .badge-new { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .badge-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
         .badge-paid { background: rgba(0,184,148,0.2); color: var(--success); }
-        .badge-completed { background: rgba(102,126,234,0.2); color: var(--primary); }
         .badge-cancelled { background: rgba(255,71,87,0.2); color: var(--danger); }
-
+        .badge-completed { background: rgba(102,126,234,0.2); color: var(--primary); }
         .toast {
             position: fixed;
             bottom: 20px;
@@ -119,7 +100,6 @@
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <div class="logo"><i class="fas fa-shield-alt"></i> Velosher Admin</div>
         <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Главная</a>
@@ -128,7 +108,7 @@
         <a href="users.html" class="nav-item"><i class="fas fa-users"></i> Пользователи</a>
         <a href="chat.html" class="nav-item"><i class="fas fa-comment-dots"></i> Чат</a>
         <a href="broadcast.html" class="nav-item"><i class="fas fa-bullhorn"></i> Рассылка</a>
-        <a href="/templates/shop" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+        <a href="/shop/" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
             <i class="fas fa-store"></i> Магазин
         </a>
     </div>
@@ -174,8 +154,8 @@
         function formatPrice(p) { return new Intl.NumberFormat('uz-UZ').format(p); }
 
         const statusMap = {
-            'new': '<span class="badge-status badge-new">🟡 Новый</span>',
-            'paid': '<span class="badge-status badge-paid">🟢 Оплачен</span>',
+            'pending': '<span class="badge-status badge-pending">⏳ Ожидает</span>',
+            'paid': '<span class="badge-status badge-paid">✅ Оплачен</span>',
             'completed': '<span class="badge-status badge-completed">✅ Завершен</span>',
             'cancelled': '<span class="badge-status badge-cancelled">❌ Отменен</span>'
         };
@@ -196,7 +176,7 @@
                         <td>${o.phone || '—'}</td>
                         <td>${formatPrice(o.total_price)} сум</td>
                         <td>${statusMap[o.status] || o.status}</td>
-                        <td>${o.created_at}</td>
+                        <td>${o.created_at ? new Date(o.created_at).toLocaleDateString() : '—'}</td>
                         <td>
                             <button class="btn-success" onclick="updateStatus(${o.id}, 'paid')"><i class="fas fa-check"></i></button>
                             <button class="btn-danger" onclick="updateStatus(${o.id}, 'cancelled')"><i class="fas fa-times"></i></button>
