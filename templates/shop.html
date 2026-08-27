@@ -375,7 +375,7 @@
         <div class="container">
             <div class="row w-100 align-items-center">
                 <div class="col-4">
-                    <a href="/shop/" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
+                    <a href="/index.html" class="brand"><i class="fas fa-bicycle"></i> Velosher</a>
                 </div>
                 <div class="col-8 text-end">
                     <button class="btn-cart" onclick="toggleCart()">
@@ -484,6 +484,7 @@
             }
 
             try {
+                // Пробуем получить данные через API
                 const response = await fetch(`/api/user/${TELEGRAM_ID}`);
                 const data = await response.json();
                 
@@ -495,7 +496,15 @@
                     document.getElementById('userAvatar').textContent = (user.first_name || 'П').charAt(0).toUpperCase();
                 }
             } catch (error) {
-                console.error('Ошибка загрузки пользователя:', error);
+                // Если API не работает, используем данные из localStorage
+                const name = localStorage.getItem('telegram_name') || 'Пользователь';
+                const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
+                if (name) {
+                    document.getElementById('userProfile').style.display = 'block';
+                    document.getElementById('userName').textContent = name;
+                    document.getElementById('userPhone').textContent = phone;
+                    document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+                }
             }
         }
 
@@ -507,15 +516,16 @@
             try {
                 const response = await fetch('/api/products');
                 const data = await response.json();
-                if (data.products) {
+                if (data.products && data.products.length > 0) {
                     products = data.products;
                 } else {
-                    // Тестовые товары если API не работает
+                    // Тестовые товары
                     products = [
                         { id: 1, name: '🚲 Горный велосипед', price: 1500000, stock: 10, image: '' },
                         { id: 2, name: '🚴 Шоссейный велосипед', price: 2000000, stock: 5, image: '' },
                         { id: 3, name: '🚲 Детский велосипед', price: 800000, stock: 15, image: '' },
-                        { id: 4, name: '⚡ Электро велосипед', price: 3000000, stock: 3, image: '' }
+                        { id: 4, name: '⚡ Электро велосипед', price: 3000000, stock: 3, image: '' },
+                        { id: 5, name: '🛴 Самокат', price: 500000, stock: 20, image: '' }
                     ];
                 }
                 renderProducts();
@@ -738,18 +748,19 @@
             if (isOpen) renderCart();
         }
 
-function goToCheckout() {
-    if (cart.length === 0) {
-        showToast('❌ Корзина пуста');
-        return;
-    }
-    if (!TELEGRAM_ID) {
-        showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота');
-        return;
-    }
-    // 👇 ИЗМЕНИТЕ ЭТУ СТРОКУ - добавьте .html
-    window.location.href = `/checkout.html?telegram_id=${TELEGRAM_ID}`;
-}
+        // ============ ПЕРЕХОД НА ОФОРМЛЕНИЕ ============
+        function goToCheckout() {
+            if (cart.length === 0) {
+                showToast('❌ Корзина пуста');
+                return;
+            }
+            if (!TELEGRAM_ID) {
+                showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота');
+                return;
+            }
+            // ✅ ПРАВИЛЬНАЯ ССЫЛКА НА CHECKOUT
+            window.location.href = `/checkout.html?telegram_id=${TELEGRAM_ID}`;
+        }
 
         // ============ TOAST ============
         function showToast(message) {
