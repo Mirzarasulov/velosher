@@ -36,6 +36,8 @@
         .navbar .btn-cart { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 18px; border-radius: 10px; font-size: 14px; transition: all 0.3s; }
         .navbar .btn-cart:hover { background: rgba(255,255,255,0.3); }
         .cart-count { background: #ff4757; color: white; border-radius: 50%; padding: 2px 10px; font-size: 13px; font-weight: 700; margin-left: 6px; }
+        
+        /* ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ */
         .user-profile {
             background: var(--card);
             border: 1px solid var(--border);
@@ -44,14 +46,46 @@
             margin-bottom: 20px;
             display: none;
         }
-        .user-profile .avatar {
-            width: 50px; height: 50px; border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; color: white; margin-right: 15px; flex-shrink: 0;
+        .user-profile .avatar-wrapper {
+            position: relative;
+            display: inline-block;
         }
-        .user-profile .name { font-weight: 600; font-size: 18px; }
+        .user-profile .avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+            border: 2px solid var(--primary);
+        }
+        .user-profile .avatar .online-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 12px;
+            width: 14px;
+            height: 14px;
+            background: #00b894;
+            border-radius: 50%;
+            border: 2px solid var(--card);
+        }
+        .user-profile .name { font-weight: 600; font-size: 18px; color: var(--text); }
         .user-profile .phone { color: var(--text-muted); font-size: 14px; }
+        .user-profile .user-id { color: var(--text-muted); font-size: 11px; }
+        .user-profile .badge-online {
+            background: rgba(0,184,148,0.2);
+            color: #00b894;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
         .filter-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -153,10 +187,28 @@
             animation: spin 1s linear infinite; margin: 0 auto 20px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* АВАТАРКА ПО УМОЛЧАНИЮ */
+        .avatar-placeholder {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+            border: 2px solid var(--primary);
+        }
+
         @media (max-width: 768px) {
             .cart-modal { width: 100%; right: -100%; }
             .product-image { height: 140px; }
             .navbar .brand { font-size: 18px; }
+            .user-profile { flex-wrap: wrap; }
         }
         @media (max-width: 480px) { .product-card { margin-bottom: 10px; } }
     </style>
@@ -181,17 +233,20 @@
 
     <div class="container py-4">
 
+        <!-- ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ -->
         <div class="user-profile" id="userProfile">
             <div class="d-flex align-items-center">
-                <div class="avatar" id="userAvatar">👤</div>
+                <div class="avatar-wrapper">
+                    <div class="avatar" id="userAvatar">👤</div>
+                    <div class="online-dot"></div>
+                </div>
                 <div>
                     <div class="name" id="userName">Гость</div>
                     <div class="phone" id="userPhone">+998 90 123 45 67</div>
+                    <div class="user-id" id="userId">ID: не указан</div>
                 </div>
-                <div class="ms-auto">
-                    <span class="badge-online" style="background:rgba(0,184,148,0.2); color:#00b894; padding:4px 14px; border-radius:20px; font-size:12px;">
-                        <i class="fas fa-circle" style="color:#00b894; font-size:10px;"></i> Онлайн
-                    </span>
+                <div class="ms-auto text-end">
+                    <span class="badge-online"><i class="fas fa-circle" style="color:#00b894; font-size:10px;"></i> Онлайн</span>
                 </div>
             </div>
         </div>
@@ -257,36 +312,60 @@
 
         // ============ ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ============
         async function loadUser() {
+            const profile = document.getElementById('userProfile');
+            
             if (!TELEGRAM_ID) {
-                document.getElementById('userProfile').style.display = 'none';
+                profile.style.display = 'none';
                 return;
             }
 
             try {
                 const response = await fetch(`/api/user/${TELEGRAM_ID}`);
                 const data = await response.json();
+                
                 if (data.success && data.user) {
                     const user = data.user;
-                    document.getElementById('userProfile').style.display = 'block';
-                    document.getElementById('userName').textContent = user.first_name || 'Пользователь';
-                    document.getElementById('userPhone').textContent = user.phone || '+998 90 123 45 67';
-                    document.getElementById('userAvatar').textContent = (user.first_name || 'П').charAt(0).toUpperCase();
-                    localStorage.setItem('telegram_name', user.first_name || 'Пользователь');
-                    localStorage.setItem('telegram_phone', user.phone || '');
+                    profile.style.display = 'block';
+                    
+                    // Имя
+                    const name = user.first_name || 'Пользователь';
+                    document.getElementById('userName').textContent = name;
+                    
+                    // Телефон
+                    const phone = user.phone || '+998 90 123 45 67';
+                    document.getElementById('userPhone').textContent = phone;
+                    
+                    // ID
+                    document.getElementById('userId').textContent = `ID: ${TELEGRAM_ID}`;
+                    
+                    // Аватарка (первая буква имени)
+                    const avatar = document.getElementById('userAvatar');
+                    avatar.textContent = name.charAt(0).toUpperCase();
+                    
+                    // Сохраняем в localStorage
+                    localStorage.setItem('telegram_name', name);
+                    localStorage.setItem('telegram_phone', phone);
                 } else {
+                    // Если пользователь не найден в БД — используем localStorage
                     const name = localStorage.getItem('telegram_name') || 'Пользователь';
                     const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
-                    document.getElementById('userProfile').style.display = 'block';
+                    
+                    profile.style.display = 'block';
                     document.getElementById('userName').textContent = name;
                     document.getElementById('userPhone').textContent = phone;
+                    document.getElementById('userId').textContent = `ID: ${TELEGRAM_ID}`;
                     document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
                 }
             } catch (error) {
+                console.error('Ошибка загрузки пользователя:', error);
+                // Используем localStorage
                 const name = localStorage.getItem('telegram_name') || 'Пользователь';
                 const phone = localStorage.getItem('telegram_phone') || '+998 90 123 45 67';
-                document.getElementById('userProfile').style.display = 'block';
+                
+                profile.style.display = 'block';
                 document.getElementById('userName').textContent = name;
                 document.getElementById('userPhone').textContent = phone;
+                document.getElementById('userId').textContent = `ID: ${TELEGRAM_ID}`;
                 document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
             }
         }
@@ -475,46 +554,13 @@
             if (isOpen) renderCart();
         }
 
-        // ============ ПЕРЕХОД НА ОФОРМЛЕНИЕ (С АЛЬТЕРНАТИВНЫМИ ССЫЛКАМИ) ============
+        // ============ ПЕРЕХОД НА ОФОРМЛЕНИЕ ============
         function goToCheckout() {
             if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
             if (!TELEGRAM_ID) { showToast('❌ Пожалуйста, авторизуйтесь через Telegram бота'); return; }
-
-            // ✅ ОСНОВНАЯ ССЫЛКА
-            let checkoutUrl = `/checkout.html?telegram_id=${TELEGRAM_ID}`;
-
-            // ✅ АЛЬТЕРНАТИВНЫЕ ССЫЛКИ (если основная не работает)
-            // Пробуем несколько вариантов
-            const possibleUrls = [
-                `/checkout.html?telegram_id=${TELEGRAM_ID}`,
-                `/templates/checkout.html?telegram_id=${TELEGRAM_ID}`,
-                `/checkout?telegram_id=${TELEGRAM_ID}`,
-                `/templates/checkout?telegram_id=${TELEGRAM_ID}`
-            ];
-
-            // Пытаемся открыть через fetch, чтобы проверить, какая работает
-            async function tryOpenCheckout() {
-                for (let url of possibleUrls) {
-                    try {
-                        const response = await fetch(url, { method: 'HEAD' });
-                        if (response.ok) {
-                            window.location.href = url;
-                            return;
-                        }
-                    } catch (e) {
-                        // Игнорируем ошибки и пробуем следующую
-                    }
-                }
-                // Если ни одна не работает — пробуем основную
-                window.location.href = checkoutUrl;
-            }
-
-            // Если fetch не поддерживается — сразу переходим по основной
-            try {
-                tryOpenCheckout();
-            } catch (e) {
-                window.location.href = checkoutUrl;
-            }
+            
+            // ✅ ПРЯМАЯ ССЫЛКА НА CHECKOUT
+            window.location.href = `/checkout.html?telegram_id=${TELEGRAM_ID}`;
         }
 
         // ============ TOAST ============
