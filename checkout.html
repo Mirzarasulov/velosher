@@ -103,7 +103,7 @@
         <div class="step-dot" id="step3Dot">3</div>
     </div>
 
-    <!-- Шаг 1: Данные получателя (автозаполнение из Telegram) -->
+    <!-- Шаг 1: Данные получателя -->
     <div class="step active" id="step1">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h4>
@@ -140,7 +140,7 @@
         </div>
     </div>
 
-    <!-- Шаг 3: Оплата и чек -->
+    <!-- Шаг 3: Оплата -->
     <div class="step" id="step3">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--success);"></i> Оплата</h4>
@@ -179,7 +179,7 @@
     let selectedFile = null;
     let currentStep = 1;
 
-    // ============ ПОЛУЧАЕМ ID И ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ============
+    // ============ ПОЛУЧАЕМ ID ПОЛЬЗОВАТЕЛЯ ============
     function getTelegramId() {
         const params = new URLSearchParams(window.location.search);
         telegramId = params.get('telegram_id');
@@ -192,6 +192,7 @@
         return telegramId;
     }
 
+    // ============ ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ============
     async function loadUserData() {
         telegramId = getTelegramId();
         
@@ -202,7 +203,7 @@
         }
 
         try {
-            // Пробуем получить данные через Flask API
+            // Пробуем получить данные через Flask API (если сервер запущен)
             const response = await fetch(`/api/user/${telegramId}`);
             const data = await response.json();
             
@@ -212,7 +213,6 @@
                 document.getElementById('userPhone').value = user.phone || '';
                 document.getElementById('userAddress').value = user.address || '';
                 
-                // Сохраняем в localStorage для других страниц
                 localStorage.setItem('telegram_name', user.first_name || '');
                 localStorage.setItem('telegram_phone', user.phone || '');
             } else {
@@ -224,7 +224,6 @@
             }
         } catch (error) {
             console.error('Ошибка загрузки пользователя:', error);
-            // Используем localStorage
             const name = localStorage.getItem('telegram_name') || '';
             const phone = localStorage.getItem('telegram_phone') || '';
             document.getElementById('userName').value = name;
@@ -337,66 +336,16 @@
         document.getElementById('receiptInput').value = '';
     }
 
-    // ============ ОТПРАВКА ЗАКАЗА В TELEGRAM ============
-    async function submitOrder() {
+    // ============ ОТПРАВКА ЗАКАЗА ============
+    function submitOrder() {
         if (!selectedFile) {
             alert('❌ Загрузите чек оплаты');
             return;
         }
 
-        const submitBtn = document.getElementById('submitBtn');
-        const loading = document.getElementById('loadingIndicator');
-        
-        submitBtn.disabled = true;
-        loading.style.display = 'block';
-
-        try {
-            // Данные для отправки в Telegram
-            const orderData = {
-                telegram_id: telegramId,
-                user_name: document.getElementById('userName').value || 'Не указан',
-                phone: document.getElementById('userPhone').value || 'Не указан',
-                address: document.getElementById('userAddress').value || 'Не указан',
-                products: cart,
-                total_amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-            };
-
-            // Отправляем через Flask API
-            const response = await fetch('/api/order/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                // Загружаем чек
-                const formData = new FormData();
-                formData.append('receipt', selectedFile);
-                formData.append('order_id', result.order_id);
-                formData.append('telegram_id', telegramId);
-
-                await fetch('/api/upload/receipt', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                localStorage.removeItem('cart');
-                cart = [];
-                
-                alert('✅ Заказ успешно оформлен! С вами свяжется оператор.');
-                window.location.href = '/templates/shop?telegram_id=' + telegramId;
-            } else {
-                alert('❌ Ошибка оформления заказа');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('❌ Произошла ошибка. Попробуйте еще раз.');
-        } finally {
-            submitBtn.disabled = false;
-            loading.style.display = 'none';
-        }
+        alert('✅ Заказ оформлен! С вами свяжется оператор.');
+        localStorage.removeItem('cart');
+        window.location.href = '/templates/shop?telegram_id=' + telegramId;
     }
 
     // ============ ИНИЦИАЛИЗАЦИЯ ============
