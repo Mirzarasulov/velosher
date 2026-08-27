@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Товары</title>
+    <title>📦 Управление товарами - Velosher Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #0a0a1a;
             --card: #1a1a2e;
@@ -15,37 +14,85 @@
             --text-muted: #a0a0b0;
             --border: #2a2a4e;
             --primary: #667eea;
+            --success: #00b894;
+            --danger: #ff4757;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0;
-            width: 260px; background: var(--card); border-right: 1px solid var(--border);
+            width: 260px; background: var(--card);
+            border-right: 1px solid var(--border);
             padding: 20px; z-index: 100; overflow-y: auto;
         }
-        .sidebar .logo { font-size: 20px; font-weight: 700; color: var(--primary); padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .sidebar .logo {
+            font-size: 20px; font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
         .sidebar .nav-item {
             display: block; padding: 12px 16px; border-radius: 10px;
             color: var(--text-muted); text-decoration: none;
             transition: all 0.3s; margin-bottom: 4px; font-size: 14px;
         }
+        .sidebar .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
         .sidebar .nav-item.active { background: rgba(102,126,234,0.15); color: var(--primary); }
         .sidebar .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
         .main-content { margin-left: 260px; padding: 20px; }
-        .glass { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
-        .form-control { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 10px 14px; }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.2); color: var(--text); }
-        .form-control::placeholder { color: var(--text-muted); }
-        .btn-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: all 0.3s; }
-        .btn-gradient:hover { transform: scale(1.02); }
-        .btn-danger-glass { background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.2); color: #dc3545; padding: 4px 12px; border-radius: 8px; transition: all 0.3s; }
-        .btn-danger-glass:hover { background: rgba(220,53,69,0.25); color: #ff6b7a; }
+        .glass {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-control, .form-select {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+            background: var(--bg);
+            color: var(--text);
+        }
+        .btn-primary { background: var(--primary); border: none; }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-success { background: var(--success); border: none; }
+        .btn-success:hover { background: #00a381; }
+        .btn-danger { background: var(--danger); border: none; }
+        .btn-danger:hover { background: #e63946; }
         .table-dark-custom { background: var(--bg); border-radius: 12px; overflow: hidden; }
         .table-dark-custom thead { background: rgba(102,126,234,0.15); }
-        .table-dark-custom th { color: var(--text); padding: 12px 16px; border: none; font-size: 13px; }
+        .table-dark-custom th { color: var(--text); padding: 12px 16px; border: none; }
         .table-dark-custom td { color: var(--text-muted); padding: 12px 16px; border-color: var(--border); }
-        .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
-        .theme-toggle { background: var(--border); border: none; color: var(--text); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.3s; }
-        .theme-toggle:hover { background: var(--primary); }
+        .badge-category {
+            background: rgba(102,126,234,0.2);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .category-tag {
+            display: inline-block;
+            background: rgba(102,126,234,0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 2px;
+        }
         @media (max-width: 768px) {
             .sidebar { width: 100%; position: relative; padding: 15px; }
             .main-content { margin-left: 0; padding: 15px; }
@@ -54,71 +101,283 @@
 </head>
 <body>
 
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo"><i class="fas fa-shield-alt"></i> Velosher Admin</div>
         <a href="dashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Главная</a>
-        <a href="orders.html" class="nav-item"><i class="fas fa-box"></i> Заказы</a>
         <a href="products.html" class="nav-item active"><i class="fas fa-tag"></i> Товары</a>
+        <a href="orders.html" class="nav-item"><i class="fas fa-box"></i> Заказы</a>
         <a href="users.html" class="nav-item"><i class="fas fa-users"></i> Пользователи</a>
         <a href="chat.html" class="nav-item"><i class="fas fa-comment-dots"></i> Чат</a>
-        <a href="broadcast.html" class="nav-item"><i class="fas fa-bullhorn"></i> Рассылка</a>
-        <a href="../shop.html" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;"><i class="fas fa-store"></i> Магазин</a>
+        <a href="../shop.html" class="nav-item" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+            <i class="fas fa-store"></i> Магазин
+        </a>
     </div>
 
+    <!-- Main -->
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0" style="color:var(--text);"><i class="fas fa-tag" style="color:var(--primary);"></i> Управление товарами</h2>
-            <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
-        </div>
+        <h2 class="mb-4"><i class="fas fa-tag" style="color:var(--primary);"></i> Управление товарами</h2>
 
-        <div class="glass mb-4">
-            <h5 style="color:var(--text);"><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Добавить товар</h5>
-            <form class="row g-3 mt-2">
-                <div class="col-md-4"><input type="text" class="form-control" placeholder="Название" required></div>
-                <div class="col-md-4"><input type="number" class="form-control" placeholder="Цена" required></div>
-                <div class="col-md-4"><input type="number" class="form-control" placeholder="Кол-во" value="10"></div>
-                <div class="col-12"><textarea class="form-control" rows="2" placeholder="Описание"></textarea></div>
-                <div class="col-12"><input type="file" class="form-control"></div>
-                <div class="col-12"><button type="submit" class="btn-gradient w-100"><i class="fas fa-plus"></i> Добавить товар</button></div>
-            </form>
-        </div>
-
+        <!-- Добавление категории -->
         <div class="glass">
-            <h5 style="color:var(--text);"><i class="fas fa-list" style="color:var(--primary);"></i> Список товаров</h5>
+            <h5><i class="fas fa-folder-plus" style="color:var(--primary);"></i> Добавить категорию</h5>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="categoryName" placeholder="Название категории (RU)">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="categoryNameUz" placeholder="Kategoriya nomi (UZ)">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" id="categoryIcon" placeholder="Иконка (fa-...)" value="fa-tag">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success w-100" onclick="addCategory()">
+                        <i class="fas fa-plus"></i> Добавить
+                    </button>
+                </div>
+            </div>
+            <div id="categoryList" class="mt-3">
+                <!-- Список категорий -->
+            </div>
+        </div>
+
+        <!-- Добавление товара -->
+        <div class="glass">
+            <h5><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Добавить товар</h5>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" id="productName" placeholder="Название товара">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="productPrice" placeholder="Цена (SUM)">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" id="productStock" placeholder="Количество">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="productCategory"></select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="addProduct()">
+                        <i class="fas fa-plus"></i> Добавить
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <textarea class="form-control" id="productDescription" placeholder="Описание товара" rows="2"></textarea>
+            </div>
+        </div>
+
+        <!-- Список товаров -->
+        <div class="glass">
+            <h5><i class="fas fa-list" style="color:var(--primary);"></i> Все товары</h5>
             <div class="table-responsive">
                 <table class="table-dark-custom table">
-                    <thead><tr><th>Фото</th><th>Название</th><th>Цена</th><th>Кол-во</th><th>Действие</th></tr></thead>
-                    <tbody>
-                        <tr><td><img src="https://via.placeholder.com/50/667eea/white?text=🚲" class="product-img"></td><td>Горный велосипед</td><td>1 500 000 сум</td><td>10</td><td><button class="btn-danger-glass"><i class="fas fa-trash"></i></button></td></tr>
-                        <tr><td><img src="https://via.placeholder.com/50/667eea/white?text=🚴" class="product-img"></td><td>Шоссейный велосипед</td><td>2 000 000 сум</td><td>5</td><td><button class="btn-danger-glass"><i class="fas fa-trash"></i></button></td></tr>
-                        <tr><td><img src="https://via.placeholder.com/50/667eea/white?text=🚲" class="product-img"></td><td>Детский велосипед</td><td>800 000 сум</td><td>15</td><td><button class="btn-danger-glass"><i class="fas fa-trash"></i></button></td></tr>
-                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Категория</th>
+                            <th>Цена</th>
+                            <th>Кол-во</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsList"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <script>
-        function toggleTheme() {
-            const root = document.documentElement;
-            const currentBg = getComputedStyle(root).getPropertyValue('--bg').trim();
-            const isDark = currentBg === '#0a0a1a';
-            if (isDark) {
-                root.style.setProperty('--bg', '#f0f2f5');
-                root.style.setProperty('--card', '#ffffff');
-                root.style.setProperty('--text', '#2d3436');
-                root.style.setProperty('--text-muted', '#6c757d');
-                root.style.setProperty('--border', '#e0e0e0');
-                document.getElementById('themeIcon').className = 'fas fa-sun';
-            } else {
-                root.style.setProperty('--bg', '#0a0a1a');
-                root.style.setProperty('--card', '#1a1a2e');
-                root.style.setProperty('--text', '#ffffff');
-                root.style.setProperty('--text-muted', '#a0a0b0');
-                root.style.setProperty('--border', '#2a2a4e');
-                document.getElementById('themeIcon').className = 'fas fa-moon';
+        // ============ ЗАГРУЗКА ДАННЫХ ============
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                const data = await response.json();
+                if (data.success) {
+                    renderCategories(data.categories);
+                    updateCategorySelect(data.categories);
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
             }
         }
+
+        function renderCategories(categories) {
+            const container = document.getElementById('categoryList');
+            if (!categories || categories.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted);">Нет категорий</p>';
+                return;
+            }
+            
+            let html = '';
+            categories.forEach(cat => {
+                html += `
+                    <span class="category-tag">
+                        <i class="fas ${cat.icon || 'fa-tag'}"></i>
+                        ${cat.name}
+                        <button onclick="deleteCategory(${cat.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;margin-left:4px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function updateCategorySelect(categories) {
+            const select = document.getElementById('productCategory');
+            select.innerHTML = '<option value="">Без категории</option>';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+            });
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+                if (data.products) {
+                    renderProducts(data.products);
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsList');
+            if (!products || products.length === 0) {
+                container.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Нет товаров</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            products.forEach(p => {
+                html += `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.name}</td>
+                        <td><span class="badge-category">${p.category || 'Без категории'}</span></td>
+                        <td>${p.price.toLocaleString()} сум</td>
+                        <td>${p.stock}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ============ ДОБАВЛЕНИЕ КАТЕГОРИИ ============
+        async function addCategory() {
+            const name = document.getElementById('categoryName').value.trim();
+            const nameUz = document.getElementById('categoryNameUz').value.trim();
+            const icon = document.getElementById('categoryIcon').value.trim() || 'fa-tag';
+            
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/category/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, name_uz: nameUz || name, icon })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('categoryName').value = '';
+                    document.getElementById('categoryNameUz').value = '';
+                    alert('✅ Категория добавлена!');
+                    loadCategories();
+                } else {
+                    alert('❌ Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Удалить категорию?')) return;
+            try {
+                const response = await fetch(`/api/category/${id}/delete`, { method: 'DELETE' });
+                const data = await response.json();
+                if (data.success) {
+                    loadCategories();
+                    loadProducts();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ============ ДОБАВЛЕНИЕ ТОВАРА ============
+        async function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const stock = parseInt(document.getElementById('productStock').value) || 0;
+            const category = document.getElementById('productCategory').value;
+            const description = document.getElementById('productDescription').value.trim();
+            
+            if (!name || !price) {
+                alert('Введите название и цену товара');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/product/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        description,
+                        price,
+                        stock,
+                        category_id: category || null
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('productName').value = '';
+                    document.getElementById('productPrice').value = '';
+                    document.getElementById('productStock').value = '';
+                    document.getElementById('productDescription').value = '';
+                    alert('✅ Товар добавлен!');
+                    loadProducts();
+                } else {
+                    alert('❌ Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Удалить товар?')) return;
+            try {
+                const response = await fetch(`/api/product/${id}/delete`, { method: 'DELETE' });
+                const data = await response.json();
+                if (data.success) {
+                    loadProducts();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ============ ИНИЦИАЛИЗАЦИЯ ============
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            loadProducts();
+        });
     </script>
 </body>
 </html>
