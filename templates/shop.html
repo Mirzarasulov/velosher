@@ -76,19 +76,26 @@
 </head>
 <body>
 
-    <nav class="navbar-custom">
-        <div class="container">
-            <div class="row w-100 align-items-center">
-                <div class="col-6"><a href="/shop/" class="brand"><i class="fas fa-bicycle"></i> Velosher</a></div>
-                <div class="col-6 text-end">
-                    <button class="cart-btn" onclick="toggleCart()">
-                        <i class="fas fa-shopping-cart"></i> Корзина
-                        <span class="cart-count" id="cartCount">0</span>
-                    </button>
-                </div>
+<nav class="navbar-custom">
+    <div class="container">
+        <div class="row w-100 align-items-center">
+            <div class="col-4">
+                <a href="/velosher/" class="brand">
+                    <i class="fas fa-bicycle"></i> Velosher
+                </a>
+            </div>
+            <div class="col-8 text-end">
+                <a href="/velosher/templates/admin/dashboard.html" class="btn btn-outline-light btn-sm me-2">
+                    <i class="fas fa-shield-alt"></i> Админ
+                </a>
+                <button class="cart-btn" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i> Корзина
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <div class="container py-4">
         <div class="filter-section">
