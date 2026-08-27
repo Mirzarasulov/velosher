@@ -33,7 +33,7 @@
             border-radius: 18px;
             padding: 16px 20px;
             margin-bottom: 20px;
-            display: none;
+            display: block;
         }
         .user-profile .avatar-wrapper { position: relative; display: inline-block; }
         .user-profile .avatar {
@@ -363,7 +363,6 @@
             try { tg.setHeaderColor('#0a0a1a'); tg.setBackgroundColor('#0a0a1a'); } catch(e) {}
         }
 
-        // Получаем пользователя из Telegram
         const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
 
         let currentUser = null;
@@ -372,7 +371,6 @@
         function loadUserFromTelegram() {
             console.log('🔍 Загрузка пользователя из Telegram...');
             
-            // Вариант 1: Из Telegram WebApp
             if (tgUser && tgUser.id) {
                 console.log('✅ Пользователь из Telegram WebApp:', tgUser);
                 currentUser = {
@@ -384,10 +382,18 @@
                     photo_url: tgUser.photo_url || ''
                 };
                 TELEGRAM_ID = currentUser.id;
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('telegram_id', TELEGRAM_ID);
+                localStorage.setItem('telegram_name', currentUser.first_name);
+                localStorage.setItem('telegram_username', currentUser.username || '');
+                if (currentUser.phone) {
+                    localStorage.setItem('telegram_phone', currentUser.phone);
+                }
                 return true;
             }
 
-            // Вариант 2: Из URL параметров (если открыли через ссылку)
+            // Из URL параметров
             const params = new URLSearchParams(window.location.search);
             let id = params.get('telegram_id');
             if (id) {
@@ -404,7 +410,7 @@
                 return true;
             }
 
-            // Вариант 3: Из localStorage
+            // Из localStorage
             id = localStorage.getItem('telegram_id');
             if (id) {
                 console.log('✅ Пользователь из localStorage:', id);
@@ -424,7 +430,7 @@
             return false;
         }
 
-        const hasUser = loadUserFromTelegram();
+        loadUserFromTelegram();
 
         // ============================================================
         // 2. ПРОФИЛЬ
@@ -454,7 +460,7 @@
         }
 
         // ============================================================
-        // 3. ТОВАРЫ (локальные, без API)
+        // 3. ТОВАРЫ
         // ============================================================
         const products = [
             { id: 'p1', name: '🚲 Горный велосипед XC-9000', price: 4500000, stock: 10, image: '' },
@@ -494,6 +500,21 @@
             updateCartCount();
         }
 
+        function formatPrice(price) { return new Intl.NumberFormat('uz-UZ').format(price); }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            renderFiltered(products.filter(p => p.name.toLowerCase().includes(query)));
+        }
+
+        function sortProducts() {
+            const sort = document.getElementById('sortSelect').value;
+            let sorted = [...products];
+            if (sort === 'price_asc') sorted.sort((a, b) => a.price - b.price);
+            if (sort === 'price_desc') sorted.sort((a, b) => b.price - a.price);
+            renderFiltered(sorted);
+        }
+
         function renderFiltered(productsList) {
             const container = document.getElementById('productsContainer');
             if (!productsList || productsList.length === 0) {
@@ -523,23 +544,8 @@
             container.innerHTML = html;
         }
 
-        function formatPrice(price) { return new Intl.NumberFormat('uz-UZ').format(price); }
-
-        function filterProducts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            renderFiltered(products.filter(p => p.name.toLowerCase().includes(query)));
-        }
-
-        function sortProducts() {
-            const sort = document.getElementById('sortSelect').value;
-            let sorted = [...products];
-            if (sort === 'price_asc') sorted.sort((a, b) => a.price - b.price);
-            if (sort === 'price_desc') sorted.sort((a, b) => b.price - a.price);
-            renderFiltered(sorted);
-        }
-
         // ============================================================
-        // 4. КОРЗИНА
+        // 4. КОРЗИНА (исправлено: можно удалить до 0)
         // ============================================================
         function addToCart(id) {
             const product = products.find(p => p.id === id);
@@ -556,15 +562,25 @@
         function removeFromCart(id) {
             cart = cart.filter(item => item.id !== id);
             localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartCount(); renderCart(); renderProducts();
+            updateCartCount();
+            renderCart();
+            renderProducts();
         }
 
         function updateQuantity(id, delta) {
             const item = cart.find(i => i.id === id);
             if (item) {
-                item.quantity += delta;
-                if (item.quantity <= 0) { removeFromCart(id); }
-                else { localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); renderCart(); renderProducts(); }
+                const newQty = item.quantity + delta;
+                if (newQty <= 0) {
+                    // Удаляем товар если количество становится 0 или меньше
+                    removeFromCart(id);
+                } else {
+                    item.quantity = newQty;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartCount();
+                    renderCart();
+                    renderProducts();
+                }
             }
         }
 
@@ -590,6 +606,7 @@
                         <button onclick="updateQuantity('${item.id}', -1)">−</button>
                         <span class="qty-num">${item.quantity}</span>
                         <button onclick="updateQuantity('${item.id}', 1)">+</button>
+                        <button onclick="removeFromCart('${item.id}')" style="background:#ff4757;color:white;border:none;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;">×</button>
                     </div>
                 </div>`;
             });
@@ -754,26 +771,30 @@
         // 7. ОТПРАВКА ЗАКАЗА В TELEGRAM
         // ============================================================
         async function submitOrder() {
-            if (!selectedFileDataUrl) { showToast('❌ Загрузите чек'); return; }
+            if (!selectedFileDataUrl) { 
+                showToast('❌ Загрузите чек'); 
+                return; 
+            }
 
             const submitBtn = document.getElementById('submitBtn');
             const loading = document.getElementById('checkoutLoading');
             submitBtn.disabled = true;
             loading.style.display = 'block';
 
-            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const name = document.getElementById('checkoutName').value || 'Покупатель';
-            const phone = document.getElementById('checkoutPhone').value;
-            const address = document.getElementById('checkoutAddress').value;
-            const username = currentUser ? currentUser.username : '';
+            try {
+                const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                const name = document.getElementById('checkoutName').value || 'Покупатель';
+                const phone = document.getElementById('checkoutPhone').value;
+                const address = document.getElementById('checkoutAddress').value;
+                const username = currentUser ? currentUser.username : '';
 
-            // Формируем сообщение
-            let productsText = '';
-            cart.forEach(item => {
-                productsText += `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
-            });
+                // Формируем сообщение
+                let productsText = '';
+                cart.forEach(item => {
+                    productsText += `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
+                });
 
-            const message = `🆕 *НОВЫЙ ЗАКАЗ*
+                const message = `🆕 *НОВЫЙ ЗАКАЗ*
 
 👤 *Покупатель:* ${name}
 💬 *Username:* ${username ? '@' + username : 'не указан'}
@@ -787,11 +808,8 @@ ${productsText}
 
 ⏳ *Статус:* Ожидает оплаты`;
 
-            const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
-            const GROUP_ID = '-4983646908';
-
-            try {
-                console.log('📤 Отправка заказа...');
+                const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
+                const GROUP_ID = '-4983646908';
 
                 // 1. Отправляем сообщение
                 const sendMessageUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -806,11 +824,8 @@ ${productsText}
                 });
 
                 if (!msgResponse.ok) {
-                    const errorText = await msgResponse.text();
-                    console.error('❌ Ошибка отправки сообщения:', errorText);
-                    throw new Error('Ошибка отправки сообщения: ' + errorText);
+                    throw new Error('Ошибка отправки сообщения');
                 }
-                console.log('✅ Сообщение отправлено');
 
                 // 2. Отправляем фото чека
                 const sendPhotoUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
@@ -826,11 +841,8 @@ ${productsText}
                 });
 
                 if (!photoResponse.ok) {
-                    const errorText = await photoResponse.text();
-                    console.error('❌ Ошибка отправки чека:', errorText);
-                    throw new Error('Ошибка отправки чека: ' + errorText);
+                    throw new Error('Ошибка отправки чека');
                 }
-                console.log('✅ Чек отправлен');
 
                 // Успешно!
                 localStorage.removeItem('cart');
@@ -844,7 +856,7 @@ ${productsText}
 
             } catch (error) {
                 console.error('❌ Ошибка:', error);
-                showToast('❌ ' + error.message);
+                showToast('❌ Ошибка: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 loading.style.display = 'none';
@@ -873,7 +885,6 @@ ${productsText}
             renderProducts();
             updateCartCount();
 
-            // Если есть параметр open=checkout — открываем оформление
             const params = new URLSearchParams(window.location.search);
             if (params.get('open') === 'checkout') {
                 setTimeout(openCheckout, 500);
