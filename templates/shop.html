@@ -649,105 +649,130 @@
 
     <script>
         // ================================================================
-        // 1. ПОЛУЧАЕМ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ИЗ TELEGRAM (ВСЕ СПОСОБЫ)
+        // 1. ПОЛУЧАЕМ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ
         // ================================================================
+        // Адрес backend API. После деплоя бота укажи сюда HTTPS-адрес сервера.
+        // Пример: https://velosher-api.onrender.com
+        const API_BASE_URL = window.VELOSHER_API_URL || 'http://localhost:8080';
 
-        // Способ 1: Telegram WebApp
-        const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) { tg.ready(); tg.expand(); }
+        const tg = window.Telegram?.WebApp || null;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
 
-        // Способ 2: initDataUnsafe.user
-        const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
-
-        // Способ 3: URL параметры
+        const tgUser = tg?.initDataUnsafe?.user || null;
         const urlParams = new URLSearchParams(window.location.search);
 
-        // Способ 4: localStorage
-        const storedId = localStorage.getItem('telegram_id');
-        const storedName = localStorage.getItem('telegram_name');
-        const storedPhone = localStorage.getItem('telegram_phone');
-        const storedUsername = localStorage.getItem('telegram_username');
-
-        // === СОБИРАЕМ ВСЕ ДАННЫЕ ===
         let USER_DATA = {
             id: null,
             first_name: null,
+            last_name: null,
             username: null,
             phone: null,
             photo_url: null,
             language_code: null
         };
 
-        // Функция для приоритетного заполнения данных
-        function setUserData() {
-            // 1. Если есть tgUser (Telegram WebApp) — самый надежный источник
-            if (tgUser && tgUser.id) {
+        // Получаем базовые данные прямо из Telegram WebApp.
+        function setTelegramUserData() {
+            if (tgUser?.id) {
                 USER_DATA.id = String(tgUser.id);
                 USER_DATA.first_name = tgUser.first_name || null;
                 USER_DATA.last_name = tgUser.last_name || null;
                 USER_DATA.username = tgUser.username || null;
-                USER_DATA.phone = tgUser.phone_number || null;
                 USER_DATA.photo_url = tgUser.photo_url || null;
                 USER_DATA.language_code = tgUser.language_code || null;
-                console.log('✅ Данные получены из Telegram WebApp:', USER_DATA);
                 return true;
             }
 
-            // 2. Если есть параметры в URL
+            // Запасной вариант для открытия WebApp по ссылке с параметрами.
             if (urlParams.get('telegram_id')) {
                 USER_DATA.id = urlParams.get('telegram_id');
-                USER_DATA.first_name = urlParams.get('first_name') || storedName || 'Пользователь';
-                USER_DATA.username = urlParams.get('username') || storedUsername || null;
-                USER_DATA.phone = urlParams.get('phone') || storedPhone || null;
-                console.log('✅ Данные получены из URL:', USER_DATA);
+                USER_DATA.first_name = urlParams.get('first_name') || null;
+                USER_DATA.last_name = urlParams.get('last_name') || null;
+                USER_DATA.username = urlParams.get('username') || null;
+                USER_DATA.phone = urlParams.get('phone') || null;
                 return true;
             }
 
-            // 3. Если есть данные в localStorage
-            if (storedId) {
-                USER_DATA.id = storedId;
-                USER_DATA.first_name = storedName || 'Пользователь';
-                USER_DATA.username = storedUsername || null;
-                USER_DATA.phone = storedPhone || null;
-                console.log('✅ Данные получены из localStorage:', USER_DATA);
-                return true;
-            }
-
-            // 4. Если ничего нет — пробуем получить через window.Telegram.WebApp.initData
-            try {
-                if (tg && tg.initData) {
-                    const params = new URLSearchParams(tg.initData);
-                    const userStr = params.get('user');
-                    if (userStr) {
-                        const user = JSON.parse(decodeURIComponent(userStr));
-                        if (user && user.id) {
-                            USER_DATA.id = String(user.id);
-                            USER_DATA.first_name = user.first_name || null;
-                            USER_DATA.username = user.username || null;
-                            USER_DATA.phone = user.phone_number || null;
-                            USER_DATA.photo_url = user.photo_url || null;
-                            console.log('✅ Данные получены из initData:', USER_DATA);
-                            return true;
-                        }
-                    }
-                }
-            } catch (e) {
-                console.log('⚠️ Ошибка парсинга initData:', e);
-            }
-
-            console.log('❌ Данные пользователя не найдены');
             return false;
         }
 
-        const hasUser = setUserData();
+        setTelegramUserData();
         const TELEGRAM_ID = USER_DATA.id;
 
-        // Сохраняем в localStorage для будущих визитов
-        if (TELEGRAM_ID) {
-            localStorage.setItem('telegram_id', TELEGRAM_ID);
-            if (USER_DATA.first_name) localStorage.setItem('telegram_name', USER_DATA.first_name);
-            if (USER_DATA.username) localStorage.setItem('telegram_username', USER_DATA.username);
-            if (USER_DATA.phone) localStorage.setItem('telegram_phone', USER_DATA.phone);
+        // ================================================================
+        // ДАННЫЕ ИЗ БАЗЫ БОТА
+        // ================================================================
+        // ВАЖНО:
+        // Браузер НЕ может напрямую читать SQLite/PostgreSQL бота.
+        // Поэтому здесь вызывается backend endpoint, который должен
+        // найти пользователя по Telegram ID во ВСЕХ нужных таблицах БД
+        // и вернуть { first_name, last_name, username, phone }.
+        //
+        // Ожидаемый ответ:
+        // {
+        //   "ok": true,
+        //   "user": {
+        //      "first_name": "Иван",
+        //      "last_name": "Иванов",
+        //      "username": "ivan",
+        //      "phone": "+998901234567"
+        //   }
+        // }
+        async function loadUserFromBotDatabase() {
+            if (!TELEGRAM_ID) return false;
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/telegram-user?telegram_id=${encodeURIComponent(TELEGRAM_ID)}`,
+                    {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'include'
+                    }
+                );
+
+                if (!response.ok) {
+                    console.warn('⚠️ Backend пользователя вернул HTTP', response.status);
+                    return false;
+                }
+
+                const data = await response.json();
+
+                if (data?.ok && data.user) {
+                    USER_DATA.first_name = data.user.first_name || USER_DATA.first_name || null;
+                    USER_DATA.last_name = data.user.last_name || USER_DATA.last_name || null;
+                    USER_DATA.username = data.user.username || USER_DATA.username || null;
+                    USER_DATA.phone = data.user.phone || USER_DATA.phone || null;
+                    USER_DATA.photo_url = data.user.photo_url || USER_DATA.photo_url || null;
+
+                    console.log('✅ Данные пользователя получены из БД бота:', USER_DATA);
+                    return true;
+                }
+
+                console.warn('⚠️ Пользователь не найден в БД бота');
+                return false;
+            } catch (error) {
+                console.error('❌ Ошибка получения данных из БД бота:', error);
+                return false;
+            }
+        }
+
+        // Автозаполнение формы.
+        function fillUserFields() {
+            const fullName = [USER_DATA.first_name, USER_DATA.last_name]
+                .filter(Boolean)
+                .join(' ') || 'Покупатель';
+
+            document.getElementById('checkoutName').value = fullName;
+            document.getElementById('checkoutPhone').value = USER_DATA.phone || '';
+
+            console.log('📝 Форма заполнена автоматически:', {
+                name: fullName,
+                phone: USER_DATA.phone
+            });
         }
 
         // ================================================================
@@ -755,23 +780,27 @@
         // ================================================================
         function renderProfile() {
             const profile = document.getElementById('userProfile');
+
             if (!TELEGRAM_ID) {
                 profile.style.display = 'none';
                 return;
             }
 
             profile.style.display = 'block';
-            const fullName = USER_DATA.first_name || (USER_DATA.last_name ? USER_DATA.last_name : 'Пользователь');
+
+            const fullName = [USER_DATA.first_name, USER_DATA.last_name]
+                .filter(Boolean)
+                .join(' ') || 'Пользователь';
+
             document.getElementById('userName').textContent = fullName;
-            document.getElementById('userUsername').textContent = USER_DATA.username ? '@' + USER_DATA.username : 'нет username';
-            document.getElementById('userPhone').textContent = USER_DATA.phone ? USER_DATA.phone : 'Телефон не указан';
-            document.getElementById('userAvatar').textContent = fullName.charAt(0).toUpperCase();
+            document.getElementById('userUsername').textContent =
+                USER_DATA.username ? '@' + USER_DATA.username : 'нет username';
+            document.getElementById('userPhone').textContent =
+                USER_DATA.phone || 'Телефон не указан';
+            document.getElementById('userAvatar').textContent =
+                fullName.charAt(0).toUpperCase();
 
-            // Автозаполнение в checkout
-            document.getElementById('checkoutName').value = fullName || '';
-            document.getElementById('checkoutPhone').value = USER_DATA.phone || '';
-
-            console.log('👤 Профиль загружен:', fullName, USER_DATA.phone);
+            fillUserFields();
         }
 
         // ================================================================
@@ -988,13 +1017,8 @@
                 return;
             }
 
-            // Автозаполнение из Telegram
-            if (USER_DATA.first_name) {
-                document.getElementById('checkoutName').value = USER_DATA.first_name;
-            }
-            if (USER_DATA.phone) {
-                document.getElementById('checkoutPhone').value = USER_DATA.phone;
-            }
+            // Автозаполнение из данных Telegram/БД бота
+            fillUserFields();
 
             renderCheckoutItems();
 
@@ -1158,51 +1182,59 @@
                     productsText += `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
                 });
 
-                const message = `🆕 *НОВЫЙ ЗАКАЗ*
+                // Экранируем пользовательский текст, чтобы Telegram HTML
+                // не ломал отправку из-за символов < > &.
+                const escapeHtml = (value) => String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
 
-👤 *Покупатель:* ${name}
-📱 *Телефон:* ${phone}
-📍 *Адрес:* ${address}
-🆔 *ID:* ${TELEGRAM_ID || 'не указан'}
+                const safeName = escapeHtml(name);
+                const safePhone = escapeHtml(phone);
+                const safeAddress = escapeHtml(address);
+                const safeTelegramId = escapeHtml(TELEGRAM_ID || 'не указан');
 
-📦 *Товары:*
-${productsText}
-💰 *Итого:* ${formatPrice(total)} сум`;
-
-                const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
-                const GROUP_ID = '-4983646908';
-
-                // 1. Отправляем сообщение
-                const msgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: GROUP_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
+                let safeProductsText = '';
+                cart.forEach(item => {
+                    safeProductsText += `• ${escapeHtml(item.name)} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
                 });
 
-                if (!msgRes.ok) {
-                    const errText = await msgRes.text();
-                    throw new Error('Ошибка отправки сообщения: ' + errText);
-                }
+                const message = `🆕 <b>НОВЫЙ ЗАКАЗ</b>
 
-                // 2. Отправляем фото чека
+👤 <b>Покупатель:</b> ${safeName}
+📱 <b>Телефон:</b> ${safePhone}
+📍 <b>Адрес:</b> ${safeAddress}
+🆔 <b>ID:</b> ${safeTelegramId}
+
+📦 <b>Товары:</b>
+${safeProductsText}
+💰 <b>Итого:</b> ${formatPrice(total)} сум`;
+
+                // БЕЗОПАСНО:
+                // BOT_TOKEN и GROUP_ID НЕ должны находиться в HTML/JS.
+                // Заказ отправляется на backend, где хранится токен бота.
+                const receiptBlob = await (await fetch(selectedFileDataUrl)).blob();
+
                 const formData = new FormData();
-                const blob = await (await fetch(selectedFileDataUrl)).blob();
-                formData.append('photo', blob, 'receipt.jpg');
-                formData.append('chat_id', GROUP_ID);
-                formData.append('caption', `🧾 *Чек к заказу*\n👤 ${name}\n📱 ${phone}`);
+                formData.append('telegram_id', TELEGRAM_ID || '');
+                formData.append('name', name);
+                formData.append('phone', phone);
+                formData.append('address', address);
+                formData.append('total', String(total));
+                formData.append('cart', JSON.stringify(cart));
+                formData.append('receipt', receiptBlob, 'receipt.jpg');
 
-                const photoRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                const orderRes = await fetch(`${API_BASE_URL}/api/create-order`, {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                 });
 
-                if (!photoRes.ok) {
-                    const errText = await photoRes.text();
-                    throw new Error('Ошибка отправки чека: ' + errText);
+                const result = await orderRes.json().catch(() => ({}));
+
+                if (!orderRes.ok || result.ok !== true) {
+                    throw new Error(result.error || 'Ошибка отправки заказа');
                 }
 
                 // Успешно!
@@ -1240,15 +1272,17 @@ ${productsText}
         // ================================================================
         // 9. ЗАГРУЗКА
         // ================================================================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Сначала подтягиваем актуальные данные из БД бота,
+            // затем показываем профиль и форму.
+            if (TELEGRAM_ID) {
+                await loadUserFromBotDatabase();
+                console.log('✅ Пользователь авторизован:', TELEGRAM_ID);
+            }
+
             renderProfile();
             loadCart();
             renderProducts();
-
-            // Если есть ID пользователя, пробуем загрузить его данные
-            if (TELEGRAM_ID) {
-                console.log('✅ Пользователь авторизован:', TELEGRAM_ID);
-            }
 
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
