@@ -17,22 +17,9 @@
             --primary: #667eea;
             --success: #00b894;
         }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            min-height: 100vh; 
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
-        
-        .card-glass { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            border-radius: 16px; 
-            padding: 24px; 
-            margin-bottom: 20px; 
-        }
+        .card-glass { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
         .form-control {
             background: var(--bg);
             color: var(--text);
@@ -48,13 +35,7 @@
             color: var(--text);
             outline: none;
         }
-        .form-label { 
-            color: var(--text-muted); 
-            font-size: 14px; 
-            font-weight: 600; 
-            display: block; 
-            margin-bottom: 6px; 
-        }
+        .form-label { color: var(--text-muted); font-size: 14px; font-weight: 600; display: block; margin-bottom: 6px; }
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -67,7 +48,6 @@
             cursor: pointer;
         }
         .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(102,126,234,0.3); }
-        
         .btn-success {
             background: linear-gradient(135deg, #00b894 0%, #00a381 100%);
             color: white;
@@ -80,99 +60,41 @@
             cursor: pointer;
         }
         .btn-success:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); }
-        
-        .btn-outline { 
-            background: var(--bg); 
-            border: 1px solid var(--border); 
-            color: var(--text); 
-            padding: 10px 20px; 
-            border-radius: 10px; 
-            transition: all 0.3s; 
-            cursor: pointer;
-            width: 100%;
-        }
+        .btn-outline { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; transition: all 0.3s; cursor: pointer; width: 100%; }
         .btn-outline:hover { background: var(--primary); color: white; border-color: var(--primary); }
-        
-        .product-item { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 10px 0; 
-            border-bottom: 1px solid var(--border); 
-        }
+        .product-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .product-item:last-child { border-bottom: none; }
         .total-amount { font-size: 28px; font-weight: 700; color: var(--primary); }
-        
-        .upload-area { 
-            border: 2px dashed var(--border); 
-            border-radius: 12px; 
-            padding: 30px; 
-            text-align: center; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-        }
+        .upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; }
         .upload-area:hover { border-color: var(--primary); background: rgba(102,126,234,0.05); }
         .upload-area i { font-size: 48px; color: var(--text-muted); margin-bottom: 10px; display: block; }
         .preview-image { max-width: 200px; max-height: 200px; border-radius: 8px; margin: 10px auto; display: block; }
-        
         .step { display: none; }
         .step.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .step-indicator { 
-            display: flex; 
-            justify-content: center; 
-            gap: 20px; 
-            margin-bottom: 30px; 
-            align-items: center; 
-        }
-        .step-dot { 
-            width: 40px; height: 40px; border-radius: 50%; 
-            background: var(--border); color: var(--text-muted); 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: 700; 
-        }
+        .step-indicator { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; align-items: center; }
+        .step-dot { width: 40px; height: 40px; border-radius: 50%; background: var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-weight: 700; }
         .step-dot.active { background: var(--primary); color: white; }
         .step-dot.done { background: var(--success); color: white; }
         .step-line { width: 60px; height: 2px; background: var(--border); }
         .step-line.done { background: var(--success); }
-        
         .loading { display: none; text-align: center; padding: 20px; }
-        .loading .spinner { 
-            width: 40px; height: 40px; 
-            border: 3px solid var(--border); 
-            border-top-color: var(--primary); 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-            margin: 0 auto; 
-        }
+        .loading .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         .back-link { color: var(--primary); text-decoration: none; font-size: 14px; }
         .back-link:hover { text-decoration: underline; }
-        
-        .alert { 
-            background: rgba(102,126,234,0.1); 
-            border: 1px solid var(--primary); 
-            color: var(--text); 
-            padding: 12px 16px; 
-            border-radius: 10px; 
-            margin-bottom: 16px; 
-        }
-        
-        @media (max-width: 768px) { 
-            .step-line { width: 30px; } 
-        }
+        .alert { background: rgba(102,126,234,0.1); border: 1px solid var(--primary); color: var(--text); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; }
+        @media (max-width: 768px) { .step-line { width: 30px; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="text-center mb-4">
-        <a href="/shop.html" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
+        <a href="/shop/" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в магазин</a>
         <h1 style="color:var(--text); margin-top:10px;">🛒 Оформление заказа</h1>
     </div>
 
-    <!-- Шаги -->
     <div class="step-indicator" id="stepIndicator">
         <div class="step-dot active" id="step1Dot">1</div>
         <div class="step-line" id="line1"></div>
@@ -181,33 +103,27 @@
         <div class="step-dot" id="step3Dot">3</div>
     </div>
 
-    <!-- Шаг 1: Данные -->
+    <!-- Шаг 1 -->
     <div class="step active" id="step1">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные получателя</h4>
-            
             <div class="mb-3">
                 <label class="form-label"><i class="fas fa-user"></i> Имя</label>
                 <input type="text" class="form-control" id="userName" readonly value="Пользователь">
             </div>
-            
             <div class="mb-3">
                 <label class="form-label"><i class="fas fa-phone"></i> Телефон</label>
                 <input type="text" class="form-control" id="userPhone" placeholder="+998 90 123 45 67">
             </div>
-
             <div class="mb-3">
                 <label class="form-label"><i class="fas fa-map-pin"></i> Адрес доставки</label>
                 <input type="text" class="form-control" id="userAddress" placeholder="Улица, дом, квартира">
             </div>
-
-            <button class="btn-primary" onclick="goToStep2()">
-                <i class="fas fa-arrow-right"></i> Продолжить
-            </button>
+            <button class="btn-primary" onclick="goToStep2()"><i class="fas fa-arrow-right"></i> Продолжить</button>
         </div>
     </div>
 
-    <!-- Шаг 2: Товары -->
+    <!-- Шаг 2 -->
     <div class="step" id="step2">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Ваш заказ</h4>
@@ -217,31 +133,18 @@
                 <span style="font-size:18px; font-weight:600;">Итого:</span>
                 <span class="total-amount" id="totalAmount">0 сум</span>
             </div>
-            
             <div class="row mt-3">
-                <div class="col-6">
-                    <button class="btn-outline" onclick="goToStep1()">
-                        <i class="fas fa-arrow-left"></i> Назад
-                    </button>
-                </div>
-                <div class="col-6">
-                    <button class="btn-success" onclick="goToStep3()">
-                        <i class="fas fa-credit-card"></i> Перейти к оплате
-                    </button>
-                </div>
+                <div class="col-6"><button class="btn-outline" onclick="goToStep1()"><i class="fas fa-arrow-left"></i> Назад</button></div>
+                <div class="col-6"><button class="btn-success" onclick="goToStep3()"><i class="fas fa-credit-card"></i> Перейти к оплате</button></div>
             </div>
         </div>
     </div>
 
-    <!-- Шаг 3: Оплата -->
+    <!-- Шаг 3 -->
     <div class="step" id="step3">
         <div class="card-glass">
             <h4 style="margin-bottom:20px;"><i class="fas fa-credit-card" style="color:var(--success);"></i> Оплата</h4>
-            
-            <div class="alert">
-                <i class="fas fa-info-circle"></i> Оплата производится картой. После оплаты загрузите чек.
-            </div>
-
+            <div class="alert"><i class="fas fa-info-circle"></i> Оплата производится картой. После оплаты загрузите чек.</div>
             <div class="mb-3">
                 <label class="form-label"><i class="fas fa-file-image"></i> Загрузить чек оплаты</label>
                 <div class="upload-area" id="uploadArea" onclick="document.getElementById('receiptInput').click()">
@@ -254,26 +157,14 @@
                     <img id="previewImage" class="preview-image" src="">
                     <div class="text-center">
                         <span id="fileName" style="color:var(--text-muted);"></span>
-                        <button class="btn-outline" style="padding:4px 12px; font-size:12px; margin-left:10px; width:auto;" onclick="removeFile()">
-                            <i class="fas fa-times"></i> Удалить
-                        </button>
+                        <button class="btn-outline" style="padding:4px 12px; font-size:12px; margin-left:10px; width:auto;" onclick="removeFile()"><i class="fas fa-times"></i> Удалить</button>
                     </div>
                 </div>
             </div>
-
             <div class="row mt-3">
-                <div class="col-6">
-                    <button class="btn-outline" onclick="goToStep2()">
-                        <i class="fas fa-arrow-left"></i> Назад
-                    </button>
-                </div>
-                <div class="col-6">
-                    <button class="btn-primary" onclick="submitOrder()" id="submitBtn">
-                        <i class="fas fa-check"></i> Оформить заказ
-                    </button>
-                </div>
+                <div class="col-6"><button class="btn-outline" onclick="goToStep2()"><i class="fas fa-arrow-left"></i> Назад</button></div>
+                <div class="col-6"><button class="btn-primary" onclick="submitOrder()" id="submitBtn"><i class="fas fa-check"></i> Оформить заказ</button></div>
             </div>
-
             <div class="loading" id="loadingIndicator">
                 <div class="spinner"></div>
                 <p style="color:var(--text-muted); margin-top:10px;">Оформление заказа...</p>
@@ -306,9 +197,7 @@
             if (cartData) {
                 cart = JSON.parse(cartData);
             }
-        } catch (e) {
-            cart = [];
-        }
+        } catch (e) { cart = []; }
         renderCart();
     }
 
@@ -319,21 +208,12 @@
             document.getElementById('totalAmount').textContent = '0 сум';
             return;
         }
-        
         let html = '';
         let total = 0;
         cart.forEach(item => {
             const subtotal = item.price * item.quantity;
             total += subtotal;
-            html += `
-                <div class="product-item">
-                    <div>
-                        <div style="font-weight:600;">${item.name}</div>
-                        <div style="color:var(--text-muted); font-size:14px;">${item.quantity} × ${formatPrice(item.price)}</div>
-                    </div>
-                    <div style="font-weight:600; color:var(--primary);">${formatPrice(subtotal)}</div>
-                </div>
-            `;
+            html += `<div class="product-item"><div><div style="font-weight:600;">${item.name}</div><div style="color:var(--text-muted); font-size:14px;">${item.quantity} × ${formatPrice(item.price)}</div></div><div style="font-weight:600; color:var(--primary);">${formatPrice(subtotal)}</div></div>`;
         });
         container.innerHTML = html;
         document.getElementById('totalAmount').textContent = formatPrice(total) + ' сум';
@@ -347,7 +227,6 @@
         currentStep = step;
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
         document.getElementById(`step${step}`).classList.add('active');
-        
         for (let i = 1; i <= 3; i++) {
             const dot = document.getElementById(`step${i}Dot`);
             dot.classList.remove('active', 'done');
@@ -383,23 +262,17 @@
     function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
         selectedFile = file;
         const preview = document.getElementById('filePreview');
         const img = document.getElementById('previewImage');
         const nameSpan = document.getElementById('fileName');
-        
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                img.src = e.target.result;
-                img.style.display = 'block';
-            };
+            reader.onload = function(e) { img.src = e.target.result; img.style.display = 'block'; };
             reader.readAsDataURL(file);
         } else {
             img.style.display = 'none';
         }
-        
         nameSpan.textContent = file.name;
         preview.style.display = 'block';
         document.getElementById('uploadArea').style.display = 'none';
@@ -417,20 +290,17 @@
             alert('❌ Загрузите чек оплаты');
             return;
         }
-
         alert('✅ Заказ оформлен! С вами свяжется оператор.');
         localStorage.removeItem('cart');
-        window.location.href = '/shop.html?telegram_id=' + telegramId;
+        window.location.href = '/shop/?telegram_id=' + telegramId;
     }
 
-    // Инициализация
     document.addEventListener('DOMContentLoaded', function() {
         getTelegramId();
         loadCart();
-        
         if (!localStorage.getItem('cart') || JSON.parse(localStorage.getItem('cart')).length === 0) {
             alert('🛒 Корзина пуста');
-            window.location.href = '/shop.html?telegram_id=' + telegramId;
+            window.location.href = '/shop/?telegram_id=' + telegramId;
         }
     });
 </script>
