@@ -293,13 +293,11 @@
         telegramId = params.get('telegram_id');
         if (!telegramId) {
             telegramId = localStorage.getItem('telegram_id');
-            if (!telegramId) {
-                alert('❌ Ошибка: ID пользователя не найден');
-                window.location.href = '/shop.html';
-                return;
-            }
         }
-        localStorage.setItem('telegram_id', telegramId);
+        if (telegramId) {
+            localStorage.setItem('telegram_id', telegramId);
+        }
+        return telegramId;
     }
 
     function loadCart() {
