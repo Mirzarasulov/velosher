@@ -65,45 +65,18 @@
         .links a { color: var(--primary); text-decoration: none; font-size: 13px; padding: 6px 14px; border: 1px solid var(--primary); border-radius: 20px; transition: all 0.3s; }
         .links a:hover { background: var(--primary); color: white; }
         .footer { margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12px; }
-        .theme-toggle {
-            background: var(--border);
-            border: none;
-            color: var(--text);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-        }
-        .theme-toggle:hover { background: var(--primary); }
         @media (max-width: 480px) { .container { padding: 25px; } }
     </style>
 </head>
 <body>
-    <div class="container" id="app">
-        <button class="theme-toggle" onclick="toggleTheme()">
-            <i class="fas fa-moon" id="themeIcon"></i> <span id="themeText">Темная</span>
-        </button>
-
+    <div class="container">
         <div class="logo">🚴</div>
         <h1>Velosher Shop</h1>
         <p class="subtitle">Магазин велосипедов</p>
-
         <div class="badge">🟢 Сайт работает</div>
-
-        <a href="/shop/" class="btn btn-primary">
-            🛍️ Перейти в магазин
-        </a>
-
-        <a href="/admin/" class="btn btn-secondary">
-            🔐 Админ-панель
-        </a>
-
-        <a href="https://t.me/velosher_shop_bot" class="btn btn-telegram">
-            🤖 Telegram Бот
-        </a>
-
+        <a href="/shop/" class="btn btn-primary">🛍️ Перейти в магазин</a>
+        <a href="/admin/" class="btn btn-secondary">🔐 Админ-панель</a>
+        <a href="https://t.me/velosher_shop_bot" class="btn btn-telegram">🤖 Telegram Бот</a>
         <div class="links">
             <a href="/admin/users/">👥 Пользователи</a>
             <a href="/admin/orders/">📦 Заказы</a>
@@ -111,37 +84,7 @@
             <a href="/admin/chat/">💬 Чат</a>
             <a href="/admin/broadcast/">📢 Рассылка</a>
         </div>
-
-        <div class="footer">
-            <p>© 2024 Velosher Shop</p>
-            <p style="font-size: 11px;">Все заказы через Telegram бот</p>
-        </div>
+        <div class="footer"><p>© 2024 Velosher Shop</p></div>
     </div>
-
-    <script>
-        function toggleTheme() {
-            const root = document.documentElement;
-            const currentBg = getComputedStyle(root).getPropertyValue('--bg').trim();
-            const isDark = currentBg === '#0a0a1a';
-            
-            if (isDark) {
-                root.style.setProperty('--bg', '#f0f2f5');
-                root.style.setProperty('--card', '#ffffff');
-                root.style.setProperty('--text', '#2d3436');
-                root.style.setProperty('--text-muted', '#6c757d');
-                root.style.setProperty('--border', '#e0e0e0');
-                document.getElementById('themeIcon').className = 'fas fa-sun';
-                document.getElementById('themeText').textContent = 'Светлая';
-            } else {
-                root.style.setProperty('--bg', '#0a0a1a');
-                root.style.setProperty('--card', '#1a1a2e');
-                root.style.setProperty('--text', '#ffffff');
-                root.style.setProperty('--text-muted', '#a0a0b0');
-                root.style.setProperty('--border', '#2a2a4e');
-                document.getElementById('themeIcon').className = 'fas fa-moon';
-                document.getElementById('themeText').textContent = 'Темная';
-            }
-        }
-    </script>
 </body>
 </html>
