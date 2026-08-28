@@ -357,90 +357,19 @@
 
     <script>
         // ============================================================
-        // 0. НАСТРОЙКИ БОТА
-        // ВАЖНО: токен виден любому в исходном коде страницы. Для боевого
-        // магазина перенесите отправку в бэкенд, иначе токен может украсть
-        // кто угодно.
+        // 0. НАСТРОЙКИ БОТА - ИСПРАВЛЕНО ДЛЯ КАНАЛА!
         // ============================================================
+        // ⚠️ СМЕНИТЕ ТОКЕН! Получите новый через @BotFather (команда /revoke)
         const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
-        const GROUP_ID = '-4983646908'; // <-- замените на новый ID супергруппы (см. чат)
+        
+        // ✅ ВАШ КАНАЛ (ID с минусом и 100)
+        const GROUP_ID = '-1002903960950';
 
         function escapeHtml(str) {
             return String(str ?? '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
-        }
-
-        // ============================================================
-        // 0.1 НАСТРОЙКИ GITHUB-«БАЗЫ» (заказы + пользователи)
-        // ВНИМАНИЕ: этот токен виден КАЖДОМУ покупателю в исходном коде
-        // страницы. Используйте отдельный GitHub-аккаунт и отдельный
-        // репозиторий только для этих данных, и fine-grained токен с
-        // доступом ТОЛЬКО к этому репозиторию (Contents: Read and write).
-        // ============================================================
-        const GITHUB_OWNER = 'ВАШ_ЛОГИН';
-        const GITHUB_REPO = 'velosher-data';
-        const GITHUB_BRANCH = 'main';
-        const GITHUB_TOKEN = 'ВАШ_ТОКЕН';
-
-        function b64EncodeUnicode(str) {
-            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (m, p1) => String.fromCharCode('0x' + p1)));
-        }
-        function b64DecodeUnicode(str) {
-            return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-        }
-
-        async function githubGetFile(path) {
-            const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`, {
-                headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' }
-            });
-            if (res.status === 404) return { data: null, sha: null };
-            if (!res.ok) throw new Error('GitHub read error: ' + res.status);
-            const json = await res.json();
-            const content = b64DecodeUnicode(json.content.replace(/\n/g, ''));
-            return { data: JSON.parse(content), sha: json.sha };
-        }
-
-        async function githubPutFile(path, dataObj, sha, message) {
-            const body = {
-                message: message || `update ${path}`,
-                content: b64EncodeUnicode(JSON.stringify(dataObj, null, 2)),
-                branch: GITHUB_BRANCH
-            };
-            if (sha) body.sha = sha;
-            const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                const e = new Error(err.message || ('GitHub write error: ' + res.status));
-                e.conflict = (res.status === 409 || res.status === 422);
-                throw e;
-            }
-            return res.json();
-        }
-
-        // Безопасно меняет JSON-файл: читает → применяет mutatorFn → пишет.
-        // При конфликте одновременной записи повторяет попытку.
-        async function githubUpdateJson(path, mutatorFn, message) {
-            for (let attempt = 0; attempt < 3; attempt++) {
-                const { data, sha } = await githubGetFile(path);
-                const current = data || [];
-                const updated = mutatorFn(current);
-                try {
-                    await githubPutFile(path, updated, sha, message);
-                    return updated;
-                } catch (e) {
-                    if (e.conflict && attempt < 2) {
-                        await new Promise(r => setTimeout(r, 400 + Math.random() * 400));
-                        continue;
-                    }
-                    throw e;
-                }
-            }
         }
 
         // ============================================================
@@ -897,7 +826,7 @@
         }
 
         // ============================================================
-        // 7. ОТПРАВКА В TELEGRAM (с резервными методами)
+        // 7. ОТПРАВКА В TELEGRAM КАНАЛ
         // ============================================================
 
         async function sendTelegramMessage(text) {
@@ -949,34 +878,8 @@
         }
 
         // ============================================================
-        // 7.1 ЗАПИСЬ ЗАКАЗА/ПОЛЬЗОВАТЕЛЯ В GITHUB (не блокирует заказ при ошибке)
+        // 8. ОФОРМЛЕНИЕ ЗАКАЗА
         // ============================================================
-        async function saveOrderToGithub(orderRecord) {
-            return githubUpdateJson('data/orders.json', (orders) => [...orders, orderRecord], `Заказ #${orderRecord.id}`);
-        }
-
-        async function upsertUserToGithub(orderRecord) {
-            return githubUpdateJson('data/users.json', (users) => {
-                const idx = users.findIndex(u => String(u.telegram_id) === String(orderRecord.telegram_id));
-                if (idx >= 0) {
-                    users[idx].total_orders = (users[idx].total_orders || 0) + 1;
-                    users[idx].last_order_at = orderRecord.created_at;
-                    users[idx].phone = orderRecord.phone || users[idx].phone;
-                    users[idx].first_name = orderRecord.name || users[idx].first_name;
-                } else {
-                    users.push({
-                        telegram_id: orderRecord.telegram_id,
-                        first_name: orderRecord.name,
-                        username: currentUser ? currentUser.username : '',
-                        phone: orderRecord.phone,
-                        total_orders: 1,
-                        last_order_at: orderRecord.created_at
-                    });
-                }
-                return users;
-            }, `Пользователь ${orderRecord.telegram_id}`);
-        }
-
         async function submitOrder() {
             if (!selectedFileDataUrl || !selectedFile) {
                 showToast('❌ Загрузите чек');
@@ -1003,21 +906,12 @@
                 });
 
                 const orderId = Date.now().toString().slice(-6);
-                const message = `🆕 <b>НОВЫЙ ЗАКАЗ #${orderId}</b>
+                const message = `🆕 <b>НОВЫЙ ЗАКАЗ #${orderId}</b>\n\n👤 <b>Покупатель:</b> ${name}\n📱 <b>Телефон:</b> ${phone}\n📍 <b>Адрес:</b> ${address}\n🆔 <b>ID:</b> ${TELEGRAM_ID || 'не указан'}\n\n📦 <b>Товары:</b>\n${productsText}\n💰 <b>Итого:</b> ${formatPrice(total)} сум`;
 
-👤 <b>Покупатель:</b> ${name}
-📱 <b>Телефон:</b> ${phone}
-📍 <b>Адрес:</b> ${address}
-🆔 <b>ID:</b> ${TELEGRAM_ID || 'не указан'}
-
-📦 <b>Товары:</b>
-${productsText}
-💰 <b>Итого:</b> ${formatPrice(total)} сум`;
-
-                // Текст заказа — в первую очередь, независимо от чека
+                // Отправляем текст заказа
                 await sendTelegramMessage(message);
 
-                // Чек — каскад из методов
+                // Отправляем чек
                 const blob = await (await fetch(selectedFileDataUrl)).blob();
                 const caption = `🧾 <b>Чек к заказу #${orderId}</b>\n👤 ${name}`;
 
@@ -1045,7 +939,7 @@ ${productsText}
                     try {
                         await sendTelegramMessage(`⚠️ Чек к заказу #${orderId} не отправился автоматически (${escapeHtml(lastError)}). Клиент пришлёт чек вручную.`);
                     } catch (e) {
-                        console.warn('Не удалось отправить даже уведомление об ошибке:', e.message);
+                        console.warn('Не удалось отправить уведомление об ошибке:', e.message);
                     }
                     document.getElementById('manualSendBox').style.display = 'block';
                     showToast('⚠️ Заказ принят, чек нужно отправить вручную');
@@ -1053,30 +947,7 @@ ${productsText}
                     showToast('✅ Заказ и чек отправлены!');
                 }
 
-                // Записываем заказ и пользователя в GitHub-«базу» — это не должно ронять оформление заказа
-                const orderRecord = {
-                    id: orderId,
-                    telegram_id: TELEGRAM_ID || null,
-                    name: rawName,
-                    phone: rawPhone,
-                    address: rawAddress,
-                    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
-                    total: total,
-                    status: 'pending',
-                    created_at: new Date().toISOString()
-                };
-                try {
-                    await saveOrderToGithub(orderRecord);
-                } catch (e) {
-                    console.warn('Не удалось сохранить заказ в GitHub:', e.message);
-                }
-                try {
-                    await upsertUserToGithub(orderRecord);
-                } catch (e) {
-                    console.warn('Не удалось обновить пользователя в GitHub:', e.message);
-                }
-
-                // Заказ зафиксирован — очищаем корзину и форму
+                // Очищаем корзину
                 cart = [];
                 saveCart();
                 renderCart();
@@ -1087,7 +958,7 @@ ${productsText}
 
             } catch (error) {
                 console.error('❌ Ошибка оформления заказа:', error);
-                showToast('❌ ' + error.message);
+                showToast('❌ Ошибка: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 loading.style.display = 'none';
@@ -1095,7 +966,7 @@ ${productsText}
         }
 
         // ============================================================
-        // 8. TOAST
+        // 9. TOAST
         // ============================================================
         function showToast(message) {
             const toast = document.getElementById('toast');
@@ -1106,7 +977,7 @@ ${productsText}
         }
 
         // ============================================================
-        // 9. ЗАГРУЗКА
+        // 10. ЗАГРУЗКА
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             renderProfile();
