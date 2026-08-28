@@ -342,6 +342,13 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- Резервный блок: если чек не отправился автоматически -->
+    <div id="manualSendBox" style="display:none; position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--primary); border-radius:14px; padding:16px 20px; z-index:9999; max-width:90%; width:360px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <p style="margin-bottom:12px; font-size:14px; line-height:1.4;">⚠️ Заказ принят, но чек не отправился автоматически.<br>Пожалуйста, пришлите скриншот чека нашему боту.</p>
+        <a href="https://t.me/velosher_shop_bot" target="_blank" class="btn-primary" style="display:inline-block; text-decoration:none; width:auto; padding:10px 24px;">Открыть чат с ботом</a>
+        <button onclick="document.getElementById('manualSendBox').style.display='none'" style="display:block; margin:10px auto 0; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px;">Закрыть</button>
+    </div>
+
     <div class="footer">
         <div class="container">
             <p>© 2024 Velosher Shop · <a href="https://t.me/velosher_shop_bot">Telegram</a></p>
@@ -349,6 +356,22 @@
     </div>
 
     <script>
+        // ============================================================
+        // 0. НАСТРОЙКИ БОТА
+        // ВАЖНО: токен виден любому в исходном коде страницы. Для боевого
+        // магазина перенесите отправку в бэкенд (даже простую serverless-
+        // функцию), иначе токен может украсть кто угодно.
+        // ============================================================
+        const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
+        const GROUP_ID = '-4983646908';
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
         // ============================================================
         // 1. TELEGRAM
         // ============================================================
@@ -411,7 +434,7 @@
         ];
 
         // ============================================================
-        // 3. КОРЗИНА (ПОЛНОСТЬЮ ПЕРЕРАБОТАНА)
+        // 3. КОРЗИНА
         // ============================================================
         let cart = [];
 
@@ -419,7 +442,6 @@
             try {
                 const saved = localStorage.getItem('velosher_cart');
                 cart = saved ? JSON.parse(saved) : [];
-                // Фильтруем только существующие товары
                 cart = cart.filter(item => products.some(p => p.id === item.id));
             } catch(e) { cart = []; }
             saveCart();
@@ -665,7 +687,6 @@
                 return;
             }
             
-            // Автозаполнение из Telegram
             if (currentUser) {
                 document.getElementById('checkoutName').value = currentUser.first_name || '';
                 document.getElementById('checkoutPhone').value = currentUser.phone || '';
@@ -805,10 +826,62 @@
         }
 
         // ============================================================
-        // 7. ОТПРАВКА ЗАКАЗА
+        // 7. ОТПРАВКА В TELEGRAM (с резервными методами)
         // ============================================================
+
+        async function sendTelegramMessage(text) {
+            const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: GROUP_ID, text, parse_mode: 'HTML' })
+            });
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.description || 'sendMessage error');
+            return data;
+        }
+
+        // Метод 1: обычная отправка фото
+        async function trySendPhoto(blob, caption) {
+            const formData = new FormData();
+            formData.append('chat_id', GROUP_ID);
+            formData.append('caption', caption);
+            formData.append('parse_mode', 'HTML');
+            formData.append('photo', blob, 'receipt.jpg');
+            const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.description || 'sendPhoto error');
+            return data;
+        }
+
+        // Метод 2: отправка как документ — обходит некоторые ограничения на фото/сжатие
+        async function trySendDocument(blob, caption) {
+            const formData = new FormData();
+            formData.append('chat_id', GROUP_ID);
+            formData.append('caption', caption);
+            formData.append('parse_mode', 'HTML');
+            formData.append('document', blob, 'receipt.jpg');
+            const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.description || 'sendDocument error');
+            return data;
+        }
+
+        // Метод 3: пересжать фото сильнее и повторить (частая причина ошибки — вес/формат файла)
+        async function trySendPhotoCompressed(file, caption) {
+            const dataUrl = await compressImage(file, 500, 0.5);
+            if (!dataUrl) throw new Error('Не удалось пересжать фото');
+            const blob = await (await fetch(dataUrl)).blob();
+            return trySendPhoto(blob, caption);
+        }
+
         async function submitOrder() {
-            if (!selectedFileDataUrl) {
+            if (!selectedFileDataUrl || !selectedFile) {
                 showToast('❌ Загрузите чек');
                 return;
             }
@@ -820,74 +893,78 @@
 
             try {
                 const total = getCartTotal();
-                const name = document.getElementById('checkoutName').value || 'Покупатель';
-                const phone = document.getElementById('checkoutPhone').value;
-                const address = document.getElementById('checkoutAddress').value;
+                const name = escapeHtml(document.getElementById('checkoutName').value || 'Покупатель');
+                const phone = escapeHtml(document.getElementById('checkoutPhone').value);
+                const address = escapeHtml(document.getElementById('checkoutAddress').value);
 
                 let productsText = '';
                 cart.forEach(item => {
-                    productsText += `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
+                    productsText += `• ${escapeHtml(item.name)} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
                 });
 
-                const message = `🆕 *НОВЫЙ ЗАКАЗ*
+                const orderId = Date.now().toString().slice(-6);
+                const message = `🆕 <b>НОВЫЙ ЗАКАЗ #${orderId}</b>
 
-👤 *Покупатель:* ${name}
-📱 *Телефон:* ${phone}
-📍 *Адрес:* ${address}
-🆔 *ID:* ${TELEGRAM_ID || 'не указан'}
+👤 <b>Покупатель:</b> ${name}
+📱 <b>Телефон:</b> ${phone}
+📍 <b>Адрес:</b> ${address}
+🆔 <b>ID:</b> ${TELEGRAM_ID || 'не указан'}
 
-📦 *Товары:*
+📦 <b>Товары:</b>
 ${productsText}
-💰 *Итого:* ${formatPrice(total)} сум`;
+💰 <b>Итого:</b> ${formatPrice(total)} сум`;
 
-                const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
-                const GROUP_ID = '-4983646908';
+                // Текст заказа отправляем в первую очередь и независимо от чека
+                await sendTelegramMessage(message);
 
-                // Отправляем сообщение
-                const msgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: GROUP_ID,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
-                });
-
-                if (!msgRes.ok) {
-                    throw new Error('Ошибка отправки сообщения');
-                }
-
-                // Отправляем фото
-                const formData = new FormData();
+                // Дальше пробуем отправить чек — по очереди тремя способами
                 const blob = await (await fetch(selectedFileDataUrl)).blob();
-                formData.append('photo', blob, 'receipt.jpg');
-                formData.append('chat_id', GROUP_ID);
-                formData.append('caption', `🧾 *Чек*\n👤 ${name}`);
+                const caption = `🧾 <b>Чек к заказу #${orderId}</b>\n👤 ${name}`;
 
-                const photoRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                });
+                const attempts = [
+                    () => trySendPhoto(blob, caption),
+                    () => trySendDocument(blob, caption),
+                    () => trySendPhotoCompressed(selectedFile, caption)
+                ];
 
-                if (!photoRes.ok) {
-                    throw new Error('Ошибка отправки чека');
+                let photoSent = false;
+                let lastError = '';
+
+                for (const attempt of attempts) {
+                    try {
+                        await attempt();
+                        photoSent = true;
+                        break;
+                    } catch (e) {
+                        lastError = e.message || String(e);
+                        console.warn('Попытка отправки чека не удалась:', lastError);
+                    }
                 }
 
-                // Успешно!
+                if (!photoSent) {
+                    // Метод 4: гарантированное уведомление + просьба прислать чек вручную
+                    try {
+                        await sendTelegramMessage(`⚠️ Чек к заказу #${orderId} не отправился автоматически (${escapeHtml(lastError)}). Клиент пришлёт чек вручную.`);
+                    } catch (e) {
+                        console.warn('Не удалось отправить даже уведомление об ошибке:', e.message);
+                    }
+                    document.getElementById('manualSendBox').style.display = 'block';
+                    showToast('⚠️ Заказ принят, чек нужно отправить вручную');
+                } else {
+                    showToast('✅ Заказ и чек отправлены!');
+                }
+
+                // Заказ зафиксирован в любом случае — очищаем корзину и форму
                 cart = [];
                 saveCart();
                 renderCart();
                 updateCartCount();
                 renderProducts();
-                selectedFile = null;
-                selectedFileDataUrl = '';
                 removeFile();
-                showToast('✅ Заказ оформлен!');
                 closeCheckout();
 
             } catch (error) {
-                console.error('❌ Ошибка:', error);
+                console.error('❌ Ошибка оформления заказа:', error);
                 showToast('❌ ' + error.message);
             } finally {
                 submitBtn.disabled = false;
