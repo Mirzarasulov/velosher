@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #0a0a1a;
@@ -19,6 +18,7 @@
             --primary: #667eea;
             --success: #00b894;
             --danger: #ff4757;
+            --warning: #f59e0b;
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
         .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 12px 0; position: sticky; top: 0; z-index: 100; }
@@ -112,6 +112,9 @@
         .btn-success:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); }
         .btn-outline { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; transition: all 0.3s; cursor: pointer; width: 100%; }
         .btn-outline:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-location { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; transition: all 0.3s; cursor: pointer; }
+        .btn-location:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(245,158,11,0.3); }
+        .btn-location i { margin-right: 8px; }
         .product-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .product-item:last-child { border-bottom: none; }
         .total-amount { font-size: 28px; font-weight: 700; color: var(--primary); }
@@ -135,6 +138,7 @@
         .back-link { color: var(--primary); text-decoration: none; font-size: 14px; cursor: pointer; }
         .back-link:hover { text-decoration: underline; }
         .alert { background: rgba(102,126,234,0.1); border: 1px solid var(--primary); color: var(--text); padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; }
+        .alert-success { background: rgba(0,184,148,0.15); border-color: var(--success); color: var(--text); }
 
         .payment-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 60%, #4c3a8c 100%);
@@ -151,6 +155,18 @@
         .pay-amount-box { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; text-align:center; margin-bottom:18px; }
         .pay-amount-box .lbl { color: var(--text-muted); font-size: 13px; margin-bottom: 4px; }
         .pay-amount-box .amt { font-size: 30px; font-weight: 800; color: var(--success); }
+
+        .location-info {
+            background: rgba(245,158,11,0.1);
+            border: 1px solid var(--warning);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-top: 8px;
+            display: none;
+        }
+        .location-info.show { display: block; }
+        .location-info a { color: var(--primary); text-decoration: none; }
+        .location-info a:hover { text-decoration: underline; }
 
         @media (max-width: 768px) {
             .cart-modal { width: 100%; right: -100%; }
@@ -248,18 +264,35 @@
             <div class="step active" id="step1">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
                     <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные</h5>
+                    
                     <div class="mb-3">
                         <label class="form-label">Имя</label>
                         <input type="text" class="form-control" id="checkoutName" placeholder="Ваше имя">
                     </div>
+                    
                     <div class="mb-3">
                         <label class="form-label">Телефон</label>
                         <input type="text" class="form-control" id="checkoutPhone" placeholder="+998 90 123 45 67">
                     </div>
+                    
                     <div class="mb-3">
-                        <label class="form-label">Адрес</label>
-                        <input type="text" class="form-control" id="checkoutAddress" placeholder="Улица, дом, квартира">
+                        <label class="form-label">📍 Адрес доставки</label>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                            <button class="btn-location" onclick="sendMyLocation()" style="flex:1; min-width:140px;">
+                                <i class="fas fa-location-dot"></i> Отправить локацию
+                            </button>
+                            <button class="btn-outline" onclick="clearLocation()" style="flex:0 0 auto; padding:12px 20px; width:auto;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div id="locationDisplay" class="location-info"></div>
+                        <div style="margin-top:6px; font-size:12px; color:var(--text-muted);">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Локация в приоритете.</strong> Если не хотите отправлять локацию — введите адрес вручную.
+                        </div>
+                        <input type="text" class="form-control" id="checkoutAddress" placeholder="Улица, дом, квартира (если нет локации)" style="margin-top:8px;">
                     </div>
+                    
                     <hr style="border-color:var(--border);">
                     <div id="checkoutItems"></div>
                     <div class="d-flex justify-content-between align-items-center mt-2">
@@ -412,7 +445,6 @@
                         category_id: p.category_id || null
                     }));
                 } else {
-                    // Если в Firebase нет товаров - используем дефолтные
                     products = [
                         { id: 1, name: '🚲 Горный XC-9000', price: 4500000, stock: 10 },
                         { id: 2, name: '🚴 Шоссейный Aero-Pro', price: 5200000, stock: 5 },
@@ -425,7 +457,6 @@
                 renderProducts();
             } catch (e) {
                 console.warn('Ошибка загрузки товаров из Firebase:', e);
-                // Используем дефолтные товары
                 products = [
                     { id: 1, name: '🚲 Горный XC-9000', price: 4500000, stock: 10 },
                     { id: 2, name: '🚴 Шоссейный Aero-Pro', price: 5200000, stock: 5 },
@@ -492,6 +523,172 @@
             document.getElementById('userUsername').textContent = currentUser.username ? '@' + currentUser.username : 'нет username';
             document.getElementById('userId').textContent = `ID: ${currentUser.id}`;
             document.getElementById('userAvatar').textContent = (currentUser.first_name || 'П').charAt(0).toUpperCase();
+        }
+
+        // ============================================================
+        // 📍 ГЕОЛОКАЦИЯ
+        // ============================================================
+        let userLocation = null;
+
+        function getLocationFromStorage() {
+            try {
+                const data = localStorage.getItem('user_location');
+                if (data) {
+                    userLocation = JSON.parse(data);
+                    return userLocation;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function saveLocationToStorage(lat, lng) {
+            userLocation = { lat, lng };
+            localStorage.setItem('user_location', JSON.stringify(userLocation));
+            return userLocation;
+        }
+
+        function clearLocation() {
+            userLocation = null;
+            localStorage.removeItem('user_location');
+            document.getElementById('checkoutAddress').value = '';
+            document.getElementById('checkoutAddress').disabled = false;
+            document.getElementById('locationDisplay').classList.remove('show');
+            document.getElementById('locationDisplay').innerHTML = '';
+            showToast('📍 Локация очищена');
+        }
+
+        function showLocationDisplay(lat, lng) {
+            const display = document.getElementById('locationDisplay');
+            display.innerHTML = `
+                <i class="fas fa-check-circle" style="color:var(--success);"></i>
+                <strong>📍 Локация получена!</strong><br>
+                <span style="font-size:12px; color:var(--text-muted);">
+                    Широта: ${lat}, Долгота: ${lng}
+                </span><br>
+                <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="font-size:13px;">
+                    <i class="fas fa-map-marked-alt"></i> Открыть на карте
+                </a>
+            `;
+            display.classList.add('show');
+            document.getElementById('checkoutAddress').disabled = true;
+            document.getElementById('checkoutAddress').value = `${lat}, ${lng}`;
+        }
+
+        // 📍 ОТПРАВКА ЛОКАЦИИ В TELEGRAM
+        async function sendLocationToTelegram(lat, lng) {
+            try {
+                // Отправляем как сообщение с координатами
+                const message = `📍 <b>ЛОКАЦИЯ ПОКУПАТЕЛЯ</b>\n\n` +
+                               `🗺️ <b>Координаты:</b>\n` +
+                               `Широта: ${lat}\n` +
+                               `Долгота: ${lng}\n\n` +
+                               `🔗 <a href="https://www.google.com/maps?q=${lat},${lng}">Открыть на карте</a>`;
+
+                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: GROUP_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                const data = await res.json();
+                if (!data.ok) throw new Error(data.description || 'sendMessage error');
+                
+                // Также пробуем отправить как геолокацию (настоящую)
+                try {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: GROUP_ID,
+                            latitude: lat,
+                            longitude: lng
+                        })
+                    });
+                } catch (e) {
+                    console.warn('sendLocation не поддерживается, но координаты отправлены текстом');
+                }
+                
+                return true;
+            } catch (e) {
+                console.error('Ошибка отправки локации:', e);
+                return false;
+            }
+        }
+
+        // 📍 ЗАПРОС ГЕОЛОКАЦИИ У ПОЛЬЗОВАТЕЛЯ
+        function requestUserLocation() {
+            return new Promise((resolve, reject) => {
+                // Сначала пробуем через Telegram WebApp
+                if (tg && tg.sendData) {
+                    tg.sendData(JSON.stringify({
+                        type: 'location_request'
+                    }));
+                    
+                    const handler = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.type === 'location') {
+                                window.removeEventListener('message', handler);
+                                resolve({ lat: data.latitude, lng: data.longitude });
+                            }
+                        } catch (e) {}
+                    };
+                    window.addEventListener('message', handler);
+                    
+                    setTimeout(() => {
+                        window.removeEventListener('message', handler);
+                        // Если Telegram не ответил - пробуем браузерный геолокатор
+                        tryBrowserLocation(resolve, reject);
+                    }, 5000);
+                } else {
+                    // Если не в Telegram - используем браузер
+                    tryBrowserLocation(resolve, reject);
+                }
+            });
+        }
+
+        function tryBrowserLocation(resolve, reject) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve({ 
+                        lat: pos.coords.latitude, 
+                        lng: pos.coords.longitude 
+                    }),
+                    (err) => reject(new Error('Ошибка геолокации: ' + err.message)),
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                reject(new Error('Геолокация не поддерживается'));
+            }
+        }
+
+        // 📍 ОСНОВНАЯ ФУНКЦИЯ - ОТПРАВИТЬ ЛОКАЦИЮ
+        async function sendMyLocation() {
+            showToast('📍 Запрашиваю локацию...');
+            try {
+                const location = await requestUserLocation();
+                
+                // Сохраняем локацию
+                saveLocationToStorage(location.lat, location.lng);
+                
+                // Показываем на странице
+                showLocationDisplay(location.lat, location.lng);
+                
+                // Отправляем в Telegram (сразу, как часть заказа или отдельно)
+                const sent = await sendLocationToTelegram(location.lat, location.lng);
+                
+                if (sent) {
+                    showToast('✅ Локация отправлена!');
+                } else {
+                    showToast('⚠️ Локация получена, но не отправлена в Telegram');
+                }
+            } catch (e) {
+                console.error('Ошибка получения локации:', e);
+                showToast('❌ ' + e.message);
+            }
         }
 
         // ============================================================
@@ -761,6 +958,12 @@
                 document.getElementById('checkoutName').value = currentUser.first_name || '';
                 document.getElementById('checkoutPhone').value = currentUser.phone || '';
             }
+
+            // Проверяем сохранённую локацию
+            const savedLocation = getLocationFromStorage();
+            if (savedLocation) {
+                showLocationDisplay(savedLocation.lat, savedLocation.lng);
+            }
             
             renderCheckoutItems();
             
@@ -823,12 +1026,26 @@
         function goToStep2() {
             const phone = document.getElementById('checkoutPhone').value;
             const address = document.getElementById('checkoutAddress').value;
-            if (!phone || phone.length < 9) { showToast('❌ Введите телефон'); return; }
-            if (!address) { showToast('❌ Укажите адрес'); return; }
+            const location = getLocationFromStorage();
+            
+            if (!phone || phone.length < 9) { 
+                showToast('❌ Введите телефон'); 
+                return; 
+            }
+            
+            // Проверяем: есть либо локация, либо адрес
+            if (!location && !address) {
+                showToast('❌ Отправьте локацию или введите адрес');
+                return;
+            }
+            
             goToStep(2);
         }
         function goToStep3() {
-            if (cart.length === 0) { showToast('❌ Корзина пуста'); return; }
+            if (cart.length === 0) { 
+                showToast('❌ Корзина пуста'); 
+                return; 
+            }
             goToStep(3);
         }
 
@@ -896,7 +1113,7 @@
         }
 
         // ============================================================
-        // ОТПРАВКА В TELEGRAM + FIREBASE
+        // ОТПРАВКА В TELEGRAM
         // ============================================================
 
         async function sendTelegramMessage(text) {
@@ -948,7 +1165,7 @@
         }
 
         // ============================================================
-        // ОФОРМЛЕНИЕ ЗАКАЗА (FIREBASE + TELEGRAM)
+        // ОФОРМЛЕНИЕ ЗАКАЗА (FIREBASE + TELEGRAM + ЛОКАЦИЯ)
         // ============================================================
         async function submitOrder() {
             if (!selectedFileDataUrl || !selectedFile) {
@@ -965,10 +1182,19 @@
                 const total = getCartTotal();
                 const rawName = document.getElementById('checkoutName').value || 'Покупатель';
                 const rawPhone = document.getElementById('checkoutPhone').value;
-                const rawAddress = document.getElementById('checkoutAddress').value;
+                const rawAddress = document.getElementById('checkoutAddress').value || '';
                 const name = escapeHtml(rawName);
                 const phone = escapeHtml(rawPhone);
                 const address = escapeHtml(rawAddress);
+
+                // Получаем локацию из localStorage
+                const location = getLocationFromStorage();
+                let locationText = '';
+                let locationLink = '';
+                if (location) {
+                    locationText = `📍 <b>Локация:</b> ${location.lat}, ${location.lng}\n`;
+                    locationLink = `\n🔗 <a href="https://www.google.com/maps?q=${location.lat},${location.lng}">Открыть на карте</a>`;
+                }
 
                 let productsText = '';
                 let productsData = [];
@@ -983,7 +1209,15 @@
                 });
 
                 const orderId = Date.now().toString().slice(-6);
-                const message = `🆕 <b>НОВЫЙ ЗАКАЗ #${orderId}</b>\n\n👤 <b>Покупатель:</b> ${name}\n📱 <b>Телефон:</b> ${phone}\n📍 <b>Адрес:</b> ${address}\n🆔 <b>ID:</b> ${TELEGRAM_ID || 'не указан'}\n\n📦 <b>Товары:</b>\n${productsText}\n💰 <b>Итого:</b> ${formatPrice(total)} сум`;
+                const message = `🆕 <b>НОВЫЙ ЗАКАЗ #${orderId}</b>\n\n` +
+                               `👤 <b>Покупатель:</b> ${name}\n` +
+                               `📱 <b>Телефон:</b> ${phone}\n` +
+                               `${locationText}` +
+                               `${address ? `🏠 <b>Адрес:</b> ${address}\n` : ''}` +
+                               `🆔 <b>ID:</b> ${TELEGRAM_ID || 'не указан'}\n\n` +
+                               `📦 <b>Товары:</b>\n${productsText}\n` +
+                               `💰 <b>Итого:</b> ${formatPrice(total)} сум` +
+                               `${locationLink}`;
 
                 // 1. СОХРАНЯЕМ ЗАКАЗ В FIREBASE
                 const orderData = {
@@ -991,7 +1225,8 @@
                     telegram_id: TELEGRAM_ID || null,
                     user_name: rawName,
                     phone: rawPhone,
-                    address: rawAddress,
+                    address: address,
+                    location: location || null,
                     products: productsData,
                     total_amount: total,
                     status: 'pending',
@@ -1007,6 +1242,7 @@
                         first_name: rawName,
                         username: currentUser?.username || '',
                         phone: rawPhone,
+                        location: location || null,
                         last_order_at: new Date().toISOString()
                     };
                     await fbPut(`users/${TELEGRAM_ID}`, userData);
@@ -1051,13 +1287,14 @@
                     showToast('✅ Заказ и чек отправлены!');
                 }
 
-                // 5. ОЧИЩАЕМ КОРЗИНУ
+                // 5. ОЧИЩАЕМ КОРЗИНУ И ЛОКАЦИЮ
                 cart = [];
                 saveCart();
                 renderCart();
                 updateCartCount();
                 renderProducts();
                 removeFile();
+                clearLocation();
                 closeCheckout();
 
             } catch (error) {
