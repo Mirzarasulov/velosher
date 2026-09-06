@@ -91,15 +91,7 @@
         .product-name { font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 6px; }
         .product-price { font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
         .product-stock { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-        .product-category-badge { 
-            display: inline-block; 
-            background: rgba(102,126,234,0.15); 
-            color: var(--primary); 
-            padding: 2px 12px; 
-            border-radius: 20px; 
-            font-size: 11px; 
-            margin-bottom: 8px;
-        }
+        .product-category-badge { display: inline-block; background: rgba(102,126,234,0.15); color: var(--primary); padding: 2px 12px; border-radius: 20px; font-size: 11px; margin-bottom: 8px; }
 
         .product-modal-overlay {
             display: none;
@@ -818,7 +810,7 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aniqlanmoqda...';
             
-            showToast('📍 Joylashuv so'ralmoqda...');
+            showToast('📍 Joylashuv so\'ralmoqda...');
             
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -961,12 +953,12 @@
                     }));
                 } else {
                     products = [
-                        { id: 1, name: '🚲 Tog\'li XC-9000', price: 4500000, stock: 10, category_id: '1', description: 'Ekstremal yo\'llar uchun kuchli tog\' velosipedi. Alyuminiy rama, 27 tezlik, disk tormozlar.' },
-                        { id: 2, name: '🚴 Shosse Aero-Pro', price: 5200000, stock: 5, category_id: '3', description: 'Poygalar uchun tezkor shosse velosipedi. Karbon vilka, aerodinamik rama.' },
-                        { id: 3, name: '🚲 Shahar City Pro', price: 2800000, stock: 15, category_id: '2', description: 'Qulay haydash uchun ideal shahar velosipedi. Qulay egar, savat, qo\'ng\'iroq.' },
-                        { id: 4, name: '⚡ Elektr E-Bike 500W', price: 8900000, stock: 3, category_id: '4', description: '500W quvvatli kuchli elektr velosiped. Bir zaryadda 80 km gacha masofa.' },
-                        { id: 5, name: '👶 Bolalar Junior', price: 1500000, stock: 8, category_id: '5', description: '3 yoshdan 7 yoshgacha bolalar uchun velosiped. Yengil rama, qo\'l himoyasi.' },
-                        { id: 6, name: '📦 Yig\'ma Fold-X', price: 3200000, stock: 6, category_id: '6', description: 'Shahar uchun ixcham yig\'ma velosiped. Bagajnikka oson joylashadi, og\'irligi 12 kg.' }
+                        { id: 1, name: '🚲 Tog\'li XC-9000', price: 4500000, stock: 10, category_id: '1', description: 'Ekstremal yo\'llar uchun kuchli tog\' velosipedi.' },
+                        { id: 2, name: '🚴 Shosse Aero-Pro', price: 5200000, stock: 5, category_id: '3', description: 'Poygalar uchun tezkor shosse velosipedi.' },
+                        { id: 3, name: '🚲 Shahar City Pro', price: 2800000, stock: 15, category_id: '2', description: 'Qulay haydash uchun ideal shahar velosipedi.' },
+                        { id: 4, name: '⚡ Elektr E-Bike 500W', price: 8900000, stock: 3, category_id: '4', description: '500W quvvatli kuchli elektr velosiped.' },
+                        { id: 5, name: '👶 Bolalar Junior', price: 1500000, stock: 8, category_id: '5', description: '3 yoshdan 7 yoshgacha bolalar uchun velosiped.' },
+                        { id: 6, name: '📦 Yig\'ma Fold-X', price: 3200000, stock: 6, category_id: '6', description: 'Shahar uchun ixcham yig\'ma velosiped.' }
                     ];
                 }
                 renderProducts();
