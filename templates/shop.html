@@ -207,6 +207,7 @@
         .product-card .category-badge.cat-5 { background: rgba(124,92,191,0.15); color: #9b7bcf; }
         .product-card .category-badge.cat-6 { background: rgba(0,212,160,0.15); color: var(--success); }
 
+        /* ===== PRODUCT MODAL ===== */
         .product-modal-overlay {
             display: none;
             position: fixed;
@@ -253,7 +254,7 @@
         }
         .product-modal .close-modal:hover { background: var(--danger); transform: rotate(90deg); }
         
-        /* ===== УЛУЧШЕННЫЙ ПРОСМОТР ФОТО С ЗУМОМ ===== */
+        /* ===== ФОТО С ЗУМОМ ===== */
         .product-modal .modal-image-wrap {
             position: relative;
             width: 100%;
@@ -272,6 +273,10 @@
             will-change: transform;
             transform-origin: center center;
             padding: 5px;
+            cursor: zoom-in;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
         }
         .product-modal .modal-image-wrap .zoom-hint {
             position: absolute;
@@ -298,7 +303,7 @@
         .product-modal .modal-actions .btn-success { flex: 1; padding: 12px; font-size: 15px; }
         .product-modal .modal-actions .btn-outline { flex: 0 0 auto; padding: 12px 18px; width: auto; }
 
-        /* ===== ZOOM МОДАЛ ДЛЯ ПОЛНОЭКРАННОГО ПРОСМОТРА ===== */
+        /* ===== ПОЛНОЭКРАННЫЙ ZOOM ===== */
         .zoom-modal-overlay {
             display: none;
             position: fixed;
@@ -581,7 +586,7 @@
         .product-item:last-child { border-bottom: none; }
         .total-amount { font-size: 26px; font-weight: 700; color: var(--primary); }
 
-        /* ===== КРАСИВАЯ КАРТА С CVV ===== */
+        /* ===== КАРТА ===== */
         .payment-card-wrap {
             background: linear-gradient(145deg, #1a1a3e, #0f0f2a);
             border-radius: 20px;
@@ -1010,7 +1015,7 @@
                         <div class="amt" id="payAmount">0 so'm</div>
                     </div>
                     
-                    <!-- КРАСИВАЯ КАРТА С CVV -->
+                    <!-- КАРТА -->
                     <div class="payment-card-wrap">
                         <div class="payment-card">
                             <div class="card-glow"></div>
@@ -1087,12 +1092,12 @@
         </div>
     </div>
 
-    <!-- PRODUCT MODAL С УЛУЧШЕННЫМ ЗУМОМ -->
+    <!-- PRODUCT MODAL -->
     <div class="product-modal-overlay" id="productModal" onclick="closeProductModal(event)">
         <div class="product-modal" id="productModalContent">
             <button class="close-modal" onclick="closeProductModal()">×</button>
             <div class="modal-image-wrap" id="modalImageWrap">
-                <img id="modalImage" class="modal-image" src="" alt="Mahsulot rasmi">
+                <img id="modalImage" class="modal-image" src="" alt="Mahsulot rasmi" onclick="openFullscreenZoom(event)">
                 <div class="zoom-hint"><i class="fas fa-search-plus"></i> Zoom</div>
             </div>
             <div class="modal-category" id="modalCategory"></div>
@@ -1111,7 +1116,7 @@
         </div>
     </div>
 
-    <!-- ПОЛНОЭКРАННЫЙ ZOOM МОДАЛ С УПРАВЛЕНИЕМ -->
+    <!-- FULLSCREEN ZOOM -->
     <div class="zoom-modal-overlay" id="zoomModal" onclick="closeZoomImage()">
         <button class="zoom-close" onclick="closeZoomImage()">×</button>
         <div class="zoom-image-wrap" id="zoomImageWrap">
@@ -1738,13 +1743,8 @@
         }
 
         // ============================================================
-        // PRODUCT MODAL С УЛУЧШЕННЫМ ЗУМОМ
+        // PRODUCT MODAL - ФОТО ОТКРЫВАЕТ ЗУМ, А НЕ ЗАКРЫВАЕТ
         // ============================================================
-        let currentZoomScale = 1;
-        let zoomPanX = 0, zoomPanY = 0;
-        let isZooming = false;
-        let lastTouchDist = 0;
-
         function openProductModal(productId) {
             const product = products.find(p => String(p.id) === String(productId));
             if (!product) return;
@@ -1753,6 +1753,7 @@
             const img = document.getElementById('modalImage');
             img.src = imgSrc;
             img.onerror = function() { this.src = 'https://via.placeholder.com/400x300/667eea/white?text=🚲'; };
+            // Сбрасываем зум при открытии
             img.style.transform = 'scale(1)';
             
             document.getElementById('modalCategory').textContent = getCategoryLabel(product.category_id);
@@ -1778,7 +1779,7 @@
             document.getElementById('productModal').classList.add('show');
             document.body.style.overflow = 'hidden';
             
-            // Настраиваем зум для модального окна
+            // Настраиваем зум внутри модалки
             setupModalZoom();
         }
 
@@ -1790,6 +1791,7 @@
             let isDragging = false;
             let startX, startY, startPanX, startPanY;
             let lastTouchDist = 0;
+            let lastTouchScale = 1;
 
             function updateTransform() {
                 img.style.transform = `scale(${scale}) translate(${panX}px, ${panY}px)`;
@@ -1802,7 +1804,7 @@
                 updateTransform();
             }
 
-            // Жесты мышью
+            // Колесико мыши
             img.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1810,6 +1812,7 @@
                 updateTransform();
             }, { passive: false });
 
+            // Drag мышью
             img.addEventListener('mousedown', function(e) {
                 if (scale <= 1) return;
                 isDragging = true;
@@ -1836,18 +1839,15 @@
                 }
             });
 
-            // Сенсорные жесты для мобильных
-            let touchStartX, touchStartY, touchStartPanX, touchStartPanY;
-            let lastTouchScale = 1;
-
+            // Touch события
             img.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 1) {
                     if (scale > 1) {
                         isDragging = true;
-                        touchStartX = e.touches[0].clientX;
-                        touchStartY = e.touches[0].clientY;
-                        touchStartPanX = panX;
-                        touchStartPanY = panY;
+                        startX = e.touches[0].clientX;
+                        startY = e.touches[0].clientY;
+                        startPanX = panX;
+                        startPanY = panY;
                     }
                 } else if (e.touches.length === 2) {
                     lastTouchDist = Math.hypot(
@@ -1860,10 +1860,10 @@
 
             img.addEventListener('touchmove', function(e) {
                 if (e.touches.length === 1 && isDragging) {
-                    const dx = e.touches[0].clientX - touchStartX;
-                    const dy = e.touches[0].clientY - touchStartY;
-                    panX = touchStartPanX + dx;
-                    panY = touchStartPanY + dy;
+                    const dx = e.touches[0].clientX - startX;
+                    const dy = e.touches[0].clientY - startY;
+                    panX = startPanX + dx;
+                    panY = startPanY + dy;
                     updateTransform();
                 } else if (e.touches.length === 2) {
                     const dist = Math.hypot(
@@ -1876,49 +1876,25 @@
                 }
             }, { passive: true });
 
-            img.addEventListener('touchend', function(e) {
+            img.addEventListener('touchend', function() {
                 isDragging = false;
             }, { passive: true });
 
-            // Двойной клик для сброса
+            // Двойной клик сбрасывает зум
             img.addEventListener('dblclick', function(e) {
+                e.preventDefault();
                 resetTransform();
             });
 
-            // Клик для открытия полноэкранного зума
-            img.addEventListener('click', function() {
-                if (scale > 1) {
-                    resetTransform();
-                } else {
-                    openFullscreenZoom();
-                }
-            });
-
-            // Сброс при закрытии
-            const closeObserver = new MutationObserver(() => {
-                if (!document.getElementById('productModal').classList.contains('show')) {
-                    resetTransform();
-                    closeObserver.disconnect();
-                }
-            });
-            closeObserver.observe(document.getElementById('productModal'), { attributes: true, attributeFilter: ['class'] });
-
-            // Сохраняем функции для использования
+            // Сохраняем функцию для сброса при закрытии
             window._modalResetZoom = resetTransform;
-            window._modalScale = () => scale;
         }
 
         // ============================================================
-        // ПОЛНОЭКРАННЫЙ ZOOM
+        // ПОЛНОЭКРАННЫЙ ZOOM (открывается по клику на фото)
         // ============================================================
-        let fullZoomScale = 1;
-        let fullPanX = 0, fullPanY = 0;
-        let fullIsDragging = false;
-        let fullStartX, fullStartY, fullStartPanX, fullStartPanY;
-        let fullLastTouchDist = 0;
-        let fullLastTouchScale = 1;
-
-        function openFullscreenZoom() {
+        function openFullscreenZoom(e) {
+            e.stopPropagation();
             const img = document.getElementById('modalImage');
             if (!img || !img.src) return;
             document.getElementById('zoomImage').src = img.src;
@@ -1932,9 +1908,15 @@
             setupFullZoom();
         }
 
+        let fullZoomScale = 1;
+        let fullPanX = 0, fullPanY = 0;
+        let fullIsDragging = false;
+        let fullStartX, fullStartY, fullStartPanX, fullStartPanY;
+        let fullLastTouchDist = 0;
+        let fullLastTouchScale = 1;
+
         function setupFullZoom() {
             const img = document.getElementById('zoomImage');
-            const wrap = document.getElementById('zoomImageWrap');
 
             function updateFullTransform() {
                 img.style.transform = `scale(${fullZoomScale}) translate(${fullPanX}px, ${fullPanY}px)`;
@@ -1948,7 +1930,7 @@
                 updateFullTransform();
             }
 
-            // Mouse wheel
+            // Колесико
             img.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1956,7 +1938,7 @@
                 updateFullTransform();
             }, { passive: false });
 
-            // Mouse drag
+            // Drag мышью
             img.addEventListener('mousedown', function(e) {
                 if (fullZoomScale <= 1) return;
                 fullIsDragging = true;
@@ -1983,7 +1965,7 @@
                 }
             });
 
-            // Touch events
+            // Touch
             img.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 1) {
                     if (fullZoomScale > 1) {
@@ -2024,11 +2006,12 @@
                 fullIsDragging = false;
             }, { passive: true });
 
-            img.addEventListener('dblclick', function() {
+            img.addEventListener('dblclick', function(e) {
+                e.preventDefault();
                 resetFullTransform();
             });
 
-            // Кнопки управления
+            // Глобальные функции для кнопок
             window.zoomImage = function(direction) {
                 if (direction === 'in') {
                     fullZoomScale = Math.min(fullZoomScale + 0.2, 4);
