@@ -46,6 +46,7 @@
         .sidebar .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar .nav-item .item-badge { float: right; background: var(--danger); color: white; border-radius: 20px; font-size: 11px; padding: 1px 10px; }
         .sidebar .nav-item .item-badge.green { background: var(--success); }
+        .sidebar .nav-item .item-badge.banned { background: #6c757d; }
 
         .main-content { margin-left: 250px; padding: 24px; }
         .page { display: none; }
@@ -88,8 +89,11 @@
         .btn-success:hover { opacity: .85; }
         .btn-danger { background: var(--danger); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .btn-danger:hover { opacity: .85; }
+        .btn-warning { background: var(--warning); border: none; color: #0a0a1a; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-warning:hover { opacity: .85; }
         .btn-outline-mini { background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .btn-outline-mini:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
         .padmin-card { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: all .25s; }
@@ -122,6 +126,7 @@
         .badge-paid { background: rgba(0,184,148,0.2); color: var(--success); }
         .badge-cancelled { background: rgba(255,71,87,0.2); color: var(--danger); }
         .badge-completed { background: rgba(102,126,234,0.2); color: var(--primary); }
+        .badge-banned { background: rgba(108,117,125,0.3); color: #adb5bd; }
 
         .receipt-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); }
 
@@ -143,6 +148,20 @@
         .chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
         .chat-input-row .form-control { flex: 1; }
 
+        /* Ошибки */
+        .error-item { 
+            background: rgba(255,71,87,0.08); 
+            border: 1px solid var(--danger); 
+            border-radius: 10px; 
+            padding: 12px 16px; 
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .error-item .error-time { font-size: 12px; color: var(--text-muted); }
+        .error-item .error-text { color: var(--danger); }
+
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); color: white; padding: 14px 28px; border-radius: 12px; z-index: 9999; display: none; animation: slideUp 0.4s ease; border: 1px solid rgba(255,255,255,0.1); }
         .toast.show { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
@@ -150,14 +169,16 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
         .empty-state i { font-size: 36px; margin-bottom: 10px; display: block; }
 
-        /* Мобильный хедер */
         .mobile-header { display: none; background: var(--card); padding: 12px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 99; }
         .mobile-header .menu-btn { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
         .mobile-header .logo-text { font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--primary2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* Location badge in orders */
         .loc-badge { background: rgba(245,158,11,0.15); color: var(--warning); padding: 2px 10px; border-radius: 12px; font-size: 11px; display: inline-block; }
         .loc-badge i { margin-right: 4px; }
+
+        .banned-user td { opacity: 0.5; }
+        .banned-user .user-name { text-decoration: line-through; color: var(--text-muted); }
+        .ban-badge { background: var(--danger); color: white; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
 
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 280px; }
@@ -200,6 +221,10 @@
         <button class="nav-item" data-page="users" onclick="switchPage('users')">
             <i class="fas fa-users"></i> Пользователи 
             <span class="item-badge green" id="usersBadge">0</span>
+        </button>
+        <button class="nav-item" data-page="errors" onclick="switchPage('errors')">
+            <i class="fas fa-triangle-exclamation"></i> Ошибки 
+            <span class="item-badge" id="errorsBadge" style="display:none;">0</span>
         </button>
         <button class="nav-item" data-page="chat" onclick="switchPage('chat')">
             <i class="fas fa-comment-dots"></i> Чат 
@@ -306,10 +331,24 @@
                     <table class="table-dark-custom table">
                         <thead><tr>
                             <th>ID</th><th>Имя</th><th>Username</th><th>Телефон</th>
-                            <th>Локация</th><th>Заказов</th><th>Последний заказ</th><th>Действия</th>
+                            <th>Локация</th><th>Заказов</th><th>Статус</th><th>Последний заказ</th><th>Действия</th>
                         </tr></thead>
-                        <tbody id="usersList"><tr><td colspan="8" style="text-align:center;">Загрузка...</td></tr></tbody>
+                        <tbody id="usersList"><tr><td colspan="9" style="text-align:center;">Загрузка...</td></tr></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ERRORS ================= -->
+        <div class="page" id="page-errors">
+            <h2 class="mb-4"><i class="fas fa-triangle-exclamation" style="color:var(--danger);"></i> Ошибки</h2>
+            <div class="glass">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><i class="fas fa-bug" style="color:var(--danger);"></i> Лог ошибок</h5>
+                    <button class="btn-danger btn-sm" onclick="clearErrors()"><i class="fas fa-trash"></i> Очистить все</button>
+                </div>
+                <div id="errorsList">
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>
                 </div>
             </div>
         </div>
@@ -415,6 +454,7 @@
             products: loadProducts,
             orders: loadOrders,
             users: loadUsers,
+            errors: loadErrors,
             chat: loadChat,
             broadcast: loadBroadcastHistory
         };
@@ -426,7 +466,6 @@
             const navBtn = document.querySelector(`.nav-item[data-page="${page}"]`);
             if (navBtn) navBtn.classList.add('active');
             if (pageLoaders[page]) pageLoaders[page]();
-            // Закрываем сайдбар на мобильных
             document.getElementById('sidebar').classList.remove('open');
         }
 
@@ -437,25 +476,31 @@
             const statGrid = document.getElementById('statGrid');
             const recentTbody = document.getElementById('recentOrders');
             try {
-                const [users, orders, products] = await Promise.all([
-                    fbGet('users'), fbGet('orders'), fbGet('products')
+                const [users, orders, products, errorsData] = await Promise.all([
+                    fbGet('users'), fbGet('orders'), fbGet('products'), fbGet('errors')
                 ]);
                 const usersArr = Object.values(users || {});
                 const ordersArr = Object.entries(orders || {}).map(([id, o]) => ({...o, id}));
                 const productsArr = Object.values(products || {});
+                const errorsArr = Object.values(errorsData || {});
+                const bannedCount = usersArr.filter(u => u.banned).length;
 
                 const pendingCount = ordersArr.filter(o => o.status === 'pending').length;
                 const paidRevenue = ordersArr.filter(o => o.status === 'paid' || o.status === 'completed')
                     .reduce((s, o) => s + (Number(o.total_amount) || 0), 0);
 
                 document.getElementById('usersBadge').textContent = usersArr.length;
+                document.getElementById('errorsBadge').style.display = errorsArr.length > 0 ? 'inline-block' : 'none';
+                document.getElementById('errorsBadge').textContent = errorsArr.length;
 
                 const cards = [
                     { icon: 'fa-users', color: 'linear-gradient(135deg,#667eea,#764ba2)', value: usersArr.length, label: 'Пользователей' },
+                    { icon: 'fa-ban', color: 'linear-gradient(135deg,#ff4757,#c0392b)', value: bannedCount, label: 'В бане' },
                     { icon: 'fa-box', color: 'linear-gradient(135deg,#00b894,#00a381)', value: ordersArr.length, label: 'Всего заказов' },
-                    { icon: 'fa-hourglass-half', color: 'linear-gradient(135deg,#f59e0b,#d97706)', value: pendingCount, label: 'Ожидают подтверждения' },
-                    { icon: 'fa-tag', color: 'linear-gradient(135deg,#667eea,#4c3a8c)', value: productsArr.length, label: 'Товаров в каталоге' },
-                    { icon: 'fa-sack-dollar', color: 'linear-gradient(135deg,#00b894,#009973)', value: formatPrice(paidRevenue) + ' сум', label: 'Выручка (оплачено)' }
+                    { icon: 'fa-hourglass-half', color: 'linear-gradient(135deg,#f59e0b,#d97706)', value: pendingCount, label: 'Ожидают' },
+                    { icon: 'fa-tag', color: 'linear-gradient(135deg,#667eea,#4c3a8c)', value: productsArr.length, label: 'Товаров' },
+                    { icon: 'fa-sack-dollar', color: 'linear-gradient(135deg,#00b894,#009973)', value: formatPrice(paidRevenue) + ' сум', label: 'Выручка' },
+                    { icon: 'fa-bug', color: 'linear-gradient(135deg,#ff4757,#e74c3c)', value: errorsArr.length, label: 'Ошибок' }
                 ];
                 statGrid.innerHTML = cards.map(c => `
                     <div class="stat-card">
@@ -482,6 +527,7 @@
             } catch (e) {
                 console.error(e);
                 statGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;color:var(--danger);"><i class="fas fa-triangle-exclamation"></i>Ошибка загрузки. Проверьте Firebase.</div>`;
+                logError('loadDashboard', e.message);
             }
         }
 
@@ -524,6 +570,7 @@
                 document.getElementById('uploadLabel').textContent = 'Фото выбрано ✓';
             } catch (e) {
                 showToast('❌ Ошибка загрузки фото: ' + e.message);
+                logError('handleImageSelect', e.message);
             }
         }
 
@@ -544,6 +591,7 @@
             } catch (e) {
                 console.error(e);
                 grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;color:var(--danger);"><i class="fas fa-triangle-exclamation"></i>Ошибка загрузки.</div>`;
+                logError('loadProducts', e.message);
             }
         }
 
@@ -606,6 +654,7 @@
                 loadDashboard();
             } catch (e) {
                 showToast('❌ Ошибка: ' + e.message);
+                logError('addProduct', e.message);
             } finally {
                 addBtn.disabled = false;
                 addBtn.innerHTML = '<i class="fas fa-plus"></i> Добавить';
@@ -621,6 +670,7 @@
                 loadDashboard();
             } catch (e) {
                 showToast('❌ Ошибка удаления: ' + e.message);
+                logError('deleteProduct', e.message);
             }
         }
 
@@ -666,9 +716,10 @@
                             <td>${receipt}</td>
                             <td>${statusMap[o.status] || o.status || '-'}</td>
                             <td style="font-size:12px;">${o.created_at ? new Date(o.created_at).toLocaleString() : '-'}</td>
-                            <td>
-                                <button class="btn-success" onclick="updateOrderStatus('${o.id}','paid')" title="Оплачен" style="padding:4px 8px;font-size:12px;"><i class="fas fa-check"></i></button>
-                                <button class="btn-danger" onclick="updateOrderStatus('${o.id}','cancelled')" title="Отменить" style="padding:4px 8px;font-size:12px;"><i class="fas fa-times"></i></button>
+                            <td style="display:flex; gap:4px; flex-wrap:wrap;">
+                                <button class="btn-success btn-sm" onclick="updateOrderStatus('${o.id}','paid')" title="Оплачен"><i class="fas fa-check"></i></button>
+                                <button class="btn-danger btn-sm" onclick="updateOrderStatus('${o.id}','cancelled')" title="Отменить"><i class="fas fa-times"></i></button>
+                                <button class="btn-danger btn-sm" onclick="deleteOrder('${o.id}')" title="Удалить заказ" style="background:#c0392b;"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
@@ -676,6 +727,7 @@
             } catch (e) {
                 console.error(e);
                 tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--danger);">❌ Ошибка загрузки заказов</td></tr>';
+                logError('loadOrders', e.message);
             }
         }
 
@@ -688,6 +740,20 @@
                 loadDashboard();
             } catch (e) {
                 showToast('❌ Ошибка обновления: ' + e.message);
+                logError('updateOrderStatus', e.message);
+            }
+        }
+
+        async function deleteOrder(id) {
+            if (!confirm('ПОЛНОСТЬЮ УДАЛИТЬ заказ из базы данных? Это действие НЕЛЬЗЯ будет отменить!')) return;
+            try {
+                await fbDelete(`orders/${id}`);
+                showToast('✅ Заказ полностью удален из базы!');
+                loadOrders();
+                loadDashboard();
+            } catch (e) {
+                showToast('❌ Ошибка удаления заказа: ' + e.message);
+                logError('deleteOrder', e.message);
             }
         }
 
@@ -699,36 +765,142 @@
             try {
                 const data = await fbGet('users');
                 const users = data ? Object.entries(data).map(([id, u]) => ({ ...u, telegram_id: u.telegram_id || id })) : [];
+                const bannedUsers = users.filter(u => u.banned);
                 document.getElementById('usersBadge').textContent = users.length;
                 
                 if (!users.length) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Нет пользователей</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Нет пользователей</td></tr>';
                     return;
                 }
                 
                 tbody.innerHTML = users.map(u => {
                     const location = u.location ? (u.location.address || `${u.location.lat}, ${u.location.lng}`) : '-';
                     const lastOrder = u.last_order_at ? new Date(u.last_order_at).toLocaleString() : '-';
+                    const isBanned = u.banned === true;
+                    const orderCount = u.total_orders || 0;
+                    
                     return `
-                        <tr>
+                        <tr class="${isBanned ? 'banned-user' : ''}">
                             <td><code style="color:var(--primary);font-size:12px;">${u.telegram_id}</code></td>
-                            <td><strong>${escapeHtml(u.first_name || 'Аноним')}</strong></td>
+                            <td>
+                                <span class="user-name"><strong>${escapeHtml(u.first_name || 'Аноним')}</strong></span>
+                                ${isBanned ? '<span class="ban-badge"><i class="fas fa-ban"></i> БАН</span>' : ''}
+                            </td>
                             <td>${u.username ? '@' + escapeHtml(u.username) : '-'}</td>
                             <td>${escapeHtml(u.phone || '-')}</td>
                             <td style="max-width:180px;white-space:normal;font-size:12px;">${escapeHtml(location)}</td>
-                            <td><span class="badge-status badge-paid">${u.total_orders || 0}</span></td>
+                            <td><span class="badge-status badge-paid">${orderCount}</span></td>
+                            <td>${isBanned ? '<span class="badge-status badge-banned">🚫 Заблокирован</span>' : '<span class="badge-status badge-paid">✅ Активен</span>'}</td>
                             <td style="font-size:12px;">${lastOrder}</td>
-                            <td>
-                                <button class="btn-grad" onclick="openChatWithUser('${u.telegram_id}')" style="padding:4px 12px;font-size:12px;">
+                            <td style="display:flex; gap:4px; flex-wrap:wrap;">
+                                <button class="btn-grad btn-sm" onclick="openChatWithUser('${u.telegram_id}')" style="padding:4px 10px;font-size:12px;">
                                     <i class="fas fa-comment"></i>
                                 </button>
+                                ${isBanned ? 
+                                    `<button class="btn-success btn-sm" onclick="toggleUserBan('${u.telegram_id}', false)" style="padding:4px 10px;font-size:12px;"><i class="fas fa-check"></i> Разбан</button>` :
+                                    `<button class="btn-danger btn-sm" onclick="toggleUserBan('${u.telegram_id}', true)" style="padding:4px 10px;font-size:12px;"><i class="fas fa-ban"></i> Бан</button>`
+                                }
                             </td>
                         </tr>
                     `;
                 }).join('');
             } catch (e) {
                 console.error(e);
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--danger);">❌ Ошибка загрузки</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--danger);">❌ Ошибка загрузки</td></tr>';
+                logError('loadUsers', e.message);
+            }
+        }
+
+        async function toggleUserBan(telegramId, ban) {
+            const action = ban ? 'заблокировать (бан)' : 'разблокировать';
+            if (!confirm(`Вы уверены, что хотите ${action} пользователя ${telegramId}?`)) return;
+            try {
+                await fbPatch(`users/${telegramId}`, { 
+                    banned: ban,
+                    banned_at: ban ? new Date().toISOString() : null,
+                    ban_reason: ban ? 'Заблокирован администратором' : null
+                });
+                showToast(ban ? '✅ Пользователь заблокирован!' : '✅ Пользователь разблокирован!');
+                loadUsers();
+                loadDashboard();
+            } catch (e) {
+                showToast('❌ Ошибка: ' + e.message);
+                logError('toggleUserBan', e.message);
+            }
+        }
+
+        // ============================================================
+        // ERRORS
+        // ============================================================
+        async function loadErrors() {
+            const box = document.getElementById('errorsList');
+            try {
+                const data = await fbGet('errors');
+                const errors = data ? Object.entries(data).map(([id, e]) => ({ ...e, id })) : [];
+                errors.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                
+                document.getElementById('errorsBadge').style.display = errors.length > 0 ? 'inline-block' : 'none';
+                document.getElementById('errorsBadge').textContent = errors.length;
+
+                if (!errors.length) {
+                    box.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle" style="color:var(--success);"></i>Ошибок нет. Отлично!</div>';
+                    return;
+                }
+
+                box.innerHTML = errors.map(e => `
+                    <div class="error-item">
+                        <div>
+                            <div class="error-text"><i class="fas fa-bug"></i> ${escapeHtml(e.text || '')}</div>
+                            <div class="error-time">${e.created_at ? new Date(e.created_at).toLocaleString() : ''}</div>
+                            ${e.stack ? `<details style="margin-top:4px;font-size:12px;color:var(--text-muted);"><summary>Подробнее</summary><pre style="background:var(--bg);padding:8px;border-radius:4px;white-space:pre-wrap;word-break:break-all;">${escapeHtml(e.stack)}</pre></details>` : ''}
+                        </div>
+                        <button class="btn-danger btn-sm" onclick="deleteError('${e.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                box.innerHTML = '<div class="empty-state" style="color:var(--danger);"><i class="fas fa-triangle-exclamation"></i>Ошибка загрузки лога</div>';
+            }
+        }
+
+        async function logError(context, message, stack = '') {
+            try {
+                await fbPost('errors', {
+                    context: context,
+                    text: message,
+                    stack: stack || new Error().stack || '',
+                    created_at: new Date().toISOString()
+                });
+            } catch (e) {
+                console.warn('Не удалось сохранить ошибку:', e);
+            }
+        }
+
+        async function deleteError(id) {
+            try {
+                await fbDelete(`errors/${id}`);
+                showToast('✅ Ошибка удалена');
+                loadErrors();
+                loadDashboard();
+            } catch (e) {
+                showToast('❌ Ошибка удаления: ' + e.message);
+            }
+        }
+
+        async function clearErrors() {
+            if (!confirm('Удалить ВСЕ ошибки?')) return;
+            try {
+                const data = await fbGet('errors');
+                if (data) {
+                    for (const key of Object.keys(data)) {
+                        await fbDelete(`errors/${key}`);
+                    }
+                }
+                showToast('✅ Все ошибки удалены');
+                loadErrors();
+                loadDashboard();
+            } catch (e) {
+                showToast('❌ Ошибка очистки: ' + e.message);
             }
         }
 
@@ -772,10 +944,15 @@
                     const u = allUsersMap[uid] || {};
                     const uname = u.first_name || uid;
                     const phone = u.phone || '';
+                    const isBanned = u.banned === true;
                     const unreadCount = Object.values(msgs || {}).filter(m => m && m.side === 'user' && !m.seen_by_admin).length;
                     return `
                         <div class="chat-user-item ${chatActiveUser === uid ? 'active' : ''}" onclick="openChatUser('${uid}')">
-                            <div class="cu-name">${escapeHtml(uname)} ${unreadCount > 0 ? `<span class="cu-badge">${unreadCount}</span>` : ''}</div>
+                            <div class="cu-name">
+                                ${escapeHtml(uname)} 
+                                ${isBanned ? '<span style="color:var(--danger);font-size:10px;">🚫</span>' : ''}
+                                ${unreadCount > 0 ? `<span class="cu-badge">${unreadCount}</span>` : ''}
+                            </div>
                             ${phone ? `<div class="cu-phone"><i class="fas fa-phone"></i> ${escapeHtml(phone)}</div>` : ''}
                             <div class="cu-preview">${escapeHtml(last.text || '')}</div>
                         </div>
@@ -786,6 +963,7 @@
             } catch (e) {
                 console.error(e);
                 usersListEl.innerHTML = '<div class="empty-state" style="color:var(--danger);"><i class="fas fa-triangle-exclamation"></i>Ошибка загрузки</div>';
+                logError('loadChat', e.message);
             }
         }
 
@@ -800,10 +978,7 @@
             document.getElementById('chatInput').disabled = false;
             document.getElementById('chatSendBtn').disabled = false;
             document.querySelectorAll('.chat-user-item').forEach(el => el.classList.remove('active'));
-            
-            // Отмечаем сообщения как прочитанные
             markMessagesAsRead(uid);
-            
             renderChatMessages(uid);
             loadChat();
         }
@@ -856,6 +1031,7 @@
                 loadChat();
             } catch (e) {
                 showToast('❌ Ошибка отправки: ' + e.message);
+                logError('sendChatMessage', e.message);
             }
         }
 
@@ -869,9 +1045,8 @@
             btn.disabled = true;
             try {
                 const users = await fbGet('users');
-                const userIds = users ? Object.keys(users) : [];
+                const userIds = users ? Object.keys(users).filter(id => users[id].banned !== true) : [];
                 
-                // Сохраняем рассылку
                 await fbPost('broadcasts', { 
                     text, 
                     status: 'sent', 
@@ -879,7 +1054,6 @@
                     created_at: new Date().toISOString() 
                 });
                 
-                // Отправляем каждому пользователю
                 let sentCount = 0;
                 for (const uid of userIds) {
                     try {
@@ -894,6 +1068,7 @@
                         sentCount++;
                     } catch (e) {
                         console.warn('Не удалось отправить пользователю', uid, e);
+                        logError('sendBroadcast', 'Ошибка отправки пользователю ' + uid + ': ' + e.message);
                     }
                 }
                 
@@ -902,6 +1077,7 @@
                 loadBroadcastHistory();
             } catch (e) {
                 showToast('❌ Ошибка: ' + e.message);
+                logError('sendBroadcast', e.message);
             } finally {
                 btn.disabled = false;
             }
@@ -928,6 +1104,7 @@
                 `).join('');
             } catch (e) {
                 box.innerHTML = '<div class="empty-state" style="color:var(--danger);">Ошибка загрузки</div>';
+                logError('loadBroadcastHistory', e.message);
             }
         }
 
@@ -937,7 +1114,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadDashboard();
             
-            // Автообновление каждые 15 секунд
             setInterval(() => {
                 const activePage = document.querySelector('.page.active');
                 if (activePage) {
