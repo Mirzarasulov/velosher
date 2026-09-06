@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>🚲 Velosher - Магазин</title>
+    <title>🚲 Velosher - Do'kon</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,9 +26,6 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
         
-        /* ============================================
-           БЛОКИРОВКА ДЛЯ КОМПЬЮТЕРОВ
-           ============================================ */
         .pc-block {
             display: none;
             position: fixed;
@@ -48,20 +43,9 @@
         .pc-block h2 { font-size: 28px; margin-bottom: 16px; }
         .pc-block p { color: var(--text-muted); max-width: 400px; margin: 0 auto 10px; line-height: 1.6; }
         .pc-block .phone-icon { font-size: 60px; color: var(--success); margin: 20px 0; }
-        .pc-block .btn-primary { max-width: 300px; margin: 10px auto; display: inline-block; width: auto; padding: 14px 32px; text-decoration: none; }
+        .pc-block .btn-primary { max-width: 300px; margin: 10px auto; display: inline-block; width: auto; padding: 14px 32px; text-decoration: none; background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%); color: white; border: none; border-radius: 12px; font-weight: 600; transition: all 0.3s; cursor: pointer; }
+        .pc-block .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(102,126,234,0.3); }
 
-        .pc-block.show ~ .navbar,
-        .pc-block.show ~ .container,
-        .pc-block.show ~ .footer,
-        .pc-block.show ~ .cart-overlay,
-        .pc-block.show ~ .cart-modal,
-        .pc-block.show ~ .toast {
-            display: none !important;
-        }
-
-        /* ============================================
-           НАВИГАЦИЯ
-           ============================================ */
         .navbar { background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%); padding: 12px 0; position: sticky; top: 0; z-index: 100; }
         .navbar .brand { color: white; font-size: 22px; font-weight: 700; text-decoration: none; }
         .navbar .brand i { margin-right: 10px; }
@@ -69,9 +53,6 @@
         .navbar .btn-cart:hover { background: rgba(255,255,255,0.3); }
         .cart-count { background: #ff4757; color: white; border-radius: 50%; padding: 2px 10px; font-size: 13px; font-weight: 700; margin-left: 6px; }
 
-        /* ============================================
-           ПРОФИЛЬ
-           ============================================ */
         .user-profile {
             background: linear-gradient(135deg, rgba(102,126,234,0.12), rgba(118,75,162,0.08));
             border: 1px solid var(--border);
@@ -98,17 +79,11 @@
         .user-profile .user-id { color: var(--text-muted); font-size: 11px; }
         .user-profile .badge-online { background: rgba(0,184,148,0.15); color: var(--success); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 
-        /* ============================================
-           КАТАЛОГ
-           ============================================ */
         .filter-section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
         .filter-section .form-control, .filter-section .form-select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
         .filter-section .form-control::placeholder { color: var(--text-muted); }
         .filter-section .form-control:focus, .filter-section .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.2); background: var(--bg); color: var(--text); }
 
-        /* ============================================
-           ТОВАРЫ
-           ============================================ */
         .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; height: 100%; cursor: pointer; }
         .product-card:hover { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(102,126,234,0.2); border-color: var(--primary); }
         .product-image { width: 100%; height: 180px; object-fit: contain; background: rgba(255,255,255,0.03); padding: 15px; }
@@ -125,15 +100,7 @@
             font-size: 11px; 
             margin-bottom: 8px;
         }
-        .btn-add { background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 600; width: 100%; transition: all 0.3s; }
-        .btn-add:hover { transform: scale(1.02); }
-        .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-add.in-cart { background: linear-gradient(135deg, var(--success) 0%, #00a381 100%); }
-        .btn-add-small { padding: 6px 16px; font-size: 14px; width: auto; display: inline-block; }
 
-        /* ============================================
-           КАРТОЧКА ТОВАРА (MODAL)
-           ============================================ */
         .product-modal-overlay {
             display: none;
             position: fixed;
@@ -211,65 +178,18 @@
             padding: 10px;
             transition: transform 0.3s ease;
         }
-        .product-modal .modal-image:hover {
-            transform: scale(1.02);
-        }
-        .product-modal .modal-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-        .product-modal .modal-price {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
-        .product-modal .modal-description {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 16px;
-            padding: 12px;
-            background: var(--bg);
-            border-radius: 10px;
-            border: 1px solid var(--border);
-        }
-        .product-modal .modal-category {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: rgba(102,126,234,0.15);
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
-        .product-modal .modal-stock {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-        .product-modal .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .product-modal .modal-actions .btn-primary,
-        .product-modal .modal-actions .btn-success {
-            flex: 1;
-            padding: 12px;
-            font-size: 15px;
-        }
-        .product-modal .modal-actions .btn-outline {
-            flex: 0 0 auto;
-            padding: 12px 20px;
-            width: auto;
-        }
+        .product-modal .modal-image:hover { transform: scale(1.02); }
+        .product-modal .modal-title { font-size: 22px; font-weight: 700; margin: 16px 0 8px; }
+        .product-modal .modal-price { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 12px; }
+        .product-modal .modal-description { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 16px; padding: 12px; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); }
+        .product-modal .modal-category { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; background: rgba(102,126,234,0.15); color: var(--primary); margin-bottom: 12px; }
+        .product-modal .modal-stock { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+        .product-modal .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .product-modal .modal-actions .btn-success { flex: 1; padding: 12px; font-size: 15px; background: linear-gradient(135deg, var(--success) 0%, #00a381 100%); color: white; border: none; border-radius: 12px; font-weight: 600; transition: all 0.3s; cursor: pointer; }
+        .product-modal .modal-actions .btn-success:hover { transform: scale(1.02); }
+        .product-modal .modal-actions .btn-outline { flex: 0 0 auto; padding: 12px 20px; width: auto; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 10px; transition: all 0.3s; cursor: pointer; }
+        .product-modal .modal-actions .btn-outline:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* ============================================
-           УВЕЛИЧЕННОЕ ФОТО (ZOOM MODAL)
-           ============================================ */
         .zoom-modal-overlay {
             display: none;
             position: fixed;
@@ -282,41 +202,11 @@
             cursor: zoom-out;
         }
         .zoom-modal-overlay.show { display: flex; }
-        .zoom-modal-overlay img {
-            max-width: 95%;
-            max-height: 95%;
-            object-fit: contain;
-            border-radius: 8px;
-            animation: zoomIn 0.3s ease;
-        }
-        @keyframes zoomIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .zoom-modal-overlay .close-zoom {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            font-size: 30px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .zoom-modal-overlay .close-zoom:hover {
-            background: var(--danger);
-            transform: rotate(90deg);
-        }
+        .zoom-modal-overlay img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; animation: zoomIn 0.3s ease; }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        .zoom-modal-overlay .close-zoom { position: fixed; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 30px; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); }
+        .zoom-modal-overlay .close-zoom:hover { background: var(--danger); transform: rotate(90deg); }
 
-        /* ============================================
-           КОРЗИНА
-           ============================================ */
         .cart-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 999; display: none; backdrop-filter: blur(4px); }
         .cart-overlay.show { display: block; }
         .cart-modal { position: fixed; top: 0; right: -450px; width: 420px; max-width: 95%; height: 100%; background: var(--card); z-index: 1000; transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: -10px 0 40px rgba(0,0,0,0.5); overflow-y: auto; border-left: 1px solid var(--border); }
@@ -335,14 +225,11 @@
         .cart-item-qty .qty-num { min-width: 24px; text-align: center; font-weight: 600; }
         .cart-total { padding: 20px; background: var(--bg); border-top: 2px solid var(--primary); position: sticky; bottom: 0; }
         .cart-total .total-price { font-size: 24px; font-weight: 700; color: var(--primary); }
-        .btn-checkout { background: linear-gradient(135deg, var(--success) 0%, #00a381 100%); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; width: 100%; transition: all 0.3s; }
+        .btn-checkout { background: linear-gradient(135deg, var(--success) 0%, #00a381 100%); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; width: 100%; transition: all 0.3s; cursor: pointer; }
         .btn-checkout:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,184,148,0.3); }
         .empty-cart { text-align: center; padding: 60px 20px; color: var(--text-muted); }
         .empty-cart i { font-size: 48px; margin-bottom: 15px; }
 
-        /* ============================================
-           ОФОРМЛЕНИЕ ЗАКАЗА
-           ============================================ */
         .checkout-section { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
         .checkout-section.active { display: block; }
 
@@ -359,46 +246,17 @@
         .step-line { width: 40px; height: 2px; background: var(--border); margin-bottom: 20px; }
         .step-line.done { background: var(--success); }
 
-        /* ============================================
-           КАРТА
-           ============================================ */
-        #map {
-            height: 280px;
-            border-radius: 14px;
-            border: 2px solid var(--border);
-            margin-top: 10px;
-            width: 100%;
-            background: var(--bg);
-            overflow: hidden;
-            transition: all 0.3s;
-        }
+        #map { height: 280px; border-radius: 14px; border: 2px solid var(--border); margin-top: 10px; width: 100%; background: var(--bg); overflow: hidden; transition: all 0.3s; }
         #map:hover { border-color: var(--primary); }
         #map.leaflet-container { background: var(--bg); }
-        .leaflet-control-zoom a {
-            background: var(--card) !important;
-            color: var(--text) !important;
-            border-color: var(--border) !important;
-            border-radius: 8px !important;
-            transition: all 0.3s;
-        }
-        .leaflet-control-zoom a:hover {
-            background: var(--primary) !important;
-            color: white !important;
-        }
-        .leaflet-popup-content-wrapper {
-            background: var(--card) !important;
-            color: var(--text) !important;
-            border: 1px solid var(--border);
-            border-radius: 12px !important;
-        }
+        .leaflet-control-zoom a { background: var(--card) !important; color: var(--text) !important; border-color: var(--border) !important; border-radius: 8px !important; transition: all 0.3s; }
+        .leaflet-control-zoom a:hover { background: var(--primary) !important; color: white !important; }
+        .leaflet-popup-content-wrapper { background: var(--card) !important; color: var(--text) !important; border: 1px solid var(--border); border-radius: 12px !important; }
         .leaflet-popup-tip { background: var(--card) !important; }
         .leaflet-popup-close-button { color: var(--text) !important; }
         .leaflet-popup-content { color: var(--text) !important; }
         .leaflet-tile-pane { filter: brightness(0.7) contrast(1.2); }
 
-        /* ============================================
-           ФОРМЫ И КНОПКИ
-           ============================================ */
         .form-control, .form-select, textarea.form-control {
             background: var(--bg); color: var(--text); border: 1px solid var(--border);
             border-radius: 10px; padding: 12px 16px; width: 100%;
@@ -498,17 +356,7 @@
         .back-link { color: var(--primary); text-decoration: none; font-size: 14px; cursor: pointer; }
         .back-link:hover { text-decoration: underline; }
 
-        /* ============================================
-           КАТЕГОРИИ
-           ============================================ */
-        .category-badge {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-right: 4px;
-        }
+        .category-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-right: 4px; }
         .category-badge.cat-1 { background: rgba(102,126,234,0.2); color: #667eea; }
         .category-badge.cat-2 { background: rgba(0,184,148,0.2); color: #00b894; }
         .category-badge.cat-3 { background: rgba(245,158,11,0.2); color: #f59e0b; }
@@ -534,9 +382,6 @@
             border-color: var(--primary);
         }
 
-        /* ============================================
-           SCROLLBAR
-           ============================================ */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
@@ -559,22 +404,22 @@
     <!-- PC BLOCK -->
     <div class="pc-block" id="pcBlock">
         <div class="icon">📱</div>
-        <h2>Доступно только на телефоне</h2>
-        <p><strong>Velosher Shop</strong> работает только на <strong>мобильных устройствах</strong> с установленным Telegram.</p>
+        <h2>Faqat telefonda ishlaydi</h2>
+        <p><strong>Velosher Shop</strong> faqat <strong>mobil qurilmalarda</strong> va Telegram-da ishlaydi.</p>
         <div class="phone-icon">📲</div>
         <p style="font-size:14px; color:var(--text-muted);">
-            Откройте эту страницу в <strong>Telegram</strong> на вашем смартфоне.<br>
-            Нажмите кнопку ниже, чтобы перейти в магазин:
+            Ushbu sahifani <strong>Telegram</strong> da smartfoningizda oching.<br>
+            Do'konga o'tish uchun tugmani bosing:
         </p>
         <a href="https://t.me/velosher_shop_bot" target="_blank" class="btn-primary">
-            <i class="fas fa-rocket"></i> Перейти в магазин
+            <i class="fas fa-rocket"></i> Do'konga o'tish
         </a>
         <p style="margin-top:20px; font-size:12px; color:var(--text-muted);">
-            ⚡ Только на телефоне работает точная геолокация доставки
+            ⚡ Faqat telefonda yetkazib berish lokatsiyasi aniq ishlaydi
         </p>
     </div>
 
-    <!-- НАВИГАЦИЯ -->
+    <!-- NAVIGATION -->
     <nav class="navbar">
         <div class="container">
             <div class="row w-100 align-items-center">
@@ -593,7 +438,7 @@
 
     <div class="container py-4">
 
-        <!-- ПРОФИЛЬ -->
+        <!-- PROFILE -->
         <div class="user-profile" id="userProfile">
             <div class="d-flex align-items-center">
                 <div class="avatar-wrapper">
@@ -601,94 +446,91 @@
                     <div class="online-dot"></div>
                 </div>
                 <div>
-                    <div class="name"><span id="userName">Гость</span></div>
+                    <div class="name"><span id="userName">Mehmon</span></div>
                     <div class="username" id="userUsername">@username</div>
-                    <div class="user-id" id="userId">ID: не указан</div>
+                    <div class="user-id" id="userId">ID: ko'rsatilmagan</div>
                 </div>
                 <div class="ms-auto text-end">
-                    <span class="badge-online"><i class="fas fa-circle" style="color:#00b894; font-size:9px;"></i> Онлайн</span>
+                    <span class="badge-online"><i class="fas fa-circle" style="color:#00b894; font-size:9px;"></i> Onlayn</span>
                 </div>
             </div>
         </div>
 
-        <!-- КАТАЛОГ -->
+        <!-- CATALOG -->
         <div class="filter-section" id="catalogSection">
             <div class="row align-items-center g-2">
                 <div class="col-md-4">
                     <h5 class="mb-0" style="color:var(--text);">
-                        <i class="fas fa-filter" style="color:var(--primary);"></i> Каталог
+                        <i class="fas fa-filter" style="color:var(--primary);"></i> Katalog
                     </h5>
                 </div>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="searchInput" placeholder="🔍 Поиск..." onkeyup="filterProducts()">
+                    <input type="text" class="form-control" id="searchInput" placeholder="🔍 Qidiruv..." onkeyup="filterProducts()">
                 </div>
                 <div class="col-md-4">
                     <select class="form-select" id="sortSelect" onchange="sortProducts()">
-                        <option value="default">По умолчанию</option>
-                        <option value="price_asc">Цена: по возрастанию</option>
-                        <option value="price_desc">Цена: по убыванию</option>
+                        <option value="default">Standart</option>
+                        <option value="price_asc">Narx: o'sish</option>
+                        <option value="price_desc">Narx: kamayish</option>
                     </select>
                 </div>
             </div>
-            <!-- Категории -->
             <div class="row mt-2">
                 <div class="col-12">
                     <div class="d-flex flex-wrap gap-1">
-                        <button class="category-filter-btn active" data-cat="all" onclick="filterByCategory('all')">Все</button>
-                        <button class="category-filter-btn" data-cat="1" onclick="filterByCategory('1')">🏔️ Горные</button>
-                        <button class="category-filter-btn" data-cat="2" onclick="filterByCategory('2')">🏙️ Городские</button>
-                        <button class="category-filter-btn" data-cat="3" onclick="filterByCategory('3')">🚴 Шоссейные</button>
-                        <button class="category-filter-btn" data-cat="4" onclick="filterByCategory('4')">⚡ Электро</button>
-                        <button class="category-filter-btn" data-cat="5" onclick="filterByCategory('5')">👶 Детские</button>
-                        <button class="category-filter-btn" data-cat="6" onclick="filterByCategory('6')">📦 Складные</button>
+                        <button class="category-filter-btn active" data-cat="all" onclick="filterByCategory('all')">Hammasi</button>
+                        <button class="category-filter-btn" data-cat="1" onclick="filterByCategory('1')">🏔️ Tog'li</button>
+                        <button class="category-filter-btn" data-cat="2" onclick="filterByCategory('2')">🏙️ Shahar</button>
+                        <button class="category-filter-btn" data-cat="3" onclick="filterByCategory('3')">🚴 Shosse</button>
+                        <button class="category-filter-btn" data-cat="4" onclick="filterByCategory('4')">⚡ Elektr</button>
+                        <button class="category-filter-btn" data-cat="5" onclick="filterByCategory('5')">👶 Bolalar</button>
+                        <button class="category-filter-btn" data-cat="6" onclick="filterByCategory('6')">📦 Yig'ma</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ТОВАРЫ -->
+        <!-- PRODUCTS -->
         <div class="row g-4" id="productsContainer">
             <div class="loading">
                 <div class="spinner"></div>
-                <p style="color:var(--text-muted);">Загрузка товаров...</p>
+                <p style="color:var(--text-muted);">Mahsulotlar yuklanmoqda...</p>
             </div>
         </div>
 
-        <!-- ОФОРМЛЕНИЕ ЗАКАЗА -->
+        <!-- CHECKOUT -->
         <div class="checkout-section" id="checkoutSection">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Оформление заказа</h4>
-                <span class="back-link" onclick="closeCheckout()"><i class="fas fa-times"></i> Закрыть</span>
+                <h4><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Buyurtma rasmiylashtirish</h4>
+                <span class="back-link" onclick="closeCheckout()"><i class="fas fa-times"></i> Yopish</span>
             </div>
 
             <div class="step-indicator" id="stepIndicator">
-                <div class="step-dot-wrap"><div class="step-dot active" id="step1Dot">1</div><div class="step-label">Данные</div></div>
+                <div class="step-dot-wrap"><div class="step-dot active" id="step1Dot">1</div><div class="step-label">Ma'lumotlar</div></div>
                 <div class="step-line" id="line1"></div>
-                <div class="step-dot-wrap"><div class="step-dot" id="step2Dot">2</div><div class="step-label">Оплата</div></div>
-                <div class="step-line" id="line2"></div>
-                <div class="step-dot-wrap"><div class="step-dot" id="step3Dot">3</div><div class="step-label">Чек</div></div>
+                <div class="step-dot-wrap"><div class="step-dot" id="step2Dot">2</div><div class="step-label">To'lov</div></div>
             </div>
 
-            <!-- Шаг 1 -->
+            <!-- STEP 1 -->
             <div class="step active" id="step1">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
-                    <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Данные</h5>
+                    <h5 style="margin-bottom:20px;"><i class="fas fa-user" style="color:var(--primary);"></i> Ma'lumotlar</h5>
                     
                     <div class="mb-3">
-                        <label class="form-label">Имя</label>
-                        <input type="text" class="form-control" id="checkoutName" placeholder="Ваше имя">
+                        <label class="form-label">Ism</label>
+                        <input type="text" class="form-control" id="checkoutName" placeholder="Ismingiz">
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Телефон</label>
+                        <label class="form-label">Telefon</label>
                         <input type="text" class="form-control" id="checkoutPhone" placeholder="+998 90 123 45 67">
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">📍 Адрес доставки</label>
+                        <label class="form-label">📍 Yetkazib berish manzili</label>
                         
                         <button class="btn-location" onclick="getUserLocation()" id="getLocationBtn">
-                            <i class="fas fa-location-dot"></i> Определить мою локацию
+                            <i class="fas fa-location-dot"></i> Mening joylashuvimni aniqlash
                         </button>
                         
                         <div id="map"></div>
@@ -696,10 +538,10 @@
                         <div id="locationInfo" class="location-info">
                             <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
                                 <div style="flex:1;">
-                                    <div class="address-text" id="selectedAddress">📍 Адрес не выбран</div>
+                                    <div class="address-text" id="selectedAddress">📍 Manzil tanlanmagan</div>
                                     <div class="coords-text" id="selectedCoords"></div>
                                     <a class="map-link" id="mapLink" href="#" target="_blank" style="display:none;">
-                                        <i class="fas fa-map-marked-alt"></i> Открыть на карте
+                                        <i class="fas fa-map-marked-alt"></i> Xaritada ochish
                                     </a>
                                 </div>
                                 <button class="btn-outline" onclick="clearLocation()" style="padding:6px 12px; width:auto; font-size:12px; flex-shrink:0;">
@@ -709,34 +551,34 @@
                         </div>
                         
                         <button class="btn-confirm-location" id="confirmLocationBtn" onclick="confirmLocation()" disabled>
-                            <i class="fas fa-check-circle"></i> Подтвердить адрес
+                            <i class="fas fa-check-circle"></i> Manzilni tasdiqlash
                         </button>
                         
                         <div style="margin-top:8px; font-size:12px; color:var(--text-muted);">
                             <i class="fas fa-info-circle"></i> 
-                            Нажмите на карту, чтобы выбрать точку, затем подтвердите.
+                            Nuqtani tanlash uchun xaritani bosing, so'ngra tasdiqlang.
                         </div>
                         
-                        <input type="text" class="form-control" id="checkoutAddress" placeholder="Или введите адрес вручную" style="margin-top:8px;">
+                        <input type="text" class="form-control" id="checkoutAddress" placeholder="Yoki manzilni qo'lda kiriting" style="margin-top:8px;">
                     </div>
                     
                     <hr style="border-color:var(--border);">
                     <div id="checkoutItems"></div>
                     <div class="d-flex justify-content-between align-items-center mt-2">
-                        <span style="font-weight:600;">Итого:</span>
-                        <span class="total-amount" id="checkoutTotal">0 сум</span>
+                        <span style="font-weight:600;">Jami:</span>
+                        <span class="total-amount" id="checkoutTotal">0 so'm</span>
                     </div>
-                    <button class="btn-primary mt-4" onclick="goToStep2()">Продолжить →</button>
+                    <button class="btn-primary mt-4" onclick="goToStep2()">Davom etish →</button>
                 </div>
             </div>
 
-            <!-- Шаг 2 -->
+            <!-- STEP 2 -->
             <div class="step" id="step2">
                 <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
-                    <h5 style="margin-bottom:20px;">💳 Оплата</h5>
+                    <h5 style="margin-bottom:20px;">💳 To'lov</h5>
                     <div class="pay-amount-box">
-                        <div class="lbl">Сумма</div>
-                        <div class="amt" id="payAmount">0 сум</div>
+                        <div class="lbl">Summa</div>
+                        <div class="amt" id="payAmount">0 so'm</div>
                     </div>
                     <div class="payment-card">
                         <div class="chip"></div>
@@ -744,26 +586,16 @@
                         <div class="card-number">8600 1234 5678 9012</div>
                         <div class="d-flex justify-content-between">
                             <div class="card-holder">VELOSHER SHOP</div>
-                            <button class="copy-btn" onclick="copyCardNumber()"><i class="fas fa-copy"></i> Копировать</button>
+                            <button class="copy-btn" onclick="copyCardNumber()"><i class="fas fa-copy"></i> Nusxalash</button>
                         </div>
                     </div>
-                    <div class="alert">Переведите сумму на карту и прикрепите чек.</div>
-                    <div class="row mt-3">
-                        <div class="col-6"><button class="btn-outline" onclick="goToStep1()">← Назад</button></div>
-                        <div class="col-6"><button class="btn-success" onclick="goToStep3()">Я оплатил(а)</button></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Шаг 3 -->
-            <div class="step" id="step3">
-                <div style="background:var(--bg);padding:20px;border-radius:16px;border:1px solid var(--border);">
-                    <h5 style="margin-bottom:20px;">📎 Чек</h5>
-                    <div class="alert">Прикрепите скриншот чека.</div>
+                    <div class="alert">Summani kartaga o'tkazing va chekni yuklang.</div>
+                    
                     <div class="mb-3">
+                        <label class="form-label">📎 To'lov cheki (skrinshot)</label>
                         <div class="upload-area" id="uploadArea" onclick="document.getElementById('receiptInput').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <p style="color:var(--text-muted);">Нажмите, чтобы загрузить чек</p>
+                            <p style="color:var(--text-muted);">Chekni yuklash uchun bosing</p>
                             <p style="font-size:12px; color:var(--text-muted);">JPG, PNG</p>
                         </div>
                         <input type="file" id="receiptInput" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
@@ -771,17 +603,18 @@
                             <img id="previewImage" class="preview-image" src="">
                             <div class="text-center">
                                 <span id="fileName" style="color:var(--text-muted);"></span>
-                                <button class="btn-outline" style="padding:4px 12px; font-size:12px; width:auto;" onclick="removeFile()"><i class="fas fa-times"></i> Удалить</button>
+                                <button class="btn-outline" style="padding:4px 12px; font-size:12px; width:auto;" onclick="removeFile()"><i class="fas fa-times"></i> O'chirish</button>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="row mt-3">
-                        <div class="col-6"><button class="btn-outline" onclick="goToStep2()">← Назад</button></div>
-                        <div class="col-6"><button class="btn-primary" onclick="submitOrder()" id="submitBtn">✅ Оформить</button></div>
+                        <div class="col-6"><button class="btn-outline" onclick="goToStep1()">← Orqaga</button></div>
+                        <div class="col-6"><button class="btn-primary" onclick="submitOrder()" id="submitBtn">✅ Buyurtma berish</button></div>
                     </div>
                     <div class="loading-indicator" id="checkoutLoading">
                         <div class="spinner"></div>
-                        <p style="color:var(--text-muted); margin-top:10px;">Отправка...</p>
+                        <p style="color:var(--text-muted); margin-top:10px;">Yuborilmoqda...</p>
                     </div>
                 </div>
             </div>
@@ -789,36 +622,34 @@
 
     </div>
 
-    <!-- КОРЗИНА -->
+    <!-- CART -->
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
     <div class="cart-modal" id="cartModal">
         <div class="cart-modal-header">
-            <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Корзина</h5>
+            <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Savat</h5>
             <button class="close-btn" onclick="toggleCart()">×</button>
         </div>
         <div id="cartItems">
-            <div class="empty-cart"><i class="fas fa-shopping-bag"></i><p>Корзина пуста</p></div>
+            <div class="empty-cart"><i class="fas fa-shopping-bag"></i><p>Savat bo'sh</p></div>
         </div>
     </div>
 
-    <!-- ============================================
-         МОДАЛЬНОЕ ОКНО КАРТОЧКИ ТОВАРА
-         ============================================ -->
+    <!-- PRODUCT MODAL -->
     <div class="product-modal-overlay" id="productModal" onclick="closeProductModal(event)">
         <div class="product-modal" id="productModalContent">
             <button class="close-modal" onclick="closeProductModal()">×</button>
             <div class="modal-image-wrap" onclick="openZoomImage()">
-                <img id="modalImage" class="modal-image" src="" alt="Фото товара">
+                <img id="modalImage" class="modal-image" src="" alt="Mahsulot rasmi">
                 <div class="zoom-icon"><i class="fas fa-expand"></i></div>
             </div>
             <div class="modal-category" id="modalCategory"></div>
-            <div class="modal-title" id="modalTitle">Название товара</div>
-            <div class="modal-price" id="modalPrice">0 сум</div>
-            <div class="modal-description" id="modalDescription">Описание товара</div>
-            <div class="modal-stock" id="modalStock">✅ В наличии</div>
+            <div class="modal-title" id="modalTitle">Mahsulot nomi</div>
+            <div class="modal-price" id="modalPrice">0 so'm</div>
+            <div class="modal-description" id="modalDescription">Mahsulot tavsifi</div>
+            <div class="modal-stock" id="modalStock">✅ Mavjud</div>
             <div class="modal-actions">
                 <button class="btn-success" id="modalAddBtn" onclick="addFromModal()">
-                    <i class="fas fa-cart-plus"></i> В корзину
+                    <i class="fas fa-cart-plus"></i> Savatga
                 </button>
                 <button class="btn-outline" onclick="closeProductModal()" style="flex:0 0 auto; width:auto; padding:12px 20px;">
                     <i class="fas fa-times"></i>
@@ -827,21 +658,18 @@
         </div>
     </div>
 
-    <!-- ============================================
-         УВЕЛИЧЕННОЕ ФОТО (ZOOM MODAL)
-         ============================================ -->
+    <!-- ZOOM MODAL -->
     <div class="zoom-modal-overlay" id="zoomModal" onclick="closeZoomImage()">
         <button class="close-zoom" onclick="closeZoomImage()">×</button>
-        <img id="zoomImage" src="" alt="Увеличенное фото">
+        <img id="zoomImage" src="" alt="Kattalashtirilgan rasm">
     </div>
 
     <div class="toast" id="toast"></div>
 
-    <!-- РЕЗЕРВНЫЙ БЛОК -->
     <div id="manualSendBox" style="display:none; position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--primary); border-radius:14px; padding:16px 20px; z-index:9999; max-width:90%; width:360px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-        <p style="margin-bottom:12px; font-size:14px; line-height:1.4;">⚠️ Заказ принят, но чек не отправился автоматически.<br>Пожалуйста, пришлите скриншот чека нашему боту.</p>
-        <a href="https://t.me/velosher_shop_bot" target="_blank" class="btn-primary" style="display:inline-block; text-decoration:none; width:auto; padding:10px 24px;">Открыть чат с ботом</a>
-        <button onclick="document.getElementById('manualSendBox').style.display='none'" style="display:block; margin:10px auto 0; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px;">Закрыть</button>
+        <p style="margin-bottom:12px; font-size:14px; line-height:1.4;">⚠️ Buyurtma qabul qilindi, lekin chek avtomatik yuborilmadi.<br>Iltimos, chek skrinshotini botga yuboring.</p>
+        <a href="https://t.me/velosher_shop_bot" target="_blank" class="btn-primary" style="display:inline-block; text-decoration:none; width:auto; padding:10px 24px;">Bot bilan suhbat</a>
+        <button onclick="document.getElementById('manualSendBox').style.display='none'" style="display:block; margin:10px auto 0; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px;">Yopish</button>
     </div>
 
     <div class="footer">
@@ -852,7 +680,7 @@
 
     <script>
         // ============================================================
-        // 🔥 ПРОВЕРКА УСТРОЙСТВА
+        // 🔥 DEVICE CHECK
         // ============================================================
         function isMobileDevice() {
             if (window.Telegram && window.Telegram.WebApp) return true;
@@ -881,9 +709,6 @@
         const BOT_TOKEN = '8954981282:AAFPuBkSQCqXfMWCtUyFfDIsVp0HhlarZLw';
         const GROUP_ID = '-1002903960950';
 
-        // ============================================================
-        // FIREBASE ФУНКЦИИ
-        // ============================================================
         async function fbGet(path) {
             const res = await fetch(`${FIREBASE_URL}/${path}.json`);
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -909,7 +734,7 @@
         }
 
         // ============================================================
-        // 🗺️ КАРТА И ГЕОЛОКАЦИЯ
+        // 🗺️ MAP
         // ============================================================
         let map = null;
         let marker = null;
@@ -943,7 +768,7 @@
                 document.getElementById('confirmLocationBtn').disabled = false;
                 isLocationConfirmed = false;
                 document.getElementById('confirmLocationBtn').classList.remove('confirmed');
-                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Подтвердить адрес';
+                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Manzilni tasdiqlash';
             });
         }
 
@@ -958,7 +783,7 @@
                     document.getElementById('confirmLocationBtn').disabled = false;
                     isLocationConfirmed = false;
                     document.getElementById('confirmLocationBtn').classList.remove('confirmed');
-                    document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Подтвердить адрес';
+                    document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Manzilni tasdiqlash';
                 });
             }
             selectedLocation = { lat, lng };
@@ -968,12 +793,12 @@
         }
 
         function getAddressFromCoords(lat, lng) {
-            const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ru`;
+            const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=uz`;
             
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    const address = data.display_name || 'Адрес не найден';
+                    const address = data.display_name || 'Manzil topilmadi';
                     selectedAddress = address;
                     document.getElementById('selectedAddress').textContent = '📍 ' + address;
                     document.getElementById('locationInfo').classList.add('show');
@@ -991,9 +816,9 @@
             
             const btn = document.getElementById('getLocationBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Определяю...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aniqlanmoqda...';
             
-            showToast('📍 Запрашиваю геолокацию...');
+            showToast('📍 Joylashuv so'ralmoqda...');
             
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -1007,23 +832,23 @@
                         getAddressFromCoords(lat, lng);
                         document.getElementById('confirmLocationBtn').disabled = false;
                         
-                        btn.innerHTML = '<i class="fas fa-check"></i> Локация определена! ✅';
-                        showToast('✅ Локация определена!');
+                        btn.innerHTML = '<i class="fas fa-check"></i> Joylashuv aniqlandi! ✅';
+                        showToast('✅ Joylashuv aniqlandi!');
                         
                         setTimeout(() => {
-                            btn.innerHTML = '<i class="fas fa-location-dot"></i> Определить мою локацию';
+                            btn.innerHTML = '<i class="fas fa-location-dot"></i> Mening joylashuvimni aniqlash';
                             btn.disabled = false;
                             isGettingLocation = false;
                         }, 2000);
                     },
                     (err) => {
-                        let errorMsg = 'Ошибка геолокации';
-                        if (err.code === 1) errorMsg = '❌ Доступ к геолокации запрещён. Разрешите в настройках браузера.';
-                        else if (err.code === 2) errorMsg = '❌ Сигнал GPS недоступен. Попробуйте на улице.';
-                        else if (err.code === 3) errorMsg = '❌ Таймаут. Попробуйте ещё раз.';
+                        let errorMsg = 'Joylashuv xatosi';
+                        if (err.code === 1) errorMsg = '❌ Joylashuvga ruxsat berilmadi. Brauzer sozlamalarida ruxsat bering.';
+                        else if (err.code === 2) errorMsg = '❌ GPS signali mavjud emas. Tashqarida urinib ko\'ring.';
+                        else if (err.code === 3) errorMsg = '❌ Vaqt tugadi. Qayta urinib ko\'ring.';
                         
                         showToast(errorMsg);
-                        btn.innerHTML = '<i class="fas fa-location-dot"></i> Определить мою локацию';
+                        btn.innerHTML = '<i class="fas fa-location-dot"></i> Mening joylashuvimni aniqlash';
                         btn.disabled = false;
                         isGettingLocation = false;
                         
@@ -1032,8 +857,8 @@
                     { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
                 );
             } else {
-                showToast('❌ Геолокация не поддерживается вашим устройством');
-                btn.innerHTML = '<i class="fas fa-location-dot"></i> Определить мою локацию';
+                showToast('❌ Joylashuv qurilmangizda qo\'llab-quvvatlanmaydi');
+                btn.innerHTML = '<i class="fas fa-location-dot"></i> Mening joylashuvimni aniqlash';
                 btn.disabled = false;
                 isGettingLocation = false;
                 if (!map) initMap(41.2995, 69.2401);
@@ -1042,14 +867,14 @@
 
         function confirmLocation() {
             if (!selectedLocation) {
-                showToast('❌ Выберите точку на карте');
+                showToast('❌ Xaritada nuqtani tanlang');
                 return;
             }
             
             isLocationConfirmed = true;
             document.getElementById('confirmLocationBtn').disabled = true;
             document.getElementById('confirmLocationBtn').classList.add('confirmed');
-            document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ Адрес подтверждён!';
+            document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ Manzil tasdiqlandi!';
             
             const locationData = {
                 lat: selectedLocation.lat,
@@ -1061,10 +886,10 @@
             document.getElementById('checkoutAddress').value = selectedAddress;
             document.getElementById('checkoutAddress').disabled = true;
             
-            showToast('✅ Адрес подтверждён!');
+            showToast('✅ Manzil tasdiqlandi!');
             
             setTimeout(() => {
-                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Подтвердить адрес';
+                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Manzilni tasdiqlash';
                 document.getElementById('confirmLocationBtn').disabled = false;
                 document.getElementById('confirmLocationBtn').classList.remove('confirmed');
             }, 3000);
@@ -1084,11 +909,11 @@
             document.getElementById('checkoutAddress').value = '';
             document.getElementById('checkoutAddress').disabled = false;
             document.getElementById('confirmLocationBtn').disabled = true;
-            document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Подтвердить адрес';
+            document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> Manzilni tasdiqlash';
             document.getElementById('mapLink').style.display = 'none';
             
             localStorage.removeItem('user_location');
-            showToast('📍 Локация очищена');
+            showToast('📍 Joylashuv tozalandi');
         }
 
         function getLocationFromStorage() {
@@ -1100,25 +925,11 @@
         }
 
         // ============================================================
-        // КАТЕГОРИИ
+        // CATEGORIES
         // ============================================================
         let currentCategory = 'all';
-        const categoryEmojis = {
-            '1': '🏔️',
-            '2': '🏙️',
-            '3': '🚴',
-            '4': '⚡',
-            '5': '👶',
-            '6': '📦'
-        };
-        const categoryLabels = {
-            '1': 'Горные',
-            '2': 'Городские',
-            '3': 'Шоссейные',
-            '4': 'Электро',
-            '5': 'Детские',
-            '6': 'Складные'
-        };
+        const categoryEmojis = { '1': '🏔️', '2': '🏙️', '3': '🚴', '4': '⚡', '5': '👶', '6': '📦' };
+        const categoryLabels = { '1': 'Tog\'li', '2': 'Shahar', '3': 'Shosse', '4': 'Elektr', '5': 'Bolalar', '6': 'Yig\'ma' };
 
         function filterByCategory(cat) {
             currentCategory = cat;
@@ -1129,7 +940,7 @@
         }
 
         // ============================================================
-        // ТОВАРЫ
+        // PRODUCTS
         // ============================================================
         let products = [];
         let currentModalProduct = null;
@@ -1141,33 +952,33 @@
                 if (data) {
                     products = Object.values(data).map(p => ({
                         id: p.id || Math.random().toString(36).substr(2, 6),
-                        name: p.name || 'Товар',
+                        name: p.name || 'Mahsulot',
                         price: p.price || 0,
                         stock: p.stock || 0,
                         image: p.image || '',
-                        description: p.description || 'Описание отсутствует',
+                        description: p.description || 'Tavsif mavjud emas',
                         category_id: p.category_id ? String(p.category_id) : null
                     }));
                 } else {
                     products = [
-                        { id: 1, name: '🚲 Горный XC-9000', price: 4500000, stock: 10, category_id: '1', description: 'Мощный горный велосипед для экстремальных трасс. Алюминиевая рама, 27 скоростей, дисковые тормоза.' },
-                        { id: 2, name: '🚴 Шоссейный Aero-Pro', price: 5200000, stock: 5, category_id: '3', description: 'Скоростной шоссейный велосипед для гонок. Карбоновая вилка, аэродинамическая рама.' },
-                        { id: 3, name: '🚲 Городской City Pro', price: 2800000, stock: 15, category_id: '2', description: 'Идеальный городской велосипед для комфортной езды. Удобное седло, корзина, звонок.' },
-                        { id: 4, name: '⚡ Электро E-Bike 500W', price: 8900000, stock: 3, category_id: '4', description: 'Электрический велосипед с мощным мотором 500W. Пробег до 80 км на одном заряде.' },
-                        { id: 5, name: '👶 Детский Junior', price: 1500000, stock: 8, category_id: '5', description: 'Детский велосипед для малышей от 3 до 7 лет. Легкая рама, защита рук.' },
-                        { id: 6, name: '📦 Складной Fold-X', price: 3200000, stock: 6, category_id: '6', description: 'Компактный складной велосипед для города. Легко помещается в багажник, вес 12 кг.' }
+                        { id: 1, name: '🚲 Tog\'li XC-9000', price: 4500000, stock: 10, category_id: '1', description: 'Ekstremal yo\'llar uchun kuchli tog\' velosipedi. Alyuminiy rama, 27 tezlik, disk tormozlar.' },
+                        { id: 2, name: '🚴 Shosse Aero-Pro', price: 5200000, stock: 5, category_id: '3', description: 'Poygalar uchun tezkor shosse velosipedi. Karbon vilka, aerodinamik rama.' },
+                        { id: 3, name: '🚲 Shahar City Pro', price: 2800000, stock: 15, category_id: '2', description: 'Qulay haydash uchun ideal shahar velosipedi. Qulay egar, savat, qo\'ng\'iroq.' },
+                        { id: 4, name: '⚡ Elektr E-Bike 500W', price: 8900000, stock: 3, category_id: '4', description: '500W quvvatli kuchli elektr velosiped. Bir zaryadda 80 km gacha masofa.' },
+                        { id: 5, name: '👶 Bolalar Junior', price: 1500000, stock: 8, category_id: '5', description: '3 yoshdan 7 yoshgacha bolalar uchun velosiped. Yengil rama, qo\'l himoyasi.' },
+                        { id: 6, name: '📦 Yig\'ma Fold-X', price: 3200000, stock: 6, category_id: '6', description: 'Shahar uchun ixcham yig\'ma velosiped. Bagajnikka oson joylashadi, og\'irligi 12 kg.' }
                     ];
                 }
                 renderProducts();
             } catch (e) {
-                console.warn('Ошибка загрузки товаров из Firebase:', e);
+                console.warn('Firebase dan mahsulotlar yuklash xatosi:', e);
                 products = [
-                    { id: 1, name: '🚲 Горный XC-9000', price: 4500000, stock: 10, category_id: '1', description: 'Мощный горный велосипед для экстремальных трасс.' },
-                    { id: 2, name: '🚴 Шоссейный Aero-Pro', price: 5200000, stock: 5, category_id: '3', description: 'Скоростной шоссейный велосипед для гонок.' },
-                    { id: 3, name: '🚲 Городской City Pro', price: 2800000, stock: 15, category_id: '2', description: 'Идеальный городской велосипед для комфортной езды.' },
-                    { id: 4, name: '⚡ Электро E-Bike 500W', price: 8900000, stock: 3, category_id: '4', description: 'Электрический велосипед с мощным мотором 500W.' },
-                    { id: 5, name: '👶 Детский Junior', price: 1500000, stock: 8, category_id: '5', description: 'Детский велосипед для малышей от 3 до 7 лет.' },
-                    { id: 6, name: '📦 Складной Fold-X', price: 3200000, stock: 6, category_id: '6', description: 'Компактный складной велосипед для города.' }
+                    { id: 1, name: '🚲 Tog\'li XC-9000', price: 4500000, stock: 10, category_id: '1', description: 'Ekstremal yo\'llar uchun kuchli tog\' velosipedi.' },
+                    { id: 2, name: '🚴 Shosse Aero-Pro', price: 5200000, stock: 5, category_id: '3', description: 'Poygalar uchun tezkor shosse velosipedi.' },
+                    { id: 3, name: '🚲 Shahar City Pro', price: 2800000, stock: 15, category_id: '2', description: 'Qulay haydash uchun ideal shahar velosipedi.' },
+                    { id: 4, name: '⚡ Elektr E-Bike 500W', price: 8900000, stock: 3, category_id: '4', description: '500W quvvatli kuchli elektr velosiped.' },
+                    { id: 5, name: '👶 Bolalar Junior', price: 1500000, stock: 8, category_id: '5', description: '3 yoshdan 7 yoshgacha bolalar uchun velosiped.' },
+                    { id: 6, name: '📦 Yig\'ma Fold-X', price: 3200000, stock: 6, category_id: '6', description: 'Shahar uchun ixcham yig\'ma velosiped.' }
                 ];
                 renderProducts();
             }
@@ -1191,7 +1002,7 @@
             if (tgUser && tgUser.id) {
                 currentUser = {
                     id: String(tgUser.id),
-                    first_name: tgUser.first_name || 'Пользователь',
+                    first_name: tgUser.first_name || 'Foydalanuvchi',
                     username: tgUser.username || '',
                     phone: tgUser.phone_number || ''
                 };
@@ -1206,7 +1017,7 @@
             if (id) {
                 currentUser = {
                     id: id,
-                    first_name: localStorage.getItem('telegram_name') || 'Пользователь',
+                    first_name: localStorage.getItem('telegram_name') || 'Foydalanuvchi',
                     username: localStorage.getItem('telegram_username') || '',
                     phone: localStorage.getItem('telegram_phone') || ''
                 };
@@ -1220,14 +1031,14 @@
         function renderProfile() {
             if (!currentUser) { document.getElementById('userProfile').style.display = 'none'; return; }
             document.getElementById('userProfile').style.display = 'block';
-            document.getElementById('userName').textContent = currentUser.first_name || 'Пользователь';
-            document.getElementById('userUsername').textContent = currentUser.username ? '@' + currentUser.username : 'нет username';
+            document.getElementById('userName').textContent = currentUser.first_name || 'Foydalanuvchi';
+            document.getElementById('userUsername').textContent = currentUser.username ? '@' + currentUser.username : 'username yo\'q';
             document.getElementById('userId').textContent = `ID: ${currentUser.id}`;
-            document.getElementById('userAvatar').textContent = (currentUser.first_name || 'П').charAt(0).toUpperCase();
+            document.getElementById('userAvatar').textContent = (currentUser.first_name || 'F').charAt(0).toUpperCase();
         }
 
         // ============================================================
-        // КОРЗИНА
+        // CART
         // ============================================================
         let cart = [];
 
@@ -1249,14 +1060,14 @@
         function addToCart(productId) {
             const product = products.find(p => String(p.id) === String(productId));
             if (!product || product.stock <= 0) {
-                showToast('❌ Нет в наличии');
+                showToast('❌ Mavjud emas');
                 return;
             }
             
             const existing = cart.find(item => String(item.id) === String(productId));
             if (existing) {
                 if (existing.quantity >= product.stock) {
-                    showToast('❌ Больше нет в наличии');
+                    showToast('❌ Ko\'proq mavjud emas');
                     return;
                 }
                 existing.quantity++;
@@ -1274,7 +1085,7 @@
             renderCart();
             updateCartCount();
             renderProducts();
-            showToast(`🛒 ${product.name} добавлен!`);
+            showToast(`🛒 ${product.name} savatga qo'shildi!`);
         }
 
         function removeFromCart(productId) {
@@ -1298,7 +1109,7 @@
             }
             
             if (product && newQty > product.stock) {
-                showToast('❌ Больше нет в наличии');
+                showToast('❌ Ko\'proq mavjud emas');
                 return;
             }
             
@@ -1324,7 +1135,7 @@
                 container.innerHTML = `
                     <div class="empty-cart">
                         <i class="fas fa-shopping-bag"></i>
-                        <p>Корзина пуста</p>
+                        <p>Savat bo'sh</p>
                     </div>
                 `;
                 return;
@@ -1343,7 +1154,7 @@
                         <img src="${img}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/50/667eea/white?text=🚲'">
                         <div class="cart-item-info">
                             <div class="cart-item-name">${item.name}</div>
-                            <div class="cart-item-price">${formatPrice(item.price)} сум</div>
+                            <div class="cart-item-price">${formatPrice(item.price)} so'm</div>
                         </div>
                         <div class="cart-item-qty">
                             <button onclick="updateQuantity('${item.id}', -1)">−</button>
@@ -1359,12 +1170,12 @@
                 <div class="cart-total">
                     <div class="row align-items-center">
                         <div class="col-6">
-                            <strong>Итого:</strong>
-                            <div class="total-price">${formatPrice(total)} сум</div>
+                            <strong>Jami:</strong>
+                            <div class="total-price">${formatPrice(total)} so'm</div>
                         </div>
                         <div class="col-6 text-end">
                             <button class="btn-checkout" onclick="openCheckout()">
-                                <i class="fas fa-check"></i> Оформить
+                                <i class="fas fa-check"></i> Buyurtma berish
                             </button>
                         </div>
                     </div>
@@ -1384,7 +1195,7 @@
         }
 
         // ============================================================
-        // КАРТОЧКА ТОВАРА (MODAL)
+        // PRODUCT MODAL
         // ============================================================
         function openProductModal(productId) {
             const product = products.find(p => String(p.id) === String(productId));
@@ -1401,22 +1212,22 @@
             
             document.getElementById('modalCategory').textContent = getCategoryLabel(product.category_id);
             document.getElementById('modalTitle').textContent = product.name;
-            document.getElementById('modalPrice').textContent = formatPrice(product.price) + ' сум';
-            document.getElementById('modalDescription').textContent = product.description || 'Описание отсутствует';
+            document.getElementById('modalPrice').textContent = formatPrice(product.price) + ' so\'m';
+            document.getElementById('modalDescription').textContent = product.description || 'Tavsif mavjud emas';
             
-            const stockText = product.stock > 0 ? '✅ В наличии' : '❌ Нет в наличии';
+            const stockText = product.stock > 0 ? '✅ Mavjud' : '❌ Mavjud emas';
             document.getElementById('modalStock').textContent = stockText;
             document.getElementById('modalStock').style.color = product.stock > 0 ? 'var(--success)' : 'var(--danger)';
             
             const addBtn = document.getElementById('modalAddBtn');
             const inCart = cart.some(item => String(item.id) === String(product.id));
             if (inCart) {
-                addBtn.textContent = '✅ В корзине';
+                addBtn.textContent = '✅ Savatda';
                 addBtn.className = 'btn-success';
                 addBtn.style.background = 'var(--success)';
                 addBtn.disabled = true;
             } else {
-                addBtn.textContent = '🛒 В корзину';
+                addBtn.textContent = '🛒 Savatga';
                 addBtn.className = 'btn-success';
                 addBtn.style.background = '';
                 addBtn.disabled = product.stock <= 0;
@@ -1437,14 +1248,14 @@
             if (!currentModalProduct) return;
             addToCart(currentModalProduct.id);
             const addBtn = document.getElementById('modalAddBtn');
-            addBtn.textContent = '✅ В корзине';
+            addBtn.textContent = '✅ Savatda';
             addBtn.className = 'btn-success';
             addBtn.style.background = 'var(--success)';
             addBtn.disabled = true;
         }
 
         // ============================================================
-        // УВЕЛИЧЕННОЕ ФОТО (ZOOM)
+        // ZOOM
         // ============================================================
         function openZoomImage() {
             const img = document.getElementById('modalImage');
@@ -1461,17 +1272,17 @@
         }
 
         function getCategoryLabel(catId) {
-            if (!catId) return 'Без категории';
-            return (categoryEmojis[catId] || '') + ' ' + (categoryLabels[catId] || 'Без категории');
+            if (!catId) return 'Kategoriyasiz';
+            return (categoryEmojis[catId] || '') + ' ' + (categoryLabels[catId] || 'Kategoriyasiz');
         }
 
         // ============================================================
-        // ТОВАРЫ (отображение)
+        // RENDER PRODUCTS
         // ============================================================
         function getCategoryBadge(catId) {
             if (!catId) return '';
             const emoji = categoryEmojis[catId] || '';
-            const label = categoryLabels[catId] || 'Без категории';
+            const label = categoryLabels[catId] || 'Kategoriyasiz';
             return `<span class="category-badge cat-${catId}">${emoji} ${label}</span>`;
         }
 
@@ -1481,7 +1292,7 @@
                 container.innerHTML = `
                     <div class="loading">
                         <div class="spinner"></div>
-                        <p style="color:var(--text-muted);">Загрузка товаров...</p>
+                        <p style="color:var(--text-muted);">Mahsulotlar yuklanmoqda...</p>
                     </div>
                 `;
                 return;
@@ -1500,7 +1311,7 @@
                 container.innerHTML = `
                     <div class="text-center py-5" style="grid-column:1/-1; color:var(--text-muted);">
                         <i class="fas fa-search" style="font-size:48px; display:block; margin-bottom:15px;"></i>
-                        <h4>Ничего не найдено</h4>
+                        <h4>Hech narsa topilmadi</h4>
                     </div>
                 `;
                 return;
@@ -1508,9 +1319,8 @@
             
             let html = '';
             list.forEach(p => {
-                const inCart = cart.some(item => String(item.id) === String(p.id));
                 const img = p.image || 'https://via.placeholder.com/300x200/667eea/white?text=🚲';
-                const stockText = p.stock > 0 ? '✅ В наличии' : '❌ Нет в наличии';
+                const stockText = p.stock > 0 ? '✅ Mavjud' : '❌ Mavjud emas';
                 
                 html += `
                     <div class="col-md-3 col-6">
@@ -1519,7 +1329,7 @@
                             <div class="product-body">
                                 <div class="product-name">${p.name}</div>
                                 <div style="margin-bottom:6px;">${getCategoryBadge(p.category_id)}</div>
-                                <div class="product-price">${formatPrice(p.price)} сум</div>
+                                <div class="product-price">${formatPrice(p.price)} so'm</div>
                                 <div class="product-stock" style="color:${p.stock > 0 ? 'var(--success)' : 'var(--danger)'};">${stockText}</div>
                             </div>
                         </div>
@@ -1548,11 +1358,11 @@
         }
 
         // ============================================================
-        // ОФОРМЛЕНИЕ
+        // CHECKOUT
         // ============================================================
         function openCheckout() {
             if (cart.length === 0) {
-                showToast('❌ Корзина пуста');
+                showToast('❌ Savat bo\'sh');
                 return;
             }
             
@@ -1574,7 +1384,7 @@
                 document.getElementById('checkoutAddress').disabled = true;
                 document.getElementById('confirmLocationBtn').disabled = true;
                 document.getElementById('confirmLocationBtn').classList.add('confirmed');
-                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ Адрес подтверждён!';
+                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ Manzil tasdiqlandi!';
                 document.getElementById('mapLink').href = `https://www.google.com/maps?q=${savedLocation.lat},${savedLocation.lng}`;
                 document.getElementById('mapLink').style.display = 'inline-block';
                 
@@ -1627,23 +1437,21 @@
             });
             
             container.innerHTML = html;
-            document.getElementById('checkoutTotal').textContent = formatPrice(total) + ' сум';
-            document.getElementById('payAmount').textContent = formatPrice(total) + ' сум';
+            document.getElementById('checkoutTotal').textContent = formatPrice(total) + ' so\'m';
+            document.getElementById('payAmount').textContent = formatPrice(total) + ' so\'m';
         }
 
         function goToStep(step) {
             document.querySelectorAll('#checkoutSection .step').forEach(el => el.classList.remove('active'));
             document.getElementById(`step${step}`).classList.add('active');
             
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 2; i++) {
                 const dot = document.getElementById(`step${i}Dot`);
                 dot.classList.remove('active', 'done');
                 if (i < step) dot.classList.add('done');
                 else if (i === step) dot.classList.add('active');
             }
-            for (let i = 1; i <= 2; i++) {
-                document.getElementById(`line${i}`).classList.toggle('done', i < step);
-            }
+            document.getElementById('line1').classList.toggle('done', step > 1);
         }
 
         function goToStep1() { goToStep(1); }
@@ -1653,36 +1461,29 @@
             const location = getLocationFromStorage();
             
             if (!phone || phone.length < 9) { 
-                showToast('❌ Введите телефон'); 
+                showToast('❌ Telefon raqamini kiriting'); 
                 return; 
             }
             
             if (!location && !address) {
-                showToast('❌ Выберите адрес на карте или введите вручную');
+                showToast('❌ Xaritada manzilni tanlang yoki qo\'lda kiriting');
                 return;
             }
             
             goToStep(2);
         }
-        function goToStep3() {
-            if (cart.length === 0) { 
-                showToast('❌ Корзина пуста'); 
-                return; 
-            }
-            goToStep(3);
-        }
 
         function copyCardNumber() {
             const number = '8600123456789012';
             navigator.clipboard.writeText(number).then(() => {
-                showToast('✅ Номер скопирован!');
+                showToast('✅ Nusxa olindi!');
             }).catch(() => {
-                showToast('❌ Ошибка копирования');
+                showToast('❌ Nusxalash xatosi');
             });
         }
 
         // ============================================================
-        // ЗАГРУЗКА ФАЙЛА
+        // FILE UPLOAD
         // ============================================================
         let selectedFile = null;
         let selectedFileDataUrl = '';
@@ -1715,7 +1516,7 @@
             selectedFile = file;
             const dataUrl = await compressImage(file);
             if (!dataUrl) {
-                showToast('❌ Ошибка обработки фото');
+                showToast('❌ Rasmni qayta ishlash xatosi');
                 return;
             }
             
@@ -1736,9 +1537,8 @@
         }
 
         // ============================================================
-        // ОТПРАВКА В TELEGRAM
+        // SEND TO TELEGRAM
         // ============================================================
-
         async function sendTelegramMessage(text) {
             const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
@@ -1782,17 +1582,17 @@
 
         async function trySendPhotoCompressed(file, caption) {
             const dataUrl = await compressImage(file, 500, 0.5);
-            if (!dataUrl) throw new Error('Не удалось пересжать фото');
+            if (!dataUrl) throw new Error('Rasmni qayta siqish xatosi');
             const blob = await (await fetch(dataUrl)).blob();
             return trySendPhoto(blob, caption);
         }
 
         // ============================================================
-        // ОФОРМЛЕНИЕ ЗАКАЗА
+        // SUBMIT ORDER
         // ============================================================
         async function submitOrder() {
             if (!selectedFileDataUrl || !selectedFile) {
-                showToast('❌ Загрузите чек');
+                showToast('❌ Chekni yuklang');
                 return;
             }
 
@@ -1803,7 +1603,7 @@
 
             try {
                 const total = getCartTotal();
-                const rawName = document.getElementById('checkoutName').value || 'Покупатель';
+                const rawName = document.getElementById('checkoutName').value || 'Xaridor';
                 const rawPhone = document.getElementById('checkoutPhone').value;
                 const rawAddress = document.getElementById('checkoutAddress').value || '';
                 const name = escapeHtml(rawName);
@@ -1816,14 +1616,14 @@
                 let locationAddress = '';
                 if (location) {
                     locationAddress = location.address || `${location.lat}, ${location.lng}`;
-                    locationText = `📍 <b>Адрес:</b> ${escapeHtml(locationAddress)}\n`;
-                    locationLink = `\n🗺️ <a href="https://www.google.com/maps?q=${location.lat},${location.lng}">Открыть на карте</a>`;
+                    locationText = `📍 <b>Manzil:</b> ${escapeHtml(locationAddress)}\n`;
+                    locationLink = `\n🗺️ <a href="https://www.google.com/maps?q=${location.lat},${location.lng}">Xaritada ochish</a>`;
                 }
 
                 let productsText = '';
                 let productsData = [];
                 cart.forEach(item => {
-                    productsText += `• ${escapeHtml(item.name)} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} сум\n`;
+                    productsText += `• ${escapeHtml(item.name)} × ${item.quantity} = ${formatPrice(item.price * item.quantity)} so'm\n`;
                     productsData.push({
                         id: item.id,
                         name: item.name,
@@ -1833,14 +1633,14 @@
                 });
 
                 const orderId = Date.now().toString().slice(-6);
-                const message = `🆕 <b>НОВЫЙ ЗАКАЗ #${orderId}</b>\n\n` +
-                               `👤 <b>Покупатель:</b> ${name}\n` +
-                               `📱 <b>Телефон:</b> ${phone}\n` +
+                const message = `🆕 <b>YANGI BUYURTMA #${orderId}</b>\n\n` +
+                               `👤 <b>Xaridor:</b> ${name}\n` +
+                               `📱 <b>Telefon:</b> ${phone}\n` +
                                `${locationText}` +
-                               `${address && !location ? `🏠 <b>Адрес:</b> ${address}\n` : ''}` +
-                               `🆔 <b>ID:</b> ${TELEGRAM_ID || 'не указан'}\n\n` +
-                               `📦 <b>Товары:</b>\n${productsText}\n` +
-                               `💰 <b>Итого:</b> ${formatPrice(total)} сум` +
+                               `${address && !location ? `🏠 <b>Manzil:</b> ${address}\n` : ''}` +
+                               `🆔 <b>ID:</b> ${TELEGRAM_ID || 'ko\'rsatilmagan'}\n\n` +
+                               `📦 <b>Mahsulotlar:</b>\n${productsText}\n` +
+                               `💰 <b>Jami:</b> ${formatPrice(total)} so'm` +
                                `${locationLink}`;
 
                 const orderData = {
@@ -1873,7 +1673,7 @@
                 await sendTelegramMessage(message);
 
                 const blob = await (await fetch(selectedFileDataUrl)).blob();
-                const caption = `🧾 <b>Чек к заказу #${orderId}</b>\n👤 ${name}`;
+                const caption = `🧾 <b>#${orderId} buyurtma uchun chek</b>\n👤 ${name}`;
 
                 const attempts = [
                     () => trySendPhoto(blob, caption),
@@ -1891,20 +1691,20 @@
                         break;
                     } catch (e) {
                         lastError = e.message || String(e);
-                        console.warn('Попытка отправки чека не удалась:', lastError);
+                        console.warn('Chek yuborish urinishi muvaffaqiyatsiz:', lastError);
                     }
                 }
 
                 if (!photoSent) {
                     try {
-                        await sendTelegramMessage(`⚠️ Чек к заказу #${orderId} не отправился автоматически. Клиент пришлёт чек вручную.`);
+                        await sendTelegramMessage(`⚠️ #${orderId} buyurtma uchun chek avtomatik yuborilmadi. Xaridor chekni qo'lda yuboradi.`);
                     } catch (e) {
-                        console.warn('Не удалось отправить уведомление об ошибке:', e.message);
+                        console.warn('Xato haqida xabar yuborilmadi:', e.message);
                     }
                     document.getElementById('manualSendBox').style.display = 'block';
-                    showToast('⚠️ Заказ принят, чек нужно отправить вручную');
+                    showToast('⚠️ Buyurtma qabul qilindi, chekni qo\'lda yuboring');
                 } else {
-                    showToast('✅ Заказ и чек отправлены!');
+                    showToast('✅ Buyurtma va chek yuborildi!');
                 }
 
                 cart = [];
@@ -1917,8 +1717,8 @@
                 closeCheckout();
 
             } catch (error) {
-                console.error('❌ Ошибка оформления заказа:', error);
-                showToast('❌ Ошибка: ' + error.message);
+                console.error('❌ Buyurtma xatosi:', error);
+                showToast('❌ Xato: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 loading.style.display = 'none';
@@ -1937,7 +1737,7 @@
         }
 
         // ============================================================
-        // ЗАГРУЗКА
+        // INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', async function() {
             const isBlocked = checkDeviceAndBlock();
@@ -1962,7 +1762,7 @@
                     document.getElementById('checkoutAddress').disabled = true;
                     document.getElementById('confirmLocationBtn').disabled = true;
                     document.getElementById('confirmLocationBtn').classList.add('confirmed');
-                    document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ Адрес подтверждён!';
+                    document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ Manzil tasdiqlandi!';
                     document.getElementById('mapLink').href = `https://www.google.com/maps?q=${savedLocation.lat},${savedLocation.lng}`;
                     document.getElementById('mapLink').style.display = 'inline-block';
                     
