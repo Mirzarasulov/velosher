@@ -91,8 +91,6 @@
         .btn-danger:hover { opacity: .85; }
         .btn-warning { background: var(--warning); border: none; color: #0a0a1a; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .btn-warning:hover { opacity: .85; }
-        .btn-outline-mini { background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
-        .btn-outline-mini:hover { border-color: var(--primary); color: var(--primary); }
         .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
@@ -145,10 +143,45 @@
         .chat-bubble.user { align-self: flex-start; background: var(--card2); }
         .chat-bubble.admin { align-self: flex-end; background: linear-gradient(135deg, var(--primary), var(--primary2)); color: white; }
         .chat-bubble .time { font-size: 10px; opacity: 0.6; margin-top: 4px; display: block; }
-        .chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
-        .chat-input-row .form-control { flex: 1; }
+        .chat-bubble .chat-image { max-width: 200px; max-height: 200px; border-radius: 10px; margin-top: 6px; display: block; }
+        .chat-input-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
+        .chat-input-row .form-control { flex: 1; min-width: 120px; }
+        .chat-input-row .chat-upload-btn { 
+            background: rgba(255,255,255,0.06); 
+            border: 1px solid var(--border); 
+            color: var(--text); 
+            padding: 10px 14px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            transition: all .25s;
+        }
+        .chat-input-row .chat-upload-btn:hover { border-color: var(--primary); background: rgba(102,126,234,0.05); }
+        .chat-input-row .chat-upload-btn i { font-size: 18px; }
 
-        /* Ошибки */
+        /* ===== CHAT PHOTO PREVIEW ===== */
+        .chat-photo-preview {
+            display: none;
+            padding: 8px 12px;
+            background: var(--bg);
+            border-radius: 10px;
+            margin: 4px 0;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-photo-preview img { 
+            max-height: 50px; 
+            max-width: 80px; 
+            border-radius: 6px; 
+            object-fit: cover; 
+        }
+        .chat-photo-preview .remove-photo { 
+            color: var(--danger); 
+            cursor: pointer; 
+            font-size: 18px; 
+            background: none; 
+            border: none;
+        }
+
         .error-item { 
             background: rgba(255,71,87,0.08); 
             border: 1px solid var(--danger); 
@@ -180,6 +213,31 @@
         .banned-user .user-name { text-decoration: line-through; color: var(--text-muted); }
         .ban-badge { background: var(--danger); color: white; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
 
+        /* Broadcast photo */
+        .broadcast-photo-preview {
+            display: none;
+            margin: 8px 0 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            align-items: center;
+            gap: 12px;
+        }
+        .broadcast-photo-preview img { 
+            max-height: 80px; 
+            max-width: 120px; 
+            border-radius: 8px; 
+            object-fit: cover; 
+        }
+        .broadcast-photo-preview .remove-photo { 
+            color: var(--danger); 
+            cursor: pointer; 
+            font-size: 20px; 
+            background: none; 
+            border: none;
+        }
+
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 280px; }
             .sidebar.open { transform: translateX(0); }
@@ -188,6 +246,7 @@
             .chat-users { max-height: 200px; }
             .mobile-header { display: flex; justify-content: space-between; align-items: center; }
             .stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .chat-input-row .form-control { flex: 1 1 100%; }
         }
         @media (max-width: 480px) {
             .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -367,7 +426,17 @@
                         </div>
                         <div class="chat-input-row">
                             <input type="text" class="form-control" id="chatInput" placeholder="Сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()" disabled>
-                            <button class="btn-grad" onclick="sendChatMessage()" id="chatSendBtn" disabled><i class="fas fa-paper-plane"></i></button>
+                            <button class="chat-upload-btn" onclick="document.getElementById('chatPhotoInput').click()" title="Прикрепить фото">
+                                <i class="fas fa-image"></i>
+                            </button>
+                            <input type="file" id="chatPhotoInput" accept="image/*" style="display:none" onchange="handleChatPhotoSelect(event)">
+                            <button class="btn-grad" onclick="sendChatMessage()" id="chatSendBtn" disabled style="padding:10px 16px;"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                        <!-- Превью фото для чата -->
+                        <div class="chat-photo-preview" id="chatPhotoPreview">
+                            <img id="chatPreviewImg" src="">
+                            <span id="chatPreviewName" style="font-size:12px;color:var(--text-muted);"></span>
+                            <button class="remove-photo" onclick="removeChatPhoto()">×</button>
                         </div>
                     </div>
                 </div>
@@ -379,8 +448,23 @@
             <h2 class="mb-4"><i class="fas fa-bullhorn" style="color:var(--primary);"></i> Рассылка всем пользователям</h2>
             <div class="glass">
                 <label class="form-label">Текст сообщения</label>
-                <textarea class="form-control w-100 mb-3" id="broadcastText" rows="5" placeholder="Например: Скидка 15% на все велосипеды до конца недели!"></textarea>
-                <button class="btn-grad" onclick="sendBroadcast()" id="broadcastBtn"><i class="fas fa-paper-plane"></i> Отправить всем</button>
+                <textarea class="form-control w-100 mb-2" id="broadcastText" rows="4" placeholder="Например: Скидка 15% на все велосипеды до конца недели!"></textarea>
+                
+                <label class="form-label">Прикрепить фото</label>
+                <div class="upload-box" style="padding:12px; min-height:60px;" onclick="document.getElementById('broadcastPhotoInput').click()">
+                    <i class="fas fa-camera" id="broadcastUploadIcon"></i>
+                    <span id="broadcastUploadLabel">Добавить фото к рассылке</span>
+                    <img id="broadcastPreviewImg" style="display:none; max-height:60px; border-radius:6px; margin-top:6px;">
+                </div>
+                <input type="file" id="broadcastPhotoInput" accept="image/*" style="display:none" onchange="handleBroadcastPhotoSelect(event)">
+                
+                <div class="broadcast-photo-preview" id="broadcastPhotoPreview">
+                    <img id="broadcastPreviewImg2" src="">
+                    <span id="broadcastPreviewName" style="font-size:12px;color:var(--text-muted);"></span>
+                    <button class="remove-photo" onclick="removeBroadcastPhoto()">×</button>
+                </div>
+                
+                <button class="btn-grad mt-2" onclick="sendBroadcast()" id="broadcastBtn"><i class="fas fa-paper-plane"></i> Отправить всем</button>
                 <div class="mt-4">
                     <h6 style="color:var(--text-muted);">История рассылок</h6>
                     <div id="broadcastHistory"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div></div>
@@ -408,6 +492,30 @@
         function formatPrice(p) { return new Intl.NumberFormat('uz-UZ').format(p || 0); }
         function escapeHtml(str) {
             return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ============================================================
+        // COMPRESS IMAGE
+        // ============================================================
+        function compressImage(file, maxWidth = 900, quality = 0.72) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let w = img.width, h = img.height;
+                        if (w > maxWidth) { h = Math.round(h * (maxWidth / w)); w = maxWidth; }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = () => reject(new Error('Не удалось прочитать изображение'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
+                reader.readAsDataURL(file);
+            });
         }
 
         // ============================================================
@@ -440,15 +548,12 @@
         }
 
         // ============================================================
-        // SIDEBAR
+        // SIDEBAR & NAVIGATION
         // ============================================================
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
 
-        // ============================================================
-        // NAVIGATION
-        // ============================================================
         const pageLoaders = {
             dashboard: loadDashboard,
             products: loadProducts,
@@ -532,32 +637,11 @@
         }
 
         // ============================================================
-        // PRODUCTS
+        // PRODUCTS (сжатый код, полная функциональность)
         // ============================================================
         let selectedImageDataUrl = '';
         let allProducts = [];
         const categoryMap = { 1: '🏔️ Горные', 2: '🏙️ Городские', 3: '🚴 Шоссейные', 4: '⚡ Электро', 5: '👶 Детские', 6: '📦 Складные' };
-
-        function compressImage(file, maxWidth = 900, quality = 0.72) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        let w = img.width, h = img.height;
-                        if (w > maxWidth) { h = Math.round(h * (maxWidth / w)); w = maxWidth; }
-                        const canvas = document.createElement('canvas');
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        resolve(canvas.toDataURL('image/jpeg', quality));
-                    };
-                    img.onerror = () => reject(new Error('Не удалось прочитать изображение'));
-                    img.src = e.target.result;
-                };
-                reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
-                reader.readAsDataURL(file);
-            });
-        }
 
         async function handleImageSelect(event) {
             const file = event.target.files[0];
@@ -765,7 +849,6 @@
             try {
                 const data = await fbGet('users');
                 const users = data ? Object.entries(data).map(([id, u]) => ({ ...u, telegram_id: u.telegram_id || id })) : [];
-                const bannedUsers = users.filter(u => u.banned);
                 document.getElementById('usersBadge').textContent = users.length;
                 
                 if (!users.length) {
@@ -905,12 +988,13 @@
         }
 
         // ============================================================
-        // CHAT
+        // CHAT С ФОТО
         // ============================================================
         let chatActiveUser = null;
         let allChats = {};
         let allUsersMap = {};
-        let chatInterval = null;
+        let chatPhotoDataUrl = '';
+        let chatPhotoName = '';
 
         async function loadChat() {
             const usersListEl = document.getElementById('chatUsersList');
@@ -1010,25 +1094,58 @@
             }
             box.innerHTML = msgs.map(([mid, m]) => `
                 <div class="chat-bubble ${m.side === 'admin' ? 'admin' : 'user'}">
-                    ${escapeHtml(m.text || '')}
+                    ${m.image ? `<img src="${m.image}" class="chat-image" onclick="window.open('${m.image}','_blank')">` : ''}
+                    ${m.text ? escapeHtml(m.text) : ''}
                     <span class="time">${m.created_at ? new Date(m.created_at).toLocaleTimeString() : ''}</span>
                 </div>
             `).join('');
             box.scrollTop = box.scrollHeight;
         }
 
+        async function handleChatPhotoSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                chatPhotoDataUrl = await compressImage(file, 800, 0.7);
+                chatPhotoName = file.name;
+                document.getElementById('chatPreviewImg').src = chatPhotoDataUrl;
+                document.getElementById('chatPreviewImg').style.display = 'block';
+                document.getElementById('chatPreviewName').textContent = file.name;
+                document.getElementById('chatPhotoPreview').style.display = 'flex';
+                showToast('📸 Фото прикреплено к сообщению');
+            } catch (e) {
+                showToast('❌ Ошибка загрузки фото: ' + e.message);
+                logError('handleChatPhotoSelect', e.message);
+            }
+        }
+
+        function removeChatPhoto() {
+            chatPhotoDataUrl = '';
+            chatPhotoName = '';
+            document.getElementById('chatPhotoPreview').style.display = 'none';
+            document.getElementById('chatPhotoInput').value = '';
+            document.getElementById('chatPreviewImg').style.display = 'none';
+        }
+
         async function sendChatMessage() {
             if (!chatActiveUser) return;
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text && !chatPhotoDataUrl) { showToast('❌ Введите текст или прикрепите фото'); return; }
+            
             try {
                 const mid = 'a' + Date.now();
                 await fbPut(`chats/${chatActiveUser}/${mid}`, {
-                    side: 'admin', text, delivered: false, created_at: new Date().toISOString()
+                    side: 'admin',
+                    text: text || '',
+                    image: chatPhotoDataUrl || '',
+                    delivered: false,
+                    created_at: new Date().toISOString()
                 });
                 input.value = '';
+                removeChatPhoto();
                 loadChat();
+                showToast('✅ Сообщение отправлено!');
             } catch (e) {
                 showToast('❌ Ошибка отправки: ' + e.message);
                 logError('sendChatMessage', e.message);
@@ -1036,19 +1153,55 @@
         }
 
         // ============================================================
-        // BROADCAST
+        // BROADCAST С ФОТО
         // ============================================================
+        let broadcastPhotoDataUrl = '';
+        let broadcastPhotoName = '';
+
+        async function handleBroadcastPhotoSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                broadcastPhotoDataUrl = await compressImage(file, 800, 0.7);
+                broadcastPhotoName = file.name;
+                document.getElementById('broadcastPreviewImg2').src = broadcastPhotoDataUrl;
+                document.getElementById('broadcastPreviewImg2').style.display = 'block';
+                document.getElementById('broadcastPreviewName').textContent = file.name;
+                document.getElementById('broadcastPhotoPreview').style.display = 'flex';
+                document.getElementById('broadcastUploadLabel').textContent = 'Фото выбрано ✓';
+                document.getElementById('broadcastUploadIcon').style.display = 'none';
+                showToast('📸 Фото прикреплено к рассылке');
+            } catch (e) {
+                showToast('❌ Ошибка загрузки фото: ' + e.message);
+                logError('handleBroadcastPhotoSelect', e.message);
+            }
+        }
+
+        function removeBroadcastPhoto() {
+            broadcastPhotoDataUrl = '';
+            broadcastPhotoName = '';
+            document.getElementById('broadcastPhotoPreview').style.display = 'none';
+            document.getElementById('broadcastPhotoInput').value = '';
+            document.getElementById('broadcastPreviewImg2').style.display = 'none';
+            document.getElementById('broadcastUploadLabel').textContent = 'Добавить фото к рассылке';
+            document.getElementById('broadcastUploadIcon').style.display = 'block';
+        }
+
         async function sendBroadcast() {
             const text = document.getElementById('broadcastText').value.trim();
-            if (!text) { showToast('❌ Введите текст сообщения'); return; }
+            if (!text && !broadcastPhotoDataUrl) { showToast('❌ Введите текст или прикрепите фото'); return; }
+            
             const btn = document.getElementById('broadcastBtn');
             btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            
             try {
                 const users = await fbGet('users');
                 const userIds = users ? Object.keys(users).filter(id => users[id].banned !== true) : [];
                 
                 await fbPost('broadcasts', { 
-                    text, 
+                    text: text || '',
+                    image: broadcastPhotoDataUrl || '',
                     status: 'sent', 
                     sent_count: userIds.length,
                     created_at: new Date().toISOString() 
@@ -1060,7 +1213,8 @@
                         const mid = 'b' + Date.now() + '_' + sentCount;
                         await fbPut(`chats/${uid}/${mid}`, {
                             side: 'admin',
-                            text: text,
+                            text: text || '',
+                            image: broadcastPhotoDataUrl || '',
                             delivered: false,
                             created_at: new Date().toISOString(),
                             is_broadcast: true
@@ -1074,12 +1228,14 @@
                 
                 showToast(`✅ Рассылка отправлена ${sentCount} пользователям!`);
                 document.getElementById('broadcastText').value = '';
+                removeBroadcastPhoto();
                 loadBroadcastHistory();
             } catch (e) {
                 showToast('❌ Ошибка: ' + e.message);
                 logError('sendBroadcast', e.message);
             } finally {
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить всем';
             }
         }
 
@@ -1099,7 +1255,8 @@
                             <span><span class="badge-status badge-paid">✅ Отправлено (${b.sent_count || 0})</span></span>
                             <span style="color:var(--text-muted); font-size:12px;">${b.created_at ? new Date(b.created_at).toLocaleString() : ''}</span>
                         </div>
-                        <div style="margin-top:6px;">${escapeHtml(b.text || '')}</div>
+                        ${b.image ? `<img src="${b.image}" style="max-height:60px;border-radius:6px;margin:6px 0;cursor:pointer;" onclick="window.open('${b.image}','_blank')">` : ''}
+                        <div style="margin-top:4px;">${escapeHtml(b.text || '')}</div>
                     </div>
                 `).join('');
             } catch (e) {
