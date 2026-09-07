@@ -1146,7 +1146,7 @@
 
     <script>
         // ============================================================
-        // 🌍 LANGUAGE
+        // 🌍 LANGUAGE — ПОЛНАЯ ЛОКАЛИЗАЦИЯ (100% перевод)
         // ============================================================
         let currentLang = 'uz';
 
@@ -1223,6 +1223,25 @@
                 addressPlaceholder: 'Yoki manzilni qo\'lda kiriting',
                 namePlaceholder: 'Ismingiz',
                 phonePlaceholder: '+998 90 123 45 67',
+                mapAddressNotFound: 'Manzil topilmadi',
+                locationError: 'Joylashuv xatosi',
+                locationDenied: '❌ Joylashuvga ruxsat berilmadi.',
+                locationNoSignal: '❌ GPS signali mavjud emas.',
+                locationTimeout: '❌ Vaqt tugadi.',
+                locationNotSupported: '❌ Joylashuv qo\'llab-quvvatlanmaydi',
+                stockLabel: 'Mavjud',
+                outOfStockLabel: 'Mavjud emas',
+                cardHolder: 'karta egasi',
+                cvvLabel: 'cvv',
+                uploadHint: 'JPG, PNG',
+                addressNotSelected: '📍 Manzil tanlanmagan',
+                addressSelected: '✅ Manzil tasdiqlandi!',
+                locationRequesting: '📍 Joylashuv so\'ralmoqda...',
+                locationDetermining: 'Aniqlanmoqda...',
+                locationFoundShort: '✅ Joylashuv aniqlandi!',
+                locationClearedShort: '📍 Joylashuv tozalandi',
+                addToCart: '🛒 {name} savatga qo\'shildi!',
+                notAvailable: 'Ko\'proq mavjud emas',
             },
             ru: {
                 brand: 'Velosher',
@@ -1296,10 +1315,37 @@
                 addressPlaceholder: 'Или введите адрес вручную',
                 namePlaceholder: 'Ваше имя',
                 phonePlaceholder: '+998 90 123 45 67',
+                mapAddressNotFound: 'Адрес не найден',
+                locationError: 'Ошибка геолокации',
+                locationDenied: '❌ Доступ к геолокации запрещён.',
+                locationNoSignal: '❌ Сигнал GPS недоступен.',
+                locationTimeout: '❌ Таймаут.',
+                locationNotSupported: '❌ Геолокация не поддерживается',
+                stockLabel: 'В наличии',
+                outOfStockLabel: 'Нет в наличии',
+                cardHolder: 'владелец карты',
+                cvvLabel: 'cvv',
+                uploadHint: 'JPG, PNG',
+                addressNotSelected: '📍 Адрес не выбран',
+                addressSelected: '✅ Адрес подтверждён!',
+                locationRequesting: '📍 Запрашиваю геолокацию...',
+                locationDetermining: 'Определение...',
+                locationFoundShort: '✅ Локация определена!',
+                locationClearedShort: '📍 Локация очищена',
+                addToCart: '🛒 {name} добавлен в корзину!',
+                notAvailable: 'Больше нет в наличии',
             }
         };
 
-        function t(key) { return translations[currentLang]?.[key] || key; }
+        function t(key, params) {
+            let text = translations[currentLang]?.[key] || key;
+            if (params) {
+                for (const [k, v] of Object.entries(params)) {
+                    text = text.replace(`{${k}}`, v);
+                }
+            }
+            return text;
+        }
 
         function toggleLanguage() {
             currentLang = currentLang === 'uz' ? 'ru' : 'uz';
@@ -1309,6 +1355,7 @@
         }
 
         function updateUI() {
+            // Основные элементы
             document.getElementById('brandName').textContent = t('brand');
             document.getElementById('pcTitle').textContent = t('pcTitle');
             document.getElementById('pcDesc').textContent = t('pcDesc');
@@ -1474,7 +1521,7 @@
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    const address = data.display_name || 'Manzil topilmadi';
+                    const address = data.display_name || t('mapAddressNotFound');
                     selectedAddress = address;
                     document.getElementById('selectedAddress').textContent = '📍 ' + address;
                     document.getElementById('locationInfo').classList.add('show');
@@ -1491,8 +1538,8 @@
             isGettingLocation = true;
             const btn = document.getElementById('getLocationBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'uz' ? 'Aniqlanmoqda...' : 'Определение...');
-            showToast(currentLang === 'uz' ? '📍 Joylashuv so\'ralmoqda...' : '📍 Запрашиваю геолокацию...');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + t('locationDetermining');
+            showToast(t('locationRequesting'));
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
@@ -1502,7 +1549,7 @@
                         placeMarker(lat, lng);
                         getAddressFromCoords(lat, lng);
                         document.getElementById('confirmLocationBtn').disabled = false;
-                        btn.innerHTML = '<i class="fas fa-check"></i> ' + t('locationFound');
+                        btn.innerHTML = '<i class="fas fa-check"></i> ' + t('locationFoundShort');
                         showToast(t('locationFound'));
                         setTimeout(() => {
                             btn.innerHTML = '<i class="fas fa-location-dot"></i> ' + t('locate');
@@ -1511,10 +1558,10 @@
                         }, 2000);
                     },
                     (err) => {
-                        let errorMsg = currentLang === 'uz' ? 'Joylashuv xatosi' : 'Ошибка геолокации';
-                        if (err.code === 1) errorMsg = currentLang === 'uz' ? '❌ Joylashuvga ruxsat berilmadi.' : '❌ Доступ к геолокации запрещён.';
-                        else if (err.code === 2) errorMsg = currentLang === 'uz' ? '❌ GPS signali mavjud emas.' : '❌ Сигнал GPS недоступен.';
-                        else if (err.code === 3) errorMsg = currentLang === 'uz' ? '❌ Vaqt tugadi.' : '❌ Таймаут.';
+                        let errorMsg = t('locationError');
+                        if (err.code === 1) errorMsg = t('locationDenied');
+                        else if (err.code === 2) errorMsg = t('locationNoSignal');
+                        else if (err.code === 3) errorMsg = t('locationTimeout');
                         showToast(errorMsg);
                         btn.innerHTML = '<i class="fas fa-location-dot"></i> ' + t('locate');
                         btn.disabled = false;
@@ -1524,7 +1571,7 @@
                     { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
                 );
             } else {
-                showToast(currentLang === 'uz' ? '❌ Joylashuv qo\'llab-quvvatlanmaydi' : '❌ Геолокация не поддерживается');
+                showToast(t('locationNotSupported'));
                 btn.innerHTML = '<i class="fas fa-location-dot"></i> ' + t('locate');
                 btn.disabled = false;
                 isGettingLocation = false;
@@ -1537,12 +1584,12 @@
             isLocationConfirmed = true;
             document.getElementById('confirmLocationBtn').disabled = true;
             document.getElementById('confirmLocationBtn').classList.add('confirmed');
-            document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ ' + (currentLang === 'uz' ? 'Manzil tasdiqlandi!' : 'Адрес подтверждён!');
+            document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ ' + t('addressSelected');
             const locationData = { lat: selectedLocation.lat, lng: selectedLocation.lng, address: selectedAddress };
             localStorage.setItem('user_location', JSON.stringify(locationData));
             document.getElementById('checkoutAddress').value = selectedAddress;
             document.getElementById('checkoutAddress').disabled = true;
-            showToast(currentLang === 'uz' ? '✅ Manzil tasdiqlandi!' : '✅ Адрес подтверждён!');
+            showToast(t('addressSelected'));
             setTimeout(() => {
                 document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ' + t('confirm');
                 document.getElementById('confirmLocationBtn').disabled = false;
@@ -1689,7 +1736,7 @@
             if (!product || product.stock <= 0) { showToast('❌ ' + t('outOfStock')); return; }
             const existing = cart.find(item => String(item.id) === String(productId));
             if (existing) {
-                if (existing.quantity >= product.stock) { showToast('❌ ' + (currentLang === 'uz' ? 'Ko\'proq mavjud emas' : 'Больше нет в наличии')); return; }
+                if (existing.quantity >= product.stock) { showToast('❌ ' + t('notAvailable')); return; }
                 existing.quantity++;
             } else {
                 cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1, image: product.image || '' });
@@ -1698,7 +1745,7 @@
             renderCart();
             updateCartCount();
             renderProducts();
-            showToast(`🛒 ${product.name} ${t('added')}`);
+            showToast(t('addToCart', { name: product.name }));
         }
 
         function removeFromCart(productId) {
@@ -1715,7 +1762,7 @@
             const product = products.find(p => String(p.id) === String(productId));
             const newQty = item.quantity + delta;
             if (newQty <= 0) { removeFromCart(productId); return; }
-            if (product && newQty > product.stock) { showToast('❌ ' + (currentLang === 'uz' ? 'Ko\'proq mavjud emas' : 'Больше нет в наличии')); return; }
+            if (product && newQty > product.stock) { showToast('❌ ' + t('notAvailable')); return; }
             item.quantity = newQty;
             saveCart();
             renderCart();
@@ -1825,7 +1872,7 @@
         }
 
         // ============================================================
-        // FULLSCREEN PHOTO — ДВОЙНОЙ ТАП С ПРИБЛИЖЕНИЕМ В ТОЧКЕ КАСАНИЯ
+        // FULLSCREEN PHOTO
         // ============================================================
         let photoScale = 1;
         let photoPanX = 0, photoPanY = 0;
@@ -1871,7 +1918,6 @@
                 updateTransform();
             }
 
-            // ДВОЙНОЙ ТАП — приближение в точке касания
             img.addEventListener('dblclick', function(e) {
                 e.preventDefault();
                 const rect = img.getBoundingClientRect();
@@ -1881,25 +1927,20 @@
                 const imgHeight = rect.height;
                 
                 if (!photoIsZoomed) {
-                    // Приближаем в точке касания
                     photoScale = 2;
-                    // Вычисляем смещение чтобы центр масштабирования был в точке клика
                     const cx = (x / imgWidth) * 100;
                     const cy = (y / imgHeight) * 100;
-                    // Переводим в пиксели для translate (центрируем)
                     const panXNew = (50 - cx) * (imgWidth / 100);
                     const panYNew = (50 - cy) * (imgHeight / 100);
                     photoPanX = panXNew;
                     photoPanY = panYNew;
                     photoIsZoomed = true;
                 } else {
-                    // Возвращаем в исходное состояние
                     resetTransform();
                 }
                 updateTransform();
             });
 
-            // Колесико
             img.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1910,7 +1951,6 @@
                 updateTransform();
             }, { passive: false });
 
-            // Drag мышью
             img.addEventListener('mousedown', function(e) {
                 if (photoScale <= 1) return;
                 photoIsDragging = true;
@@ -1937,7 +1977,6 @@
                 }
             });
 
-            // Touch события
             img.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 1) {
                     if (photoScale > 1) {
@@ -1981,7 +2020,6 @@
                 photoIsDragging = false;
             }, { passive: true });
 
-            // Глобальные кнопки
             window.photoZoom = function(direction) {
                 if (direction === 'in') {
                     photoScale = Math.min(photoScale + 0.2, 4);
@@ -2001,7 +2039,6 @@
                 resetTransform();
             };
 
-            // Сброс при закрытии
             const closeObserver = new MutationObserver(() => {
                 if (!document.getElementById('photoFullscreen').classList.contains('show')) {
                     resetTransform();
@@ -2083,7 +2120,7 @@
                 document.getElementById('checkoutAddress').disabled = true;
                 document.getElementById('confirmLocationBtn').disabled = true;
                 document.getElementById('confirmLocationBtn').classList.add('confirmed');
-                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ ' + (currentLang === 'uz' ? 'Manzil tasdiqlandi!' : 'Адрес подтверждён!');
+                document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ ' + t('addressSelected');
                 document.getElementById('mapLink').href = `https://www.google.com/maps?q=${savedLocation.lat},${savedLocation.lng}`;
                 document.getElementById('mapLink').style.display = 'inline-block';
                 if (!map) initMap(savedLocation.lat, savedLocation.lng);
@@ -2339,7 +2376,7 @@
                     document.getElementById('checkoutAddress').disabled = true;
                     document.getElementById('confirmLocationBtn').disabled = true;
                     document.getElementById('confirmLocationBtn').classList.add('confirmed');
-                    document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ ' + (currentLang === 'uz' ? 'Manzil tasdiqlandi!' : 'Адрес подтверждён!');
+                    document.getElementById('confirmLocationBtn').innerHTML = '<i class="fas fa-check-circle"></i> ✅ ' + t('addressSelected');
                     document.getElementById('mapLink').href = `https://www.google.com/maps?q=${savedLocation.lat},${savedLocation.lng}`;
                     document.getElementById('mapLink').style.display = 'inline-block';
                     map.setView([savedLocation.lat, savedLocation.lng], 16);
