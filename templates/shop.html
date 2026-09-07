@@ -1825,7 +1825,7 @@
         }
 
         // ============================================================
-        // FULLSCREEN PHOTO — НЕ ЗАКРЫВАЕТСЯ ПО КЛИКУ
+        // FULLSCREEN PHOTO — ДВОЙНОЙ ТАП С ПРИБЛИЖЕНИЕМ В ТОЧКЕ КАСАНИЯ
         // ============================================================
         let photoScale = 1;
         let photoPanX = 0, photoPanY = 0;
@@ -1833,6 +1833,7 @@
         let photoStartX, photoStartY, photoStartPanX, photoStartPanY;
         let photoLastTouchDist = 0;
         let photoLastTouchScale = 1;
+        let photoIsZoomed = false;
 
         function openFullscreenPhoto() {
             const img = document.getElementById('modalImage');
@@ -1841,10 +1842,10 @@
             photoScale = 1;
             photoPanX = 0;
             photoPanY = 0;
+            photoIsZoomed = false;
             document.getElementById('photoZoomLevel').textContent = '100%';
             document.getElementById('photoFullscreen').classList.add('show');
             document.body.style.overflow = 'hidden';
-            // Сбрасываем трансформацию при открытии
             document.getElementById('photoFullImg').style.transform = 'scale(1) translate(0px, 0px)';
             setupPhotoZoom();
         }
@@ -1866,31 +1867,48 @@
                 photoScale = 1;
                 photoPanX = 0;
                 photoPanY = 0;
+                photoIsZoomed = false;
                 updateTransform();
             }
+
+            // ДВОЙНОЙ ТАП — приближение в точке касания
+            img.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+                const rect = img.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const imgWidth = rect.width;
+                const imgHeight = rect.height;
+                
+                if (!photoIsZoomed) {
+                    // Приближаем в точке касания
+                    photoScale = 2;
+                    // Вычисляем смещение чтобы центр масштабирования был в точке клика
+                    const cx = (x / imgWidth) * 100;
+                    const cy = (y / imgHeight) * 100;
+                    // Переводим в пиксели для translate (центрируем)
+                    const panXNew = (50 - cx) * (imgWidth / 100);
+                    const panYNew = (50 - cy) * (imgHeight / 100);
+                    photoPanX = panXNew;
+                    photoPanY = panYNew;
+                    photoIsZoomed = true;
+                } else {
+                    // Возвращаем в исходное состояние
+                    resetTransform();
+                }
+                updateTransform();
+            });
 
             // Колесико
             img.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                photoScale = Math.min(Math.max(photoScale + delta, 0.5), 4);
+                const newScale = Math.min(Math.max(photoScale + delta, 0.5), 4);
+                if (newScale > 1) photoIsZoomed = true;
+                else photoIsZoomed = false;
+                photoScale = newScale;
                 updateTransform();
             }, { passive: false });
-
-            // Двойной клик — переключение зума
-            img.addEventListener('dblclick', function(e) {
-                e.preventDefault();
-                if (photoScale < 2) {
-                    photoScale = 2;
-                    photoPanX = 0;
-                    photoPanY = 0;
-                } else {
-                    photoScale = 1;
-                    photoPanX = 0;
-                    photoPanY = 0;
-                }
-                updateTransform();
-            });
 
             // Drag мышью
             img.addEventListener('mousedown', function(e) {
@@ -1951,7 +1969,10 @@
                         e.touches[0].clientY - e.touches[1].clientY
                     );
                     const delta = dist / photoLastTouchDist;
-                    photoScale = Math.min(Math.max(photoLastTouchScale * delta, 0.5), 4);
+                    const newScale = Math.min(Math.max(photoLastTouchScale * delta, 0.5), 4);
+                    if (newScale > 1) photoIsZoomed = true;
+                    else photoIsZoomed = false;
+                    photoScale = newScale;
                     updateTransform();
                 }
             }, { passive: true });
@@ -1964,8 +1985,14 @@
             window.photoZoom = function(direction) {
                 if (direction === 'in') {
                     photoScale = Math.min(photoScale + 0.2, 4);
+                    if (photoScale > 1) photoIsZoomed = true;
                 } else {
                     photoScale = Math.max(photoScale - 0.2, 0.5);
+                    if (photoScale <= 1) {
+                        photoIsZoomed = false;
+                        photoPanX = 0;
+                        photoPanY = 0;
+                    }
                 }
                 updateTransform();
             };
