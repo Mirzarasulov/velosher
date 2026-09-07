@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ... (ваш CSS без изменений, он уже крутой) ... */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #0a0e1a;
@@ -207,7 +208,7 @@
         .product-card .category-badge.cat-5 { background: rgba(124,92,191,0.15); color: #9b7bcf; }
         .product-card .category-badge.cat-6 { background: rgba(0,212,160,0.15); color: var(--success); }
 
-        /* ===== PRODUCT MODAL ===== */
+        /* ===== MODALS ===== */
         .product-modal-overlay {
             display: none;
             position: fixed;
@@ -253,8 +254,6 @@
             z-index: 10;
         }
         .product-modal .close-modal:hover { background: var(--danger); transform: rotate(90deg); }
-        
-        /* ===== ФОТО С ЗУМОМ ===== */
         .product-modal .modal-image-wrap {
             position: relative;
             width: 100%;
@@ -294,7 +293,6 @@
             opacity: 0.7;
         }
         .product-modal .modal-image-wrap .zoom-hint i { margin-right: 4px; }
-        
         .product-modal .modal-title { font-size: 20px; font-weight: 700; margin: 14px 0 6px; }
         .product-modal .modal-price { font-size: 26px; font-weight: 800; color: var(--primary); }
         .product-modal .modal-description { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin: 12px 0; padding: 12px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border); }
@@ -303,7 +301,6 @@
         .product-modal .modal-actions .btn-success { flex: 1; padding: 12px; font-size: 15px; }
         .product-modal .modal-actions .btn-outline { flex: 0 0 auto; padding: 12px 18px; width: auto; }
 
-        /* ===== ПОЛНОЭКРАННЫЙ ZOOM ===== */
         .zoom-modal-overlay {
             display: none;
             position: fixed;
@@ -586,7 +583,6 @@
         .product-item:last-child { border-bottom: none; }
         .total-amount { font-size: 26px; font-weight: 700; color: var(--primary); }
 
-        /* ===== КАРТА ===== */
         .payment-card-wrap {
             background: linear-gradient(145deg, #1a1a3e, #0f0f2a);
             border-radius: 20px;
@@ -1098,7 +1094,7 @@
             <button class="close-modal" onclick="closeProductModal()">×</button>
             <div class="modal-image-wrap" id="modalImageWrap">
                 <img id="modalImage" class="modal-image" src="" alt="Mahsulot rasmi" onclick="openFullscreenZoom(event)">
-                <div class="zoom-hint"><i class="fas fa-search-plus"></i> Zoom</div>
+                <div class="zoom-hint"><i class="fas fa-search-plus"></i> <span id="zoomHint">Zoom</span></div>
             </div>
             <div class="modal-category" id="modalCategory"></div>
             <div class="modal-title" id="modalTitle">Mahsulot nomi</div>
@@ -1146,7 +1142,7 @@
 
     <script>
         // ============================================================
-        // 🌍 LANGUAGE
+        // 🌍 LANGUAGE — ПОЛНАЯ ЛОКАЛИЗАЦИЯ (100% перевод)
         // ============================================================
         let currentLang = 'uz';
 
@@ -1159,6 +1155,7 @@
                 pcBtn: "Do'konga o'tish",
                 online: 'Onlayn',
                 catalog: 'Katalog',
+                searchPlaceholder: '🔍 Qidiruv...',
                 sortDefault: 'Standart',
                 sortAsc: "Narx: o'sish",
                 sortDesc: 'Narx: kamayish',
@@ -1216,6 +1213,12 @@
                 locationFound: '✅ Joylashuv aniqlandi!',
                 locationCleared: '📍 Joylashuv tozalandi',
                 emptyCart: '❌ Savat bo\'sh',
+                zoomHint: 'Zoom',
+                noDescription: 'Tavsif mavjud emas',
+                noCategory: 'Kategoriyasiz',
+                addressPlaceholder: 'Yoki manzilni qo\'lda kiriting',
+                namePlaceholder: 'Ismingiz',
+                phonePlaceholder: '+998 90 123 45 67',
             },
             ru: {
                 brand: 'Velosher',
@@ -1225,6 +1228,7 @@
                 pcBtn: 'Перейти в магазин',
                 online: 'Онлайн',
                 catalog: 'Каталог',
+                searchPlaceholder: '🔍 Поиск...',
                 sortDefault: 'По умолчанию',
                 sortAsc: 'Цена: по возрастанию',
                 sortDesc: 'Цена: по убыванию',
@@ -1282,6 +1286,12 @@
                 locationFound: '✅ Локация определена!',
                 locationCleared: '📍 Локация очищена',
                 emptyCart: '❌ Корзина пуста',
+                zoomHint: 'Zoom',
+                noDescription: 'Описание отсутствует',
+                noCategory: 'Без категории',
+                addressPlaceholder: 'Или введите адрес вручную',
+                namePlaceholder: 'Ваше имя',
+                phonePlaceholder: '+998 90 123 45 67',
             }
         };
 
@@ -1295,6 +1305,7 @@
         }
 
         function updateUI() {
+            // Основные элементы
             document.getElementById('brandName').textContent = t('brand');
             document.getElementById('pcTitle').textContent = t('pcTitle');
             document.getElementById('pcDesc').textContent = t('pcDesc');
@@ -1302,14 +1313,17 @@
             document.getElementById('pcBtnText').textContent = t('pcBtn');
             document.getElementById('onlineLabel').textContent = t('online');
             document.getElementById('catalogTitle').textContent = t('catalog');
+            document.getElementById('searchInput').placeholder = t('searchPlaceholder');
             document.getElementById('sortDefault').textContent = t('sortDefault');
             document.getElementById('sortAsc').textContent = t('sortAsc');
             document.getElementById('sortDesc').textContent = t('sortDesc');
             document.getElementById('catAll').textContent = t('catAll');
+            
+            const catLabels = [t('cat1'), t('cat2'), t('cat3'), t('cat4'), t('cat5'), t('cat6')];
             document.querySelectorAll('.cat-label').forEach((el, i) => {
-                const labels = [t('cat1'), t('cat2'), t('cat3'), t('cat4'), t('cat5'), t('cat6')];
-                if (i < labels.length) el.textContent = labels[i];
+                if (i < catLabels.length) el.textContent = catLabels[i];
             });
+            
             document.getElementById('loadingText').textContent = t('loading');
             document.getElementById('checkoutTitle').textContent = t('checkout');
             document.getElementById('closeLabel').textContent = t('close');
@@ -1322,6 +1336,9 @@
             document.getElementById('locateBtnText').textContent = t('locate');
             document.getElementById('confirmBtnText').textContent = t('confirm');
             document.getElementById('mapHint').textContent = t('mapHint');
+            document.getElementById('checkoutAddress').placeholder = t('addressPlaceholder');
+            document.getElementById('checkoutName').placeholder = t('namePlaceholder');
+            document.getElementById('checkoutPhone').placeholder = t('phonePlaceholder');
             document.getElementById('totalLabel').textContent = t('total');
             document.getElementById('continueBtn').textContent = t('continue');
             document.getElementById('paymentTitle').textContent = t('payment');
@@ -1341,6 +1358,12 @@
             document.getElementById('manualMsg').textContent = t('manualMsg');
             document.getElementById('manualBtnText').textContent = t('manualBtn');
             document.getElementById('manualClose').textContent = t('manualClose');
+            document.getElementById('zoomHint').textContent = t('zoomHint');
+            
+            // Обновляем карточки товаров (перерисовка)
+            renderProducts();
+            // Обновляем корзину
+            renderCart();
         }
 
         // ============================================================
@@ -1574,7 +1597,7 @@
                         price: p.price || 0,
                         stock: p.stock || 0,
                         image: p.image || '',
-                        description: p.description || 'Tavsif mavjud emas',
+                        description: p.description || t('noDescription'),
                         category_id: p.category_id ? String(p.category_id) : null
                     }));
                 } else {
@@ -1743,7 +1766,7 @@
         }
 
         // ============================================================
-        // PRODUCT MODAL - ФОТО ОТКРЫВАЕТ ЗУМ, А НЕ ЗАКРЫВАЕТ
+        // PRODUCT MODAL
         // ============================================================
         function openProductModal(productId) {
             const product = products.find(p => String(p.id) === String(productId));
@@ -1753,13 +1776,12 @@
             const img = document.getElementById('modalImage');
             img.src = imgSrc;
             img.onerror = function() { this.src = 'https://via.placeholder.com/400x300/667eea/white?text=🚲'; };
-            // Сбрасываем зум при открытии
             img.style.transform = 'scale(1)';
             
             document.getElementById('modalCategory').textContent = getCategoryLabel(product.category_id);
             document.getElementById('modalTitle').textContent = product.name;
             document.getElementById('modalPrice').textContent = formatPrice(product.price) + ' so\'m';
-            document.getElementById('modalDescription').textContent = product.description || 'Tavsif mavjud emas';
+            document.getElementById('modalDescription').textContent = product.description || t('noDescription');
             const stockText = product.stock > 0 ? '✅ ' + t('stock') : '❌ ' + t('outOfStock');
             document.getElementById('modalStock').textContent = stockText;
             document.getElementById('modalStock').style.color = product.stock > 0 ? 'var(--success)' : 'var(--danger)';
@@ -1778,8 +1800,6 @@
             }
             document.getElementById('productModal').classList.add('show');
             document.body.style.overflow = 'hidden';
-            
-            // Настраиваем зум внутри модалки
             setupModalZoom();
         }
 
@@ -1804,7 +1824,6 @@
                 updateTransform();
             }
 
-            // Колесико мыши
             img.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1812,7 +1831,6 @@
                 updateTransform();
             }, { passive: false });
 
-            // Drag мышью
             img.addEventListener('mousedown', function(e) {
                 if (scale <= 1) return;
                 isDragging = true;
@@ -1839,7 +1857,6 @@
                 }
             });
 
-            // Touch события
             img.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 1) {
                     if (scale > 1) {
@@ -1880,18 +1897,16 @@
                 isDragging = false;
             }, { passive: true });
 
-            // Двойной клик сбрасывает зум
             img.addEventListener('dblclick', function(e) {
                 e.preventDefault();
                 resetTransform();
             });
 
-            // Сохраняем функцию для сброса при закрытии
             window._modalResetZoom = resetTransform;
         }
 
         // ============================================================
-        // ПОЛНОЭКРАННЫЙ ZOOM (открывается по клику на фото)
+        // FULLSCREEN ZOOM
         // ============================================================
         function openFullscreenZoom(e) {
             e.stopPropagation();
@@ -1930,7 +1945,6 @@
                 updateFullTransform();
             }
 
-            // Колесико
             img.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1938,7 +1952,6 @@
                 updateFullTransform();
             }, { passive: false });
 
-            // Drag мышью
             img.addEventListener('mousedown', function(e) {
                 if (fullZoomScale <= 1) return;
                 fullIsDragging = true;
@@ -1965,7 +1978,6 @@
                 }
             });
 
-            // Touch
             img.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 1) {
                     if (fullZoomScale > 1) {
@@ -2011,7 +2023,6 @@
                 resetFullTransform();
             });
 
-            // Глобальные функции для кнопок
             window.zoomImage = function(direction) {
                 if (direction === 'in') {
                     fullZoomScale = Math.min(fullZoomScale + 0.2, 4);
@@ -2025,7 +2036,6 @@
                 resetFullTransform();
             };
 
-            // Сброс при закрытии
             const closeObserver = new MutationObserver(() => {
                 if (!document.getElementById('zoomModal').classList.contains('show')) {
                     resetFullTransform();
@@ -2059,9 +2069,9 @@
         }
 
         function getCategoryLabel(catId) {
-            if (!catId) return 'Kategoriyasiz';
+            if (!catId) return t('noCategory');
             const labels = { '1': t('cat1'), '2': t('cat2'), '3': t('cat3'), '4': t('cat4'), '5': t('cat5'), '6': t('cat6') };
-            return (categoryEmojis[catId] || '') + ' ' + (labels[catId] || 'Kategoriyasiz');
+            return (categoryEmojis[catId] || '') + ' ' + (labels[catId] || t('noCategory'));
         }
 
         // ============================================================
