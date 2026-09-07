@@ -211,7 +211,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.75);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             z-index: 2000;
@@ -306,7 +306,6 @@
             justify-content: center;
             align-items: center;
             touch-action: none;
-            cursor: zoom-in;
         }
         .photo-fullscreen-overlay.show { display: flex; }
         .photo-fullscreen-overlay .photo-close {
@@ -1118,7 +1117,7 @@
     </div>
 
     <!-- FULLSCREEN PHOTO -->
-    <div class="photo-fullscreen-overlay" id="photoFullscreen" onclick="closeFullscreenPhoto()">
+    <div class="photo-fullscreen-overlay" id="photoFullscreen">
         <button class="photo-close" onclick="closeFullscreenPhoto()">×</button>
         <div class="photo-image-wrap" id="photoImageWrap">
             <img id="photoFullImg" class="photo-img" src="" alt="Kattalashtirilgan rasm">
@@ -1826,7 +1825,7 @@
         }
 
         // ============================================================
-        // FULLSCREEN PHOTO
+        // FULLSCREEN PHOTO — НЕ ЗАКРЫВАЕТСЯ ПО КЛИКУ
         // ============================================================
         let photoScale = 1;
         let photoPanX = 0, photoPanY = 0;
@@ -1845,6 +1844,8 @@
             document.getElementById('photoZoomLevel').textContent = '100%';
             document.getElementById('photoFullscreen').classList.add('show');
             document.body.style.overflow = 'hidden';
+            // Сбрасываем трансформацию при открытии
+            document.getElementById('photoFullImg').style.transform = 'scale(1) translate(0px, 0px)';
             setupPhotoZoom();
         }
 
@@ -1868,6 +1869,7 @@
                 updateTransform();
             }
 
+            // Колесико
             img.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1875,6 +1877,22 @@
                 updateTransform();
             }, { passive: false });
 
+            // Двойной клик — переключение зума
+            img.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+                if (photoScale < 2) {
+                    photoScale = 2;
+                    photoPanX = 0;
+                    photoPanY = 0;
+                } else {
+                    photoScale = 1;
+                    photoPanX = 0;
+                    photoPanY = 0;
+                }
+                updateTransform();
+            });
+
+            // Drag мышью
             img.addEventListener('mousedown', function(e) {
                 if (photoScale <= 1) return;
                 photoIsDragging = true;
@@ -1901,6 +1919,7 @@
                 }
             });
 
+            // Touch события
             img.addEventListener('touchstart', function(e) {
                 if (e.touches.length === 1) {
                     if (photoScale > 1) {
@@ -1941,11 +1960,7 @@
                 photoIsDragging = false;
             }, { passive: true });
 
-            img.addEventListener('dblclick', function(e) {
-                e.preventDefault();
-                resetTransform();
-            });
-
+            // Глобальные кнопки
             window.photoZoom = function(direction) {
                 if (direction === 'in') {
                     photoScale = Math.min(photoScale + 0.2, 4);
@@ -1959,6 +1974,7 @@
                 resetTransform();
             };
 
+            // Сброс при закрытии
             const closeObserver = new MutationObserver(() => {
                 if (!document.getElementById('photoFullscreen').classList.contains('show')) {
                     resetTransform();
