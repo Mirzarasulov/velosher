@@ -46,7 +46,6 @@
         .sidebar .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar .nav-item .item-badge { float: right; background: var(--danger); color: white; border-radius: 20px; font-size: 11px; padding: 1px 10px; }
         .sidebar .nav-item .item-badge.green { background: var(--success); }
-        .sidebar .nav-item .item-badge.banned { background: #6c757d; }
 
         .main-content { margin-left: 250px; padding: 24px; }
         .page { display: none; }
@@ -158,7 +157,6 @@
         .chat-input-row .chat-upload-btn:hover { border-color: var(--primary); background: rgba(102,126,234,0.05); }
         .chat-input-row .chat-upload-btn i { font-size: 18px; }
 
-        /* ===== CHAT PHOTO PREVIEW ===== */
         .chat-photo-preview {
             display: none;
             padding: 8px 12px;
@@ -168,19 +166,8 @@
             align-items: center;
             gap: 10px;
         }
-        .chat-photo-preview img { 
-            max-height: 50px; 
-            max-width: 80px; 
-            border-radius: 6px; 
-            object-fit: cover; 
-        }
-        .chat-photo-preview .remove-photo { 
-            color: var(--danger); 
-            cursor: pointer; 
-            font-size: 18px; 
-            background: none; 
-            border: none;
-        }
+        .chat-photo-preview img { max-height: 50px; max-width: 80px; border-radius: 6px; object-fit: cover; }
+        .chat-photo-preview .remove-photo { color: var(--danger); cursor: pointer; font-size: 18px; background: none; border: none; }
 
         .error-item { 
             background: rgba(255,71,87,0.08); 
@@ -213,7 +200,7 @@
         .banned-user .user-name { text-decoration: line-through; color: var(--text-muted); }
         .ban-badge { background: var(--danger); color: white; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 6px; }
 
-        /* Broadcast photo */
+        /* Broadcast */
         .broadcast-photo-preview {
             display: none;
             margin: 8px 0 12px;
@@ -224,19 +211,26 @@
             align-items: center;
             gap: 12px;
         }
-        .broadcast-photo-preview img { 
-            max-height: 80px; 
-            max-width: 120px; 
-            border-radius: 8px; 
-            object-fit: cover; 
+        .broadcast-photo-preview img { max-height: 80px; max-width: 120px; border-radius: 8px; object-fit: cover; }
+        .broadcast-photo-preview .remove-photo { color: var(--danger); cursor: pointer; font-size: 20px; background: none; border: none; }
+
+        /* Broadcast recipients select */
+        .recipient-select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            max-height: 150px;
+            overflow-y: auto;
         }
-        .broadcast-photo-preview .remove-photo { 
-            color: var(--danger); 
-            cursor: pointer; 
-            font-size: 20px; 
-            background: none; 
-            border: none;
+        .recipient-select .form-check {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
         }
+        .recipient-select .form-check:last-child { border-bottom: none; }
+        .recipient-select .form-check-input { background: var(--bg); border: 1px solid var(--border); }
+        .recipient-select .form-check-input:checked { background: var(--primary); border-color: var(--primary); }
+        .recipient-select .form-check-label { font-size: 13px; color: var(--text-muted); }
 
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 280px; }
@@ -247,6 +241,7 @@
             .mobile-header { display: flex; justify-content: space-between; align-items: center; }
             .stat-grid { grid-template-columns: repeat(2, 1fr); }
             .chat-input-row .form-control { flex: 1 1 100%; }
+            .recipient-select { max-height: 120px; }
         }
         @media (max-width: 480px) {
             .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -320,7 +315,6 @@
         <!-- ================= PRODUCTS ================= -->
         <div class="page" id="page-products">
             <h2 class="mb-4"><i class="fas fa-tag" style="color:var(--primary);"></i> Товары</h2>
-
             <div class="glass">
                 <h5 class="mb-3"><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Добавить товар</h5>
                 <div class="row g-2">
@@ -354,7 +348,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="glass">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h5 class="mb-0"><i class="fas fa-list" style="color:var(--primary);"></i> Все товары</h5>
@@ -432,7 +425,6 @@
                             <input type="file" id="chatPhotoInput" accept="image/*" style="display:none" onchange="handleChatPhotoSelect(event)">
                             <button class="btn-grad" onclick="sendChatMessage()" id="chatSendBtn" disabled style="padding:10px 16px;"><i class="fas fa-paper-plane"></i></button>
                         </div>
-                        <!-- Превью фото для чата -->
                         <div class="chat-photo-preview" id="chatPhotoPreview">
                             <img id="chatPreviewImg" src="">
                             <span id="chatPreviewName" style="font-size:12px;color:var(--text-muted);"></span>
@@ -443,32 +435,71 @@
             </div>
         </div>
 
-        <!-- ================= BROADCAST ================= -->
+        <!-- ================= BROADCAST (ПЕРЕРАБОТАН) ================= -->
         <div class="page" id="page-broadcast">
-            <h2 class="mb-4"><i class="fas fa-bullhorn" style="color:var(--primary);"></i> Рассылка всем пользователям</h2>
+            <h2 class="mb-4"><i class="fas fa-bullhorn" style="color:var(--primary);"></i> Массовая рассылка</h2>
+            
             <div class="glass">
-                <label class="form-label">Текст сообщения</label>
-                <textarea class="form-control w-100 mb-2" id="broadcastText" rows="4" placeholder="Например: Скидка 15% на все велосипеды до конца недели!"></textarea>
-                
-                <label class="form-label">Прикрепить фото</label>
-                <div class="upload-box" style="padding:12px; min-height:60px;" onclick="document.getElementById('broadcastPhotoInput').click()">
-                    <i class="fas fa-camera" id="broadcastUploadIcon"></i>
-                    <span id="broadcastUploadLabel">Добавить фото к рассылке</span>
-                    <img id="broadcastPreviewImg" style="display:none; max-height:60px; border-radius:6px; margin-top:6px;">
+                <div class="row g-3">
+                    <!-- Левая колонка: настройки -->
+                    <div class="col-lg-7">
+                        <label class="form-label"><i class="fas fa-pen"></i> Текст сообщения</label>
+                        <textarea class="form-control w-100" id="broadcastText" rows="4" placeholder="Введите текст для рассылки... Например: Привет! У нас скидка 15% на все велосипеды!"></textarea>
+                        
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-image"></i> Прикрепить фото</label>
+                                <div class="upload-box" style="padding:12px; min-height:60px;" onclick="document.getElementById('broadcastPhotoInput').click()">
+                                    <i class="fas fa-camera" id="broadcastUploadIcon"></i>
+                                    <span id="broadcastUploadLabel">Добавить фото</span>
+                                </div>
+                                <input type="file" id="broadcastPhotoInput" accept="image/*" style="display:none" onchange="handleBroadcastPhotoSelect(event)">
+                                <div class="broadcast-photo-preview" id="broadcastPhotoPreview">
+                                    <img id="broadcastPreviewImg2" src="">
+                                    <span id="broadcastPreviewName" style="font-size:12px;color:var(--text-muted);"></span>
+                                    <button class="remove-photo" onclick="removeBroadcastPhoto()">×</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-clock"></i> Отложенная отправка</label>
+                                <input type="datetime-local" class="form-control" id="broadcastSchedule">
+                                <small class="text-muted" style="font-size:11px;">Оставьте пустым для немедленной отправки</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Правая колонка: получатели -->
+                    <div class="col-lg-5">
+                        <label class="form-label"><i class="fas fa-users"></i> Получатели</label>
+                        <div class="recipient-select" id="recipientList">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipientType" id="recipientAll" value="all" checked onchange="toggleRecipients()">
+                                <label class="form-check-label" for="recipientAll">📨 Все пользователи (<span id="allUsersCount">0</span>)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipientType" id="recipientActive" value="active" onchange="toggleRecipients()">
+                                <label class="form-check-label" for="recipientActive">✅ Активные (не в бане) (<span id="activeUsersCount">0</span>)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipientType" id="recipientCustom" value="custom" onchange="toggleRecipients()">
+                                <label class="form-check-label" for="recipientCustom">🎯 Выбрать вручную</label>
+                            </div>
+                        </div>
+                        <div id="customRecipientsContainer" style="display:none; margin-top:8px; max-height:120px; overflow-y:auto; background:var(--bg); border-radius:8px; padding:8px; border:1px solid var(--border);">
+                            <div class="empty-state" style="padding:10px;"><i class="fas fa-spinner fa-spin"></i> Загрузка пользователей...</div>
+                        </div>
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            <button class="btn-grad" onclick="sendBroadcast()" id="broadcastBtn"><i class="fas fa-paper-plane"></i> Отправить сейчас</button>
+                            <button class="btn-warning" onclick="scheduleBroadcast()" id="scheduleBtn"><i class="fas fa-clock"></i> Запланировать</button>
+                        </div>
+                    </div>
                 </div>
-                <input type="file" id="broadcastPhotoInput" accept="image/*" style="display:none" onchange="handleBroadcastPhotoSelect(event)">
-                
-                <div class="broadcast-photo-preview" id="broadcastPhotoPreview">
-                    <img id="broadcastPreviewImg2" src="">
-                    <span id="broadcastPreviewName" style="font-size:12px;color:var(--text-muted);"></span>
-                    <button class="remove-photo" onclick="removeBroadcastPhoto()">×</button>
-                </div>
-                
-                <button class="btn-grad mt-2" onclick="sendBroadcast()" id="broadcastBtn"><i class="fas fa-paper-plane"></i> Отправить всем</button>
-                <div class="mt-4">
-                    <h6 style="color:var(--text-muted);">История рассылок</h6>
-                    <div id="broadcastHistory"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div></div>
-                </div>
+            </div>
+            
+            <!-- История рассылок -->
+            <div class="glass">
+                <h5 class="mb-3"><i class="fas fa-history" style="color:var(--primary);"></i> История рассылок</h5>
+                <div id="broadcastHistory"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div></div>
             </div>
         </div>
 
@@ -487,7 +518,7 @@
             t.textContent = msg;
             t.classList.add('show');
             clearTimeout(t._timeout);
-            t._timeout = setTimeout(() => t.classList.remove('show'), 3000);
+            t._timeout = setTimeout(() => t.classList.remove('show'), 3500);
         }
         function formatPrice(p) { return new Intl.NumberFormat('uz-UZ').format(p || 0); }
         function escapeHtml(str) {
@@ -561,7 +592,7 @@
             users: loadUsers,
             errors: loadErrors,
             chat: loadChat,
-            broadcast: loadBroadcastHistory
+            broadcast: loadBroadcastData
         };
 
         function switchPage(page) {
@@ -637,7 +668,7 @@
         }
 
         // ============================================================
-        // PRODUCTS (сжатый код, полная функциональность)
+        // PRODUCTS
         // ============================================================
         let selectedImageDataUrl = '';
         let allProducts = [];
@@ -988,7 +1019,7 @@
         }
 
         // ============================================================
-        // CHAT С ФОТО
+        // CHAT
         // ============================================================
         let chatActiveUser = null;
         let allChats = {};
@@ -1153,10 +1184,68 @@
         }
 
         // ============================================================
-        // BROADCAST С ФОТО
+        // BROADCAST — ПЕРЕРАБОТАНА
         // ============================================================
         let broadcastPhotoDataUrl = '';
         let broadcastPhotoName = '';
+        let allUsersForBroadcast = [];
+
+        async function loadBroadcastData() {
+            await Promise.all([loadBroadcastHistory(), loadRecipients()]);
+        }
+
+        async function loadRecipients() {
+            try {
+                const usersData = await fbGet('users');
+                const users = usersData ? Object.entries(usersData).map(([id, u]) => ({ ...u, telegram_id: u.telegram_id || id })) : [];
+                allUsersForBroadcast = users;
+                
+                const allCount = users.length;
+                const activeCount = users.filter(u => u.banned !== true).length;
+                
+                document.getElementById('allUsersCount').textContent = allCount;
+                document.getElementById('activeUsersCount').textContent = activeCount;
+                
+                // Заполняем список для ручного выбора
+                const container = document.getElementById('customRecipientsContainer');
+                if (users.length === 0) {
+                    container.innerHTML = '<div class="empty-state" style="padding:10px;font-size:13px;">Нет пользователей</div>';
+                    return;
+                }
+                container.innerHTML = users.map(u => `
+                    <div class="form-check" style="padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <input class="form-check-input custom-recipient" type="checkbox" value="${u.telegram_id}" id="user_${u.telegram_id}">
+                        <label class="form-check-label" for="user_${u.telegram_id}" style="font-size:12px; color:var(--text-muted);">
+                            ${escapeHtml(u.first_name || 'Аноним')} ${u.banned ? '🚫' : ''}
+                            <span style="color:var(--text-muted);font-size:10px;">${u.telegram_id}</span>
+                        </label>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+                logError('loadRecipients', e.message);
+            }
+        }
+
+        function toggleRecipients() {
+            const customRadio = document.getElementById('recipientCustom');
+            document.getElementById('customRecipientsContainer').style.display = customRadio.checked ? 'block' : 'none';
+        }
+
+        function getSelectedRecipients() {
+            const type = document.querySelector('input[name="recipientType"]:checked');
+            if (!type) return [];
+            
+            if (type.value === 'all') {
+                return allUsersForBroadcast.map(u => u.telegram_id);
+            } else if (type.value === 'active') {
+                return allUsersForBroadcast.filter(u => u.banned !== true).map(u => u.telegram_id);
+            } else if (type.value === 'custom') {
+                const checkboxes = document.querySelectorAll('.custom-recipient:checked');
+                return Array.from(checkboxes).map(el => el.value);
+            }
+            return [];
+        }
 
         async function handleBroadcastPhotoSelect(event) {
             const file = event.target.files[0];
@@ -1183,7 +1272,7 @@
             document.getElementById('broadcastPhotoPreview').style.display = 'none';
             document.getElementById('broadcastPhotoInput').value = '';
             document.getElementById('broadcastPreviewImg2').style.display = 'none';
-            document.getElementById('broadcastUploadLabel').textContent = 'Добавить фото к рассылке';
+            document.getElementById('broadcastUploadLabel').textContent = 'Добавить фото';
             document.getElementById('broadcastUploadIcon').style.display = 'block';
         }
 
@@ -1191,24 +1280,32 @@
             const text = document.getElementById('broadcastText').value.trim();
             if (!text && !broadcastPhotoDataUrl) { showToast('❌ Введите текст или прикрепите фото'); return; }
             
+            const recipients = getSelectedRecipients();
+            if (recipients.length === 0) { showToast('❌ Нет получателей для рассылки'); return; }
+            
+            if (!confirm(`Отправить сообщение ${recipients.length} пользователям?`)) return;
+            
             const btn = document.getElementById('broadcastBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
             
             try {
-                const users = await fbGet('users');
-                const userIds = users ? Object.keys(users).filter(id => users[id].banned !== true) : [];
+                let sentCount = 0;
+                let failedCount = 0;
                 
-                await fbPost('broadcasts', { 
+                // Сохраняем в историю
+                const broadcastId = 'b' + Date.now();
+                await fbPut(`broadcasts/${broadcastId}`, {
                     text: text || '',
                     image: broadcastPhotoDataUrl || '',
-                    status: 'sent', 
-                    sent_count: userIds.length,
-                    created_at: new Date().toISOString() 
+                    status: 'sent',
+                    recipients_count: recipients.length,
+                    sent_count: 0,
+                    created_at: new Date().toISOString(),
+                    scheduled_for: null
                 });
                 
-                let sentCount = 0;
-                for (const uid of userIds) {
+                for (const uid of recipients) {
                     try {
                         const mid = 'b' + Date.now() + '_' + sentCount;
                         await fbPut(`chats/${uid}/${mid}`, {
@@ -1217,25 +1314,77 @@
                             image: broadcastPhotoDataUrl || '',
                             delivered: false,
                             created_at: new Date().toISOString(),
-                            is_broadcast: true
+                            is_broadcast: true,
+                            broadcast_id: broadcastId
                         });
                         sentCount++;
+                        // Обновляем прогресс каждые 5 сообщений
+                        if (sentCount % 5 === 0) {
+                            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${sentCount}/${recipients.length}`;
+                        }
                     } catch (e) {
+                        failedCount++;
                         console.warn('Не удалось отправить пользователю', uid, e);
                         logError('sendBroadcast', 'Ошибка отправки пользователю ' + uid + ': ' + e.message);
                     }
                 }
                 
-                showToast(`✅ Рассылка отправлена ${sentCount} пользователям!`);
+                // Обновляем историю
+                await fbPatch(`broadcasts/${broadcastId}`, { 
+                    sent_count: sentCount,
+                    failed_count: failedCount,
+                    completed_at: new Date().toISOString()
+                });
+                
+                showToast(`✅ Рассылка отправлена ${sentCount} пользователям! ${failedCount > 0 ? '⚠️ ' + failedCount + ' не доставлено' : ''}`);
                 document.getElementById('broadcastText').value = '';
                 removeBroadcastPhoto();
                 loadBroadcastHistory();
+                loadDashboard();
             } catch (e) {
                 showToast('❌ Ошибка: ' + e.message);
                 logError('sendBroadcast', e.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить всем';
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить сейчас';
+            }
+        }
+
+        async function scheduleBroadcast() {
+            const datetime = document.getElementById('broadcastSchedule').value;
+            if (!datetime) { showToast('❌ Выберите дату и время для отправки'); return; }
+            
+            const text = document.getElementById('broadcastText').value.trim();
+            if (!text && !broadcastPhotoDataUrl) { showToast('❌ Введите текст или прикрепите фото'); return; }
+            
+            const recipients = getSelectedRecipients();
+            if (recipients.length === 0) { showToast('❌ Нет получателей для рассылки'); return; }
+            
+            const scheduleDate = new Date(datetime);
+            if (scheduleDate <= new Date()) { showToast('❌ Дата должна быть в будущем'); return; }
+            
+            if (!confirm(`Запланировать рассылку для ${recipients.length} пользователей на ${scheduleDate.toLocaleString()}?`)) return;
+            
+            try {
+                const broadcastId = 's' + Date.now();
+                await fbPut(`broadcasts/${broadcastId}`, {
+                    text: text || '',
+                    image: broadcastPhotoDataUrl || '',
+                    status: 'scheduled',
+                    recipients_count: recipients.length,
+                    sent_count: 0,
+                    created_at: new Date().toISOString(),
+                    scheduled_for: scheduleDate.toISOString(),
+                    recipients: recipients
+                });
+                
+                showToast(`✅ Рассылка запланирована на ${scheduleDate.toLocaleString()}!`);
+                document.getElementById('broadcastText').value = '';
+                removeBroadcastPhoto();
+                loadBroadcastHistory();
+            } catch (e) {
+                showToast('❌ Ошибка: ' + e.message);
+                logError('scheduleBroadcast', e.message);
             }
         }
 
@@ -1249,16 +1398,31 @@
                     box.innerHTML = '<div class="empty-state"><i class="fas fa-bullhorn"></i>Рассылок пока не было</div>';
                     return;
                 }
-                box.innerHTML = items.slice(0, 15).map(b => `
-                    <div class="glass" style="padding:12px 16px; margin-bottom:8px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span><span class="badge-status badge-paid">✅ Отправлено (${b.sent_count || 0})</span></span>
-                            <span style="color:var(--text-muted); font-size:12px;">${b.created_at ? new Date(b.created_at).toLocaleString() : ''}</span>
+                box.innerHTML = items.slice(0, 20).map(b => {
+                    const statusMap = {
+                        sent: '<span class="badge-status badge-paid">✅ Отправлено</span>',
+                        scheduled: '<span class="badge-status badge-pending">⏳ Запланировано</span>',
+                        failed: '<span class="badge-status badge-cancelled">❌ Ошибка</span>'
+                    };
+                    const sentInfo = b.sent_count !== undefined ? `${b.sent_count}/${b.recipients_count || 0}` : '-';
+                    return `
+                        <div class="glass" style="padding:12px 16px; margin-bottom:8px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span>${statusMap[b.status] || b.status || '—'}</span>
+                                <span style="color:var(--text-muted); font-size:12px;">
+                                    <i class="fas fa-users"></i> ${sentInfo}
+                                    ${b.failed_count ? `⚠️ ${b.failed_count}` : ''}
+                                </span>
+                                <span style="color:var(--text-muted); font-size:11px;">
+                                    ${b.scheduled_for ? '📅 ' + new Date(b.scheduled_for).toLocaleString() : ''}
+                                    ${!b.scheduled_for && b.created_at ? new Date(b.created_at).toLocaleString() : ''}
+                                </span>
+                            </div>
+                            ${b.image ? `<img src="${b.image}" style="max-height:60px;border-radius:6px;margin:6px 0;cursor:pointer;" onclick="window.open('${b.image}','_blank')">` : ''}
+                            <div style="margin-top:4px; font-size:13px; color:var(--text-muted);">${escapeHtml((b.text || '').substring(0, 150))}${(b.text || '').length > 150 ? '...' : ''}</div>
                         </div>
-                        ${b.image ? `<img src="${b.image}" style="max-height:60px;border-radius:6px;margin:6px 0;cursor:pointer;" onclick="window.open('${b.image}','_blank')">` : ''}
-                        <div style="margin-top:4px;">${escapeHtml(b.text || '')}</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (e) {
                 box.innerHTML = '<div class="empty-state" style="color:var(--danger);">Ошибка загрузки</div>';
                 logError('loadBroadcastHistory', e.message);
