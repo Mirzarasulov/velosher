@@ -1031,12 +1031,12 @@
                             </div>
                             <div class="card-bottom-row">
                                 <div class="card-holder-name">
-                                    <span>karta egasi</span>
+                                    <span id="cardHolderLabel">karta egasi</span>
                                     VELOSHER SHOP
                                 </div>
                                 <div style="display:flex; align-items:center; gap:10px;">
                                     <div class="card-cvv">
-                                        <span>cvv</span>
+                                        <span id="cvvLabel">cvv</span>
                                         <div class="cvv-number">***</div>
                                     </div>
                                     <button class="card-copy-btn" onclick="copyCardNumber()">
@@ -1054,7 +1054,7 @@
                         <div class="upload-area" id="uploadArea" onclick="document.getElementById('receiptInput').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <p style="color:var(--text-muted);" id="uploadText">Chekni yuklash uchun bosing</p>
-                            <p style="font-size:12px; color:var(--text-muted);">JPG, PNG</p>
+                            <p style="font-size:12px; color:var(--text-muted);" id="uploadHint">JPG, PNG</p>
                         </div>
                         <input type="file" id="receiptInput" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
                         <div id="filePreview" style="display:none; margin-top:10px;">
@@ -1146,9 +1146,9 @@
 
     <script>
         // ============================================================
-        // 🌍 LANGUAGE — ПОЛНАЯ ЛОКАЛИЗАЦИЯ (100% перевод)
+        // 🌍 LANGUAGE — СОХРАНЕНИЕ В localStorage
         // ============================================================
-        let currentLang = 'uz';
+        let currentLang = localStorage.getItem('velosher_lang') || 'uz';
 
         const translations = {
             uz: {
@@ -1242,6 +1242,9 @@
                 locationClearedShort: '📍 Joylashuv tozalandi',
                 addToCart: '🛒 {name} savatga qo\'shildi!',
                 notAvailable: 'Ko\'proq mavjud emas',
+                cartTitle: 'Savat',
+                checkoutBtn: 'Buyurtma berish',
+                closeCart: 'Yopish',
             },
             ru: {
                 brand: 'Velosher',
@@ -1334,6 +1337,9 @@
                 locationClearedShort: '📍 Локация очищена',
                 addToCart: '🛒 {name} добавлен в корзину!',
                 notAvailable: 'Больше нет в наличии',
+                cartTitle: 'Корзина',
+                checkoutBtn: 'Оформить заказ',
+                closeCart: 'Закрыть',
             }
         };
 
@@ -1349,13 +1355,13 @@
 
         function toggleLanguage() {
             currentLang = currentLang === 'uz' ? 'ru' : 'uz';
+            localStorage.setItem('velosher_lang', currentLang);
             document.getElementById('langToggleBtn').textContent = currentLang === 'uz' ? '🇺🇿 O\'zbek' : '🇷🇺 Русский';
             updateUI();
             showToast(currentLang === 'uz' ? '🌍 Til o\'zgartirildi' : '🌍 Язык изменён');
         }
 
         function updateUI() {
-            // Основные элементы
             document.getElementById('brandName').textContent = t('brand');
             document.getElementById('pcTitle').textContent = t('pcTitle');
             document.getElementById('pcDesc').textContent = t('pcDesc');
@@ -1397,6 +1403,7 @@
             document.getElementById('paymentAlert').textContent = t('paymentAlert');
             document.getElementById('receiptLabel').textContent = t('receipt');
             document.getElementById('uploadText').textContent = t('upload');
+            document.getElementById('uploadHint').textContent = t('uploadHint');
             document.getElementById('deleteLabel').textContent = t('delete');
             document.getElementById('backLabel').textContent = t('back');
             document.getElementById('orderBtnText').textContent = t('order');
@@ -1409,6 +1416,9 @@
             document.getElementById('manualBtnText').textContent = t('manualBtn');
             document.getElementById('manualClose').textContent = t('manualClose');
             document.getElementById('fullscreenHint').textContent = t('fullscreenHint');
+            document.getElementById('cardHolderLabel').textContent = t('cardHolder');
+            document.getElementById('cvvLabel').textContent = t('cvvLabel');
+            document.getElementById('selectedAddress').textContent = t('addressNotSelected');
             
             renderProducts();
             renderCart();
